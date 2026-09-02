@@ -870,7 +870,7 @@ useSeoMeta({
 					<div class="description">
 						<IntlFormatted :message-id="messages.openSourceDescription">
 							<template #github-link="{ children }">
-								<a href="https://github.com/modrinth/code" rel="noopener" target="_blank">
+								<a href="https://github.com/creulcat/modrinthcode" rel="noopener" target="_blank">
 									<component :is="() => children" />
 								</a>
 							</template>

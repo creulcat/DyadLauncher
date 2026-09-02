@@ -41,7 +41,7 @@
 								<template #github-link="{ children }">
 									<AutoLink
 										class="text-link hover:underline"
-										to="https://github.com/modrinth/code/issues"
+										to="https://github.com/creulcat/modrinthcode/issues"
 									>
 										<component :is="() => children" />
 									</AutoLink>

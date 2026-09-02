@@ -12,4 +12,4 @@ This includes, but may not be limited to, the following files:
 
 - src/assets/dark-logo.svg
 - src/assets/light-logo.svg
-- src/public/favicon.ico
+- public/favicon.ico
