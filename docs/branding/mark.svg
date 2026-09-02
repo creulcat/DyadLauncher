@@ -1,0 +1,20 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    Dyad Launcher mark — canonical source.
+    Two overlapping diamonds; the overlap is drawn as its own shape (the
+    computed intersection of the two, not just alpha compositing) so it
+    reads unambiguously darker than either diamond alone.
+    See docs/branding/README.md for how this feeds the rest of the icon set.
+  -->
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#54ff54"/>
+      <stop offset="1" stop-color="#55ffff"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="224" fill="url(#tile)"/>
+  <rect x="6" y="6" width="1012" height="1012" rx="218" fill="none" stroke="#04140f" stroke-opacity="0.16" stroke-width="4"/>
+  <polygon points="381,282 611,512 381,742 151,512" fill="#0b2a22" fill-opacity="0.6"/>
+  <polygon points="643,282 873,512 643,742 413,512" fill="#0b2a22" fill-opacity="0.6"/>
+  <polygon points="512,413 611,512 512,611 413,512" fill="#0b2a22" fill-opacity="0.95"/>
+</svg>

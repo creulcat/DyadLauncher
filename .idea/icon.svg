@@ -1,5 +1,13 @@
 <svg width="512" height="514" viewBox="0 0 512 514" xmlns="http://www.w3.org/2000/svg">
-  <!-- Placeholder project icon. Replace with your own branding. -->
-  <circle cx="256" cy="257" r="220" fill="none" stroke="#9aa0a6" stroke-width="32"/>
-  <path d="M180 257l60 60 92-120" fill="none" stroke="#9aa0a6" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Dyad Launcher mark. See docs/branding/mark.svg for the canonical source. -->
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#54ff54"/>
+      <stop offset="1" stop-color="#55ffff"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="1" width="512" height="512" rx="112" fill="url(#tile)"/>
+  <polygon points="190.5,142 305.5,257 190.5,372 75.5,257" fill="#0b2a22" fill-opacity="0.6"/>
+  <polygon points="321.5,142 436.5,257 321.5,372 206.5,257" fill="#0b2a22" fill-opacity="0.6"/>
+  <polygon points="256,174.75 305.5,257 256,339.25 206.5,257" fill="#0b2a22" fill-opacity="0.95"/>
 </svg>

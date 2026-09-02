@@ -1,5 +1,6 @@
-<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-	<!-- Placeholder icon mark. Replace with your own branding. -->
-	<circle cx="100" cy="100" r="80" fill="none" stroke="#1BD96A" stroke-width="18"/>
-	<path d="M65 100l25 25 45-55" fill="none" stroke="#1BD96A" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+	<!-- Dyad Launcher glyph. Background/glass/tint come from icon.json; see docs/branding/mark-glyph.svg for the source. -->
+	<polygon points="76,58 118,100 76,142 34,100" fill="#000000" fill-opacity="0.6"/>
+	<polygon points="124,58 166,100 124,142 82,100" fill="#000000" fill-opacity="0.6"/>
+	<polygon points="100,70 118,100 100,130 82,100" fill="#000000" fill-opacity="0.95"/>
 </svg>

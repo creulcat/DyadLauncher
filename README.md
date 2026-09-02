@@ -1,11 +1,15 @@
+<p align="center">
+  <img src="docs/branding/mark.svg" alt="" width="96" height="96" />
+</p>
+
 # Dyad Launcher
 
-![Issues](https://img.shields.io/github/issues-raw/creulcat/modrinthcode?color=c78aff&label=issues&style=for-the-badge)
-![Pull Requests](https://img.shields.io/github/issues-pr-raw/creulcat/modrinthcode?color=c78aff&label=PRs&style=for-the-badge)
-![Contributors](https://img.shields.io/github/contributors/creulcat/modrinthcode?color=c78aff&label=contributors&style=for-the-badge)
-![Lines of Code](https://img.shields.io/endpoint?url=https://loctopus.creeperkatze.dev/github/creulcat/modrinthcode/badge?style=flat&logoColor=white&color=c78aff&style=for-the-badge)
-![Commit Activity](https://img.shields.io/github/commit-activity/m/creulcat/modrinthcode?color=c78aff&label=commits&style=for-the-badge)
-![Last Commit](https://img.shields.io/github/last-commit/creulcat/modrinthcode?color=c78aff&label=last%20commit&style=for-the-badge)
+![Issues](https://img.shields.io/github/issues-raw/creulcat/modrinthcode?color=54ff54&label=issues&style=for-the-badge)
+![Pull Requests](https://img.shields.io/github/issues-pr-raw/creulcat/modrinthcode?color=54ff54&label=PRs&style=for-the-badge)
+![Contributors](https://img.shields.io/github/contributors/creulcat/modrinthcode?color=54ff54&label=contributors&style=for-the-badge)
+![Lines of Code](https://img.shields.io/endpoint?url=https://loctopus.creeperkatze.dev/github/creulcat/modrinthcode/badge?style=flat&logoColor=white&color=55ffff&style=for-the-badge)
+![Commit Activity](https://img.shields.io/github/commit-activity/m/creulcat/modrinthcode?color=55ffff&label=commits&style=for-the-badge)
+![Last Commit](https://img.shields.io/github/last-commit/creulcat/modrinthcode?color=55ffff&label=last%20commit&style=for-the-badge)
 
 ## Dyad Launcher
 

@@ -1,0 +1,12 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    Dyad Launcher mark — foreground-glyph variant.
+    No tile/background: for contexts that composite their own background
+    (e.g. macOS Icon Composer's apple.icon format, which supplies the
+    gradient chip and glass/lighting itself). Same twin-diamond geometry
+    as docs/branding/mark.svg, scaled to a 200x200 glyph box.
+  -->
+  <polygon points="76,58 118,100 76,142 34,100" fill="#000000" fill-opacity="0.6"/>
+  <polygon points="124,58 166,100 124,142 82,100" fill="#000000" fill-opacity="0.6"/>
+  <polygon points="100,70 118,100 100,130 82,100" fill="#000000" fill-opacity="0.95"/>
+</svg>
