@@ -32,9 +32,9 @@ fn should_show_ads_webview(state: &AdsState) -> bool {
 const ADS_USER_AGENT: &str = concat!(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ",
     "(KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 ",
-    "ModrinthApp/",
+    "DyadLauncher/",
     env!("CARGO_PKG_VERSION"),
-    " (Modrinth App)",
+    " (Dyad Launcher)",
 );
 
 fn emit_ads_consent_required(required: bool) {

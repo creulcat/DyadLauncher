@@ -62,15 +62,15 @@
 			}
 		]
 	},
-	"productName": "Modrinth App",
+	"productName": "Dyad Launcher",
 	"version": "../app-frontend/package.json",
-	"mainBinaryName": "Modrinth App",
-	"identifier": "ModrinthApp",
+	"mainBinaryName": "Dyad Launcher",
+	"identifier": "DyadLauncher",
 	"plugins": {
 		"deep-link": {
 			"desktop": {
 				"schemes": [
-					"modrinth"
+					"dyadlauncher"
 				]
 			},
 			"mobile": []
@@ -86,7 +86,7 @@
 				"fullscreen": false,
 				"height": 800,
 				"resizable": true,
-				"title": "Modrinth App",
+				"title": "Dyad Launcher",
 				"label": "main",
 				"width": 1280,
 				"minHeight": 700,
