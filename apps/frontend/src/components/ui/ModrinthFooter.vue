@@ -179,7 +179,7 @@ const footerLinks: {
 				}),
 			},
 			{
-				href: 'https://github.com/modrinth/code/issues',
+				href: 'https://github.com/creulcat/modrinthcode/issues',
 				label: defineMessage({
 					id: 'layout.footer.resources.report-issues',
 					defaultMessage: 'Report issues',
@@ -313,7 +313,7 @@ function developerModeIncrement() {
 							<IntlFormatted :message-id="messages.openSource">
 								<template #github-link="{ children }">
 									<a
-										href="https://github.com/modrinth/code"
+										href="https://github.com/creulcat/modrinthcode"
 										class="text-brand hover:underline"
 										target="_blank"
 										rel="noopener"
