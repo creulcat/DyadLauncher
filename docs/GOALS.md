@@ -43,8 +43,31 @@ Remove:
 
 Explicitly **keep** Discord Rich Presence, but revisit/tweak its behavior (specifics TBD).
 
+### 4. Auto-update mechanism
+
+The desktop app's auto-update mechanism (`tauri-plugin-updater`, wired up in
+`apps/app/src/updater_impl.rs`) is only compiled in behind the `updater` Cargo feature, and is only
+pointed at a real endpoint via `apps/app/tauri-release.conf.json`, which targets Modrinth's own
+update feed (`https://launcher-files.modrinth.com/updates.json`) and Modrinth's signing pubkey.
+
+**Phase 1 — near-term, active:** Disable Modrinth's updater for this fork. A plain local build
+already excludes it (feature-gated), but this fork's own release/CI pipeline must not reuse
+`tauri-release.conf.json` as-is — it should never check against or advertise itself to Modrinth's
+update infrastructure using Modrinth's endpoint/pubkey.
+
+- Known tradeoff: without any updater active, users of the fork get no in-app notice of new fork
+  releases and must check manually (e.g. GitHub releases) until phase 2 lands.
+
+**Phase 2 — future, not yet scoped:** Build a fork-owned auto-updater that is **opt-in** (off by
+default) and backed by **GitHub Releases** instead of Modrinth's infrastructure. This needs its own
+design pass later — at minimum: this fork's own signing keypair, an update manifest generated from
+GitHub Releases (or a compatible static feed), and a user-facing setting to turn it on. Not
+started, no implementation timeline yet.
+
 ## Status
 
-All four goals above are agreed direction as of 2026-09-02; none are implemented yet. This
-document should be updated as scope changes — treat it as the source of truth for what this fork
-is trying to do, ahead of any individual issue or PR.
+Goals 1-3 were agreed direction as of 2026-09-02; goal 4 was added on 2026-09-04, with only its
+phase 1 (disabling Modrinth's updater) currently active — phase 2 (the opt-in GitHub-Releases
+updater) is a future idea, not yet scoped or started. None of the four goals are implemented yet.
+This document should be updated as scope changes — treat it as the source of truth for what this
+fork is trying to do, ahead of any individual issue or PR.

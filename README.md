@@ -34,6 +34,8 @@ This fork's focus is entirely the desktop launcher (`apps/app`, `apps/app-fronte
    worlds between instances via configurable symlinks.
 3. **Debloating** — strip telemetry/analytics, account/login promos & ads, and news/social panels
    from the desktop app, while keeping (and tuning) Discord Rich Presence.
+4. **Auto-updates** — disable Modrinth's own update checks for this fork; a fork-owned, opt-in
+   updater backed by GitHub Releases may come later.
 
 Full detail and known tradeoffs are in [docs/GOALS.md](docs/GOALS.md).
 
