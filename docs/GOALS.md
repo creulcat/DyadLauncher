@@ -50,10 +50,21 @@ The desktop app's auto-update mechanism (`tauri-plugin-updater`, wired up in
 pointed at a real endpoint via `apps/app/tauri-release.conf.json`, which targets Modrinth's own
 update feed (`https://launcher-files.modrinth.com/updates.json`) and Modrinth's signing pubkey.
 
-**Phase 1 — near-term, active:** Disable Modrinth's updater for this fork. A plain local build
-already excludes it (feature-gated), but this fork's own release/CI pipeline must not reuse
-`tauri-release.conf.json` as-is — it should never check against or advertise itself to Modrinth's
-update infrastructure using Modrinth's endpoint/pubkey.
+**Phase 1 — done:** `apps/app/tauri-release.conf.json` no longer enables the `updater` Cargo
+feature/capability or the `plugins.updater` block, so this fork's release builds never compile in
+or point at Modrinth's update endpoint/pubkey — they behave the same as a plain local build in this
+respect. `.github/workflows/theseus-build.yml`'s Windows step was updated to stop requesting the
+now-unconfigured `updater` bundle target. `.github/workflows/theseus-release.yml` (which uploads
+signed update manifests to Modrinth's own S3 bucket) was left untouched — it already can't run
+meaningfully here (no Modrinth secrets in this fork's repo) and rebranding/reworking the fork's own
+release-publishing pipeline is separate, unscoped follow-up work.
+
+A second, independent check also had to be removed: `apps/app-frontend/src/App.vue` had a
+`checkLinuxUpdates()` fallback that did a raw `fetch('https://launcher-files.modrinth.com/updates.json')`
+whenever `areUpdatesEnabled()` was false on Linux — i.e. it was written to activate in exactly the
+"updater feature disabled" state this phase now puts every platform in. It has been deleted (call
+site, function, and its now-unused `linuxBody` i18n message) so no code path hits Modrinth's update
+endpoint any more.
 
 - Known tradeoff: without any updater active, users of the fork get no in-app notice of new fork
   releases and must check manually (e.g. GitHub releases) until phase 2 lands.
@@ -66,8 +77,8 @@ started, no implementation timeline yet.
 
 ## Status
 
-Goals 1-3 were agreed direction as of 2026-09-02; goal 4 was added on 2026-09-04, with only its
-phase 1 (disabling Modrinth's updater) currently active — phase 2 (the opt-in GitHub-Releases
-updater) is a future idea, not yet scoped or started. None of the four goals are implemented yet.
-This document should be updated as scope changes — treat it as the source of truth for what this
-fork is trying to do, ahead of any individual issue or PR.
+Goals 1-3 were agreed direction as of 2026-09-02; goal 4 was added on 2026-09-04. Goal 4's phase 1
+(disabling Modrinth's updater) is implemented as of 2026-09-04 — phase 2 (the opt-in GitHub-Releases
+updater) is a future idea, not yet scoped or started. Goals 1-3 are not implemented yet. This
+document should be updated as scope changes — treat it as the source of truth for what this fork is
+trying to do, ahead of any individual issue or PR.
