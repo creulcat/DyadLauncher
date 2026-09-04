@@ -3,7 +3,7 @@ import { ImportIcon, PlusIcon } from '@modrinth/assets'
 import { Button, defineMessages, IntlFormatted, useVIntl } from '@modrinth/ui'
 import { inject, onMounted, onUnmounted, ref } from 'vue'
 
-import dyadMark from '../../assets/welcome/dyad-mark.svg'
+import dyadMark from '../../assets/welcome/dyad-mark.svg?url'
 
 const showCreationModal = inject<() => void>('showCreationModal')
 const showImportModal = inject<() => void>('showImportModal')
@@ -13,7 +13,7 @@ const { formatMessage } = useVIntl()
 const messages = defineMessages({
 	welcomeTitle: {
 		id: 'app.welcome-screen.title',
-		defaultMessage: 'Welcome to Modrinth',
+		defaultMessage: 'Welcome to Dyad',
 	},
 	welcomeDescription: {
 		id: 'app.welcome-screen.description',

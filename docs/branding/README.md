@@ -11,6 +11,12 @@
 - `apps/app/icons/apple.icon/Assets/logo.svg` + `icon.json` (macOS/watchOS layered icon)
 - `.idea/icon.svg` (JetBrains project icon)
 - `apps/app-frontend/src/assets/welcome/dyad-mark.svg` (in-app welcome screen)
+- `apps/app-frontend/src/components/ui/SplashScreen.vue` (app launch splash — inlines the same mark,
+  next to plain "Dyad Launcher" text; previously this hardcoded Modrinth's actual wordmark+icon as
+  raw SVG path data)
+- `packages/ui/src/components/brand/TextLogo.vue` (titlebar wordmark, used by both the desktop app
+  and the web frontend header/footer — inlines the mark next to "Dyad" text; previously a generic
+  "PROJECT" placeholder with an unrelated ring/checkmark icon)
 
 ## Regenerating the rest
 
