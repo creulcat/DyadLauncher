@@ -13,10 +13,27 @@ but Windows behavior is what gets prioritized and tested first.
 
 ## Goals
 
-### 1. Concurrent multi-account launches
+### 1. Concurrent multi-account launches — done
 
 Allow the same instance to be launched more than once at a time, each under a different
 Microsoft account, as long as the instance has opted into this via a per-instance setting.
+
+**Implemented as of 2026-09-04:** a per-instance `allow_concurrent_launches` setting (off by
+default) was added to `InstanceLaunchOverrides`
+(`packages/app-lib/src/state/instances/model/launch.rs`), editable through the existing
+`edit_instance` patch flow. When set, `launch_minecraft`
+(`packages/app-lib/src/launcher/mod.rs`) skips its "instance already running" checks instead of
+rejecting the launch. The setting has a toggle in the instance's General settings tab, with the
+tradeoffs below spelled out in its description.
+
+Account selection deliberately reuses the existing global "active account" switcher
+(`AccountsCard.vue`) rather than adding a dedicated per-launch account picker: to run a second
+copy, switch the active account, then launch again. Nothing tracks which account launched which
+running process, so the app does not stop you from (accidentally) launching the same account
+twice — this was a deliberate scope cut, not an oversight. Because the main Play/Stop button
+hides Play once an instance is playing, the second launch is triggered from the library grid's
+right-click menu ("Launch another copy") or the instance page's "More actions" overflow menu,
+both of which only offer it when the instance has opted in.
 
 - Concurrent launches point at the **same instance folder** (not per-account cloned folders).
 - Known tradeoff, accepted deliberately: `logs/latest.log`, `usercache.json`, and crash reports
@@ -77,8 +94,9 @@ started, no implementation timeline yet.
 
 ## Status
 
-Goals 1-3 were agreed direction as of 2026-09-02; goal 4 was added on 2026-09-04. Goal 4's phase 1
+Goals 1-3 were agreed direction as of 2026-09-02; goal 4 was added on 2026-09-04. Goal 1
+(concurrent multi-account launches) is implemented as of 2026-09-04. Goal 4's phase 1
 (disabling Modrinth's updater) is implemented as of 2026-09-04 — phase 2 (the opt-in GitHub-Releases
-updater) is a future idea, not yet scoped or started. Goals 1-3 are not implemented yet. This
+updater) is a future idea, not yet scoped or started. Goals 2-3 are not implemented yet. This
 document should be updated as scope changes — treat it as the source of truth for what this fork is
 trying to do, ahead of any individual issue or PR.

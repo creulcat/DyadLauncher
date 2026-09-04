@@ -83,6 +83,7 @@ pub struct InstanceLaunchOverridesPatch {
     pub game_resolution: Option<Option<WindowSize>>,
     pub hooks: Option<Hooks>,
     pub visible_tabs: Option<InstanceTabVisibility>,
+    pub allow_concurrent_launches: Option<bool>,
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -302,6 +303,9 @@ fn apply_launch_overrides_patch(
     }
     if let Some(visible_tabs) = patch.visible_tabs {
         overrides.visible_tabs = visible_tabs;
+    }
+    if let Some(allow_concurrent_launches) = patch.allow_concurrent_launches {
+        overrides.allow_concurrent_launches = allow_concurrent_launches;
     }
 
     overrides

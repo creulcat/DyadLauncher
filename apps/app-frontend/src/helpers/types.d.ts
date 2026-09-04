@@ -48,6 +48,7 @@ export type GameInstance = {
 		worlds: boolean
 		screenshots: boolean
 	}
+	allow_concurrent_launches: boolean
 }
 
 export type IconBackground =

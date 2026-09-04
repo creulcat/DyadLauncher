@@ -126,6 +126,10 @@ type IconEditorModal = {
 
 const instanceActionMessages = defineMessages({
 	play: { id: 'app.library.instance.action.play', defaultMessage: 'Play' },
+	launchAnotherCopy: {
+		id: 'app.library.instance.action.launch-another-copy',
+		defaultMessage: 'Launch another copy',
+	},
 	stop: { id: 'app.library.instance.action.stop', defaultMessage: 'Stop' },
 	addToFavorites: {
 		id: 'app.library.instance.action.add-to-favorites',
@@ -1278,9 +1282,12 @@ function createLibraryState(instances: Ref<GameInstance[]>) {
 			},
 			{
 				id: 'play',
-				label: formatMessage(instanceActionMessages.play),
+				label: formatMessage(
+					item.playing ? instanceActionMessages.launchAnotherCopy : instanceActionMessages.play,
+				),
 				icon: PlayIcon,
-				shown: !item.playing && !item.instance.quarantined,
+				shown:
+					(!item.playing || item.instance.allow_concurrent_launches) && !item.instance.quarantined,
 				tone: 'brand',
 				action: () => void item.play(null, 'InstanceGridContextMenu'),
 			},

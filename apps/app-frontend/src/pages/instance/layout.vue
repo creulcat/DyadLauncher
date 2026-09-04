@@ -605,7 +605,8 @@ function handleSharedInstanceUpdateComplete(successful: boolean) {
 
 const startInstance = async (context: string) => {
 	if (!instance.value || instance.value.quarantined) return
-	if (checkingSharedInstanceLaunch.value || loading.value || playing.value) return
+	if (checkingSharedInstanceLaunch.value || loading.value) return
+	if (playing.value && !instance.value.allow_concurrent_launches) return
 
 	const instanceId = instance.value.id
 	const isSharedInstanceMember = instance.value.shared_instance?.role === 'member'

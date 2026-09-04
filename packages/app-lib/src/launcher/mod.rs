@@ -927,17 +927,23 @@ pub async fn launch_minecraft(
     let _instance_content_lock =
         state.lock_instance_content(&instance.id).await;
 
-    // Check if instance has a running process, and reject running the command if it does
+    // Check if instance has a running process, and reject running the command if it does,
+    // unless this instance has opted into concurrent multi-account launches.
     // Done late so a quick double call doesn't launch two instances
     let existing_processes = process::get_by_instance_id(&instance.id).await?;
-    if let Some(process) = existing_processes.first() {
+    if let Some(process) = existing_processes.first()
+        && !context.launch_overrides.allow_concurrent_launches
+    {
         return Err(crate::ErrorKind::LauncherError(format!(
             "Instance {} is already running as process {}",
             instance.id, process.uuid
         ))
         .as_error());
     }
-    if crate::state::instance_has_running_process(&instance.id, &state).await? {
+    if !context.launch_overrides.allow_concurrent_launches
+        && crate::state::instance_has_running_process(&instance.id, &state)
+            .await?
+    {
         return Err(crate::ErrorKind::LauncherError(format!(
             "Instance {} is already running",
             instance.id

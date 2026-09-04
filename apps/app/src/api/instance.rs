@@ -142,6 +142,7 @@ pub struct Instance {
     pub game_resolution: Option<WindowSize>,
     pub hooks: Hooks,
     pub visible_tabs: InstanceTabVisibility,
+    pub allow_concurrent_launches: bool,
 }
 
 #[derive(Serialize, Debug, Clone)]
@@ -283,6 +284,7 @@ pub struct EditInstance {
     pub game_resolution: Option<Option<WindowSize>>,
     pub hooks: Option<Hooks>,
     pub visible_tabs: Option<InstanceTabVisibility>,
+    pub allow_concurrent_launches: Option<bool>,
 }
 
 impl From<InstanceMetadata> for Instance {
@@ -322,6 +324,9 @@ impl From<InstanceMetadata> for Instance {
             game_resolution: metadata.launch_overrides.game_resolution,
             hooks: metadata.launch_overrides.hooks,
             visible_tabs: metadata.launch_overrides.visible_tabs,
+            allow_concurrent_launches: metadata
+                .launch_overrides
+                .allow_concurrent_launches,
         }
     }
 }
@@ -491,6 +496,7 @@ fn edit_to_core(edit_instance: EditInstance) -> Result<CoreEditInstance> {
             game_resolution: edit_instance.game_resolution,
             hooks: edit_instance.hooks,
             visible_tabs: edit_instance.visible_tabs,
+            allow_concurrent_launches: edit_instance.allow_concurrent_launches,
         }),
         content_set_patch: Some(AppliedContentSetPatch {
             source_kind: None,

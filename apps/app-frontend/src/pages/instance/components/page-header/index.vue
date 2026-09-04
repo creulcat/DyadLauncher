@@ -224,6 +224,10 @@ const messages = defineMessages({
 		id: 'instance.action.launch-instance',
 		defaultMessage: 'Launch instance',
 	},
+	launchAnotherCopy: {
+		id: 'instance.action.launch-another-copy',
+		defaultMessage: 'Launch another copy',
+	},
 	moreActions: {
 		id: 'instance.action.more-actions',
 		defaultMessage: 'More actions',
@@ -359,14 +363,23 @@ const serverPlayOptions = computed<ButtonMenuOption[]>(() => [
 	},
 ])
 const moreActions = computed<ButtonMenuOption[]>(() => {
-	const actions: ButtonMenuOption[] = [
-		{
-			id: 'open-folder',
-			label: formatMessage(messages.openFolder),
-			icon: FolderOpenIcon,
-			action: () => emit('openFolder'),
-		},
-	]
+	const actions: ButtonMenuOption[] = []
+
+	if (props.playing && props.instance.allow_concurrent_launches && !props.instance.quarantined) {
+		actions.push({
+			id: 'launch-another-copy',
+			label: formatMessage(messages.launchAnotherCopy),
+			icon: PlayIcon,
+			action: () => emit('play'),
+		})
+	}
+
+	actions.push({
+		id: 'open-folder',
+		label: formatMessage(messages.openFolder),
+		icon: FolderOpenIcon,
+		action: () => emit('openFolder'),
+	})
 
 	if (!props.instance.quarantined) {
 		actions.push(

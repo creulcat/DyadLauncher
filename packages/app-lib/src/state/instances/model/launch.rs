@@ -31,6 +31,9 @@ pub struct InstanceLaunchOverrides {
     pub game_resolution: Option<WindowSize>,
     pub hooks: Hooks,
     pub visible_tabs: InstanceTabVisibility,
+    /// Opt-in: allow this instance to be launched more than once at a time,
+    /// each under a different account, pointed at the same instance folder.
+    pub allow_concurrent_launches: bool,
 }
 
 impl InstanceLaunchOverrides {
@@ -49,6 +52,7 @@ impl InstanceLaunchOverrides {
                 post_exit: None,
             },
             visible_tabs: InstanceTabVisibility::default(),
+            allow_concurrent_launches: false,
         }
     }
 }
@@ -71,6 +75,8 @@ pub(crate) struct InstanceLaunchOverridesData {
     pub hooks: Hooks,
     #[serde(default)]
     pub visible_tabs: InstanceTabVisibility,
+    #[serde(default)]
+    pub allow_concurrent_launches: bool,
 }
 
 impl InstanceLaunchOverridesData {
@@ -88,6 +94,7 @@ impl InstanceLaunchOverridesData {
             game_resolution: self.game_resolution,
             hooks: self.hooks,
             visible_tabs: self.visible_tabs,
+            allow_concurrent_launches: self.allow_concurrent_launches,
         }
     }
 }
@@ -103,6 +110,7 @@ impl From<&InstanceLaunchOverrides> for InstanceLaunchOverridesData {
             game_resolution: overrides.game_resolution,
             hooks: overrides.hooks.clone(),
             visible_tabs: overrides.visible_tabs,
+            allow_concurrent_launches: overrides.allow_concurrent_launches,
         }
     }
 }
