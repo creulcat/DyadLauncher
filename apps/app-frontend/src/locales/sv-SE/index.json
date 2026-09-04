@@ -162,7 +162,7 @@
     "message": "Hoppa in i världar eller instanser"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Minimera Modrinth App när Minecraft startar."
+    "message": "Minimera Dyad Launcher när Minecraft startar."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Minimera app"
@@ -318,7 +318,7 @@
     "message": "Visa instans"
   },
   "app.hosting.update-required.description": {
-    "message": "Du behöver uppdatera för att använda Modrinth Hosting genom Modrinth App"
+    "message": "Du behöver uppdatera för att använda Modrinth Hosting genom Dyad Launcher"
   },
   "app.hosting.update-required.download": {
     "message": "Ladda ner för att uppdatera"
@@ -327,7 +327,7 @@
     "message": "Exalterad Modrinth-bot"
   },
   "app.hosting.update-required.title": {
-    "message": "Modrinth App-uppdatering krävs"
+    "message": "Dyad Launcher-uppdatering krävs"
   },
   "app.icon-editor.apply-icons-modal.apply-error": {
     "message": "Kunde inte tillämpa slumpmässiga ikoner till instanser."
@@ -1248,7 +1248,7 @@
     "message": "Startar om..."
   },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "Dyad Launcher {version}"
   },
   "app.settings.default-instance-options.environment-variables.placeholder": {
     "message": "Ange miljövariabler..."
@@ -1317,7 +1317,7 @@
     "message": "Reklam gör Modrinth möjligt och finansierar utbetalningar till skapare. Våra partner kan lagra eller komma åt kakor i appen för att rikta reklam och mäta statistik. Du kan välja bort eller hantera dina preferenser nedan."
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Visa Modrinth App som din nuvarande aktivitet på Discord. Detta påverkar inte Rich Presence som lagts till i instanser av moddar. Kräver en app omstart."
+    "message": "Visa Dyad Launcher som din nuvarande aktivitet på Discord. Detta påverkar inte Rich Presence som lagts till i instanser av moddar. Kräver en app omstart."
   },
   "app.settings.privacy.telemetry.description": {
     "message": "Modrinth samlar in anonymiserad statistik och användningsdata för att förbättra vår användarupplevelse och anpassa din upplevelse. Genom att inaktivera det här alternativet avanmäler du dig och din data kommer inte längre samlas in."
@@ -1356,7 +1356,7 @@
     "message": "Bläddra efter en appmapp"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "Var Modrinth App lagrar instanser och andra filer. Ändringar tar effekt efter appen startas om."
+    "message": "Var Dyad Launcher lagrar instanser och andra filer. Ändringar tar effekt efter appen startas om."
   },
   "app.settings.resource-management.app-directory.select": {
     "message": "Välj en ny appmapp"
@@ -1554,13 +1554,13 @@
     "message": "Hej där Modrinth-användare!"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} har laddats ner. Ladda om för att uppdatera nu, eller automatiskt när du stänger Modrinth App."
+    "message": "Dyad Launcher v{version} har laddats ner. Ladda om för att uppdatera nu, eller automatiskt när du stänger Dyad Launcher."
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App v{version} är tillgänglig. Använd din pakethanterare för att uppdatera och få tillgång till de senaste funktionerna och buggfixarna!"
+    "message": "Dyad Launcher v{version} är tillgänglig. Använd din pakethanterare för att uppdatera och få tillgång till de senaste funktionerna och buggfixarna!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} är nu tillgänglig! Eftersom du använder ett nätverk med datatrafikbegränsningar har vi inte laddat ner det automatiskt."
+    "message": "Dyad Launcher v{version} är nu tillgänglig! Eftersom du använder ett nätverk med datatrafikbegränsningar har vi inte laddat ner det automatiskt."
   },
   "app.update-popup.changelog": {
     "message": "Ändringslogg"
@@ -1737,7 +1737,7 @@
     "message": "Avlänka delad instans"
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "Det här raderar den delade instansen från Modrinths servrar. De som använder den i Modrinth App kommer inte längre få uppdateringar, men din lokala instans och dess innehåll är kvar på den här enheten."
+    "message": "Det här raderar den delade instansen från Modrinths servrar. De som använder den i Dyad Launcher kommer inte längre få uppdateringar, men din lokala instans och dess innehåll är kvar på den här enheten."
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-header": {
     "message": "Avpublicerar delad instans"

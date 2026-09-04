@@ -282,7 +282,7 @@ const messages = defineMessages({
 	},
 	appVersion: {
 		id: 'app.settings.app-version',
-		defaultMessage: 'Modrinth App {version}',
+		defaultMessage: 'Dyad Launcher {version}',
 	},
 	macos: {
 		id: 'app.settings.operating-system.macos',

@@ -351,7 +351,7 @@
     "message": "إغلاق"
   },
   "app.icon-editor.apply-icons-modal.description": {
-    "message": "أنشئ أيقونات مخصصة لنسخك مباشرةً في Modrinth App. امزج بين الخلفيات والرموز من Minecraft والمودات الشائعة!"
+    "message": "أنشئ أيقونات مخصصة لنسخك مباشرةً في Dyad Launcher. امزج بين الخلفيات والرموز من Minecraft والمودات الشائعة!"
   },
   "app.icon-editor.apply-icons-modal.instances-without-icons": {
     "message": "{count, plural, one {# نسخة لا تحتوي} two {# نسختان لا تحتويان} few {# نسخ لا تحتوي} many {# نسخة لا تحتوي} other {# نسخة لا تحتوي}} على أيقونات بعد. هل تريد منا تعيين أيقونات عشوائية لـ{count, plural, one {نسخة واحدة} two {نسختين} few {# نسخ} many {# نسخة} other {# نسخة}} للبدء؟"
@@ -1596,7 +1596,7 @@
     "message": "انتهى تنزيل تطبيق Modrinth v{version}. أعد التحميل للتحديث الآن، أو تلقائيًا عند إغلاق تطبيق Modrinth."
   },
   "app.update-popup.body.linux": {
-    "message": "يتوفر الآن Modrinth App v{version}. استخدم مدير الحزم لتحديث التطبيق والحصول على أحدث الميزات والإصلاحات!"
+    "message": "يتوفر الآن Dyad Launcher v{version}. استخدم مدير الحزم لتحديث التطبيق والحصول على أحدث الميزات والإصلاحات!"
   },
   "app.update-popup.body.metered": {
     "message": "تطبيق Modrinth v{version} متاح الآن! وبما أنك متصل بشبكة مقيّدة، لم نقم بتنزيله تلقائيًا."
