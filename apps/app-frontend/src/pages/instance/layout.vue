@@ -44,8 +44,8 @@
 				:ping="ping"
 				:minecraft-server="minecraftServer"
 				@repair="() => repairInstance()"
-				@stop="() => stopInstance('InstancePage')"
-				@play="() => startInstance('InstancePage')"
+				@stop="() => stopInstance()"
+				@play="() => startInstance()"
 				@play-server="() => handlePlayServer()"
 				@settings="() => settingsModal?.show()"
 				@open-folder="() => instance && showInstanceInFolder(instance.id)"
@@ -128,7 +128,6 @@ import { useAppEvent } from '@/composables/use-app-event'
 import { useAppSettings } from '@/composables/use-app-settings.ts'
 import { handleSevereError } from '@/composables/use-error.js'
 import { useInstanceConsole } from '@/composables/useInstanceConsole'
-import { trackEvent } from '@/helpers/analytics'
 import { toError } from '@/helpers/errors'
 import {
 	getSharedInstanceUnavailableReason,
@@ -544,7 +543,7 @@ watch(
 
 const options = ref<InstanceType<typeof ContextMenu> | null>(null)
 
-const launchInstance = async (context: string) => {
+const launchInstance = async () => {
 	if (!instance.value || instance.value.quarantined) return
 	const currentInstance = instance.value
 	loading.value = true
@@ -557,11 +556,6 @@ const launchInstance = async (context: string) => {
 	loading.value = false
 
 	if (!instance.value) return
-	trackEvent('InstanceStart', {
-		loader: instance.value.loader,
-		game_version: instance.value.game_version,
-		source: context,
-	})
 }
 
 async function handleSharedInstanceUnavailable(
@@ -603,7 +597,7 @@ function handleSharedInstanceUpdateComplete(successful: boolean) {
 	}
 }
 
-const startInstance = async (context: string) => {
+const startInstance = async () => {
 	if (!instance.value || instance.value.quarantined) return
 	if (checkingSharedInstanceLaunch.value || loading.value) return
 	if (playing.value && !instance.value.allow_concurrent_launches) return
@@ -633,7 +627,7 @@ const startInstance = async (context: string) => {
 		if (preview?.updateAvailable && sharedInstanceUpdateModal.value) {
 			sharedInstanceUpdateModal.value.show(instance.value, preview, async () => {
 				await refreshInstance()
-				await launchInstance(context)
+				await launchInstance()
 			})
 			return
 		}
@@ -643,7 +637,7 @@ const startInstance = async (context: string) => {
 		if (isSharedInstanceMember) {
 			updateToPlayModal.value.show(instance.value, null, async () => {
 				await refreshInstance()
-				await launchInstance(context)
+				await launchInstance()
 			})
 		} else {
 			updateToPlayModal.value.show(instance.value)
@@ -651,22 +645,16 @@ const startInstance = async (context: string) => {
 		return
 	}
 
-	await launchInstance(context)
+	await launchInstance()
 }
 
-const stopInstance = async (context: string) => {
+const stopInstance = async () => {
 	const currentInstance = instance.value
 	if (!currentInstance) return
 	stopping.value = true
 	await kill(currentInstance.id).catch((error) => handleError(toError(error)))
 	stopping.value = false
 	queryClient.setQueryData(instanceKeys.processes(currentInstance.id), [])
-
-	trackEvent('InstanceStop', {
-		loader: currentInstance.loader,
-		game_version: currentInstance.game_version,
-		source: context,
-	})
 }
 
 const handlePlayServer = async () => {
@@ -775,10 +763,6 @@ async function deleteSelectedInstance() {
 	selectedInstanceToDelete.value = null
 	if (!selectedInstance) return
 
-	trackEvent('InstanceRemove', {
-		loader: selectedInstance.loader,
-		game_version: selectedInstance.game_version,
-	})
 	await router.push({ path: '/' })
 	await remove(selectedInstance.id).catch((error) => handleError(toError(error)))
 }
@@ -793,7 +777,7 @@ const handleRightClick = (event: MouseEvent) => {
 			icon: StopCircleIcon,
 			shown: playing.value,
 			tone: 'red',
-			action: () => void stopInstance('InstancePageContextMenu'),
+			action: () => void stopInstance(),
 		},
 		{
 			id: 'play',
@@ -801,7 +785,7 @@ const handleRightClick = (event: MouseEvent) => {
 			icon: PlayIcon,
 			shown: !playing.value && canAddContent,
 			tone: 'brand',
-			action: () => void startInstance('InstancePageContextMenu'),
+			action: () => void startInstance(),
 		},
 		{
 			id: 'add_content',

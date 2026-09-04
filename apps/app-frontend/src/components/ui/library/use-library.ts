@@ -30,7 +30,6 @@ import {
 	watchEffect,
 } from 'vue'
 
-import { trackEvent } from '@/helpers/analytics'
 import { get_project_v3_many } from '@/helpers/cache.js'
 import { toError } from '@/helpers/errors'
 import { install_duplicate_instance } from '@/helpers/install'
@@ -46,7 +45,7 @@ import {
 	set_group_memberships as setInstanceGroupMemberships,
 	set_group_order as setInstanceGroupOrder,
 } from '@/helpers/instance-groups'
-import type { GameInstance, InstanceIconConfig } from '@/helpers/types'
+import type { GameInstance } from '@/helpers/types'
 
 export const librarySortOptions = [
 	'Name',
@@ -105,8 +104,8 @@ export const getLibraryInstanceSelectionKey = ({ instanceId, groupId }: LibraryI
 export type InstanceCard = {
 	instance: GameInstance
 	playing: boolean
-	play: (event: MouseEvent | null, context: string) => Promise<void>
-	stop: (event: MouseEvent | null, context: string) => Promise<void>
+	play: (event: MouseEvent | null) => Promise<void>
+	stop: (event: MouseEvent | null) => Promise<void>
 	addContent: () => Promise<void>
 	seeInstance: () => Promise<void>
 	openFolder: () => Promise<void>
@@ -1196,7 +1195,6 @@ function createLibraryState(instances: Ref<GameInstance[]>) {
 
 		try {
 			await edit_icon(item.instance.id, iconPath)
-			trackEvent('InstanceSetIcon')
 		} catch (error) {
 			handleError(toError(error))
 		}
@@ -1205,7 +1203,6 @@ function createLibraryState(instances: Ref<GameInstance[]>) {
 	const removeInstanceIcon = async (item: InstanceCard) => {
 		try {
 			await edit_icon(item.instance.id, null)
-			trackEvent('InstanceRemoveIcon')
 		} catch (error) {
 			handleError(toError(error))
 		}
@@ -1215,11 +1212,6 @@ function createLibraryState(instances: Ref<GameInstance[]>) {
 		currentIconEditorInstanceId.value = item.instance.id
 		await nextTick()
 		iconEditorModal.value?.show()
-		trackEvent(item.instance.icon_config ? 'InstanceEditCreatedIcon' : 'InstanceCreateIcon')
-	}
-
-	const handleInstanceIconSaved = (_iconPath: string, _config: InstanceIconConfig) => {
-		trackEvent('InstanceSaveCreatedIcon')
 	}
 
 	const setInstanceGroups = async (item: InstanceCard, groupIds: string[]) =>
@@ -1278,7 +1270,7 @@ function createLibraryState(instances: Ref<GameInstance[]>) {
 				icon: StopCircleIcon,
 				shown: item.playing,
 				tone: 'red',
-				action: () => void item.stop(null, 'InstanceGridContextMenu'),
+				action: () => void item.stop(null),
 			},
 			{
 				id: 'play',
@@ -1289,7 +1281,7 @@ function createLibraryState(instances: Ref<GameInstance[]>) {
 				shown:
 					(!item.playing || item.instance.allow_concurrent_launches) && !item.instance.quarantined,
 				tone: 'brand',
-				action: () => void item.play(null, 'InstanceGridContextMenu'),
+				action: () => void item.play(null),
 			},
 			{
 				id: isFavorite ? 'remove_from_favorites' : 'add_to_favorites',
@@ -1440,7 +1432,6 @@ function createLibraryState(instances: Ref<GameInstance[]>) {
 		moveGroup,
 		deleteInstance,
 		handleInstanceContextMenu,
-		handleInstanceIconSaved,
 	}
 }
 

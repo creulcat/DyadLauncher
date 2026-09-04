@@ -1,4 +1,3 @@
-use super::content::get_projects;
 use crate::server_address::ServerAddress;
 use crate::state::{
     Credentials, InstanceLink, ProcessMetadata, Settings, State,
@@ -6,10 +5,9 @@ use crate::state::{
 use crate::util::fetch;
 use crate::util::io::IOError;
 use serde_json::json;
-use std::collections::HashMap;
 use std::time::Duration;
 use tokio::process::Command;
-use tracing::{info, warn};
+use tracing::warn;
 
 #[derive(Debug, Clone)]
 pub enum QuickPlayType {
@@ -234,31 +232,7 @@ async fn run_credentials(
 			.await;
 
         match join_result {
-            Ok(resp) if resp.status().is_success() => {
-                let result = fetch::post_json(
-                    concat!(
-                        env!("MODRINTH_API_BASE_URL"),
-                        "analytics/minecraft-server-play"
-                    ),
-                    json!({
-                        "project_id": project_id,
-                        "username": &credentials.offline_profile.name,
-                        "server_id": &server_id,
-                    }),
-                    &state.api_semaphore,
-                    &state.pool,
-                )
-                .await;
-
-                match result {
-                    Ok(()) => {
-                        info!(
-                            "Tracked server play for '{project_id}' in analytics"
-                        )
-                    }
-                    Err(err) => warn!("Failed to report server play: {err:?}"),
-                }
-            }
+            Ok(resp) if resp.status().is_success() => {}
             Ok(resp) => warn!(
                 "Failed to join Mojang session server: HTTP {}",
                 resp.status()
@@ -327,57 +301,11 @@ pub async fn try_update_playtime_by_instance_id(
             ))
         })?;
     let updated_recent_playtime = context.instance.recent_time_played;
-    let res = if updated_recent_playtime > 0 {
-        let modrinth_pack_version_id = match &context.link {
-            InstanceLink::ModrinthModpack { version_id, .. }
-            | InstanceLink::ServerProjectModpack {
-                content_version_id: version_id,
-                ..
-            }
-            | InstanceLink::ImportedModpack {
-                version_id: Some(version_id),
-                ..
-            } => Some(version_id.clone()),
-            InstanceLink::Unmanaged
-            | InstanceLink::ServerProject { .. }
-            | InstanceLink::ModrinthHosting { .. }
-            | InstanceLink::ImportedModpack { .. }
-            | InstanceLink::SharedInstance { .. } => None,
-        };
-        let playtime_update_json = json!({
-            "seconds": updated_recent_playtime,
-            "loader": context.applied_content_set.loader.as_str(),
-            "game_version": &context.applied_content_set.game_version,
-            "parent": modrinth_pack_version_id,
-        });
-        let mut hashmap: HashMap<String, serde_json::Value> = HashMap::new();
 
-        for (_, project) in get_projects(instance_id, None).await? {
-            if let Some(metadata) = project.metadata {
-                hashmap
-                    .insert(metadata.version_id, playtime_update_json.clone());
-            }
-        }
-
-        fetch::post_json(
-            concat!(env!("MODRINTH_API_BASE_URL"), "analytics/playtime"),
-            serde_json::to_value(hashmap)?,
-            &state.api_semaphore,
-            &state.pool,
-        )
-        .await
-    } else {
-        Ok(())
-    };
-
-    if res.is_ok() {
-        crate::state::instances::commands::mark_instance_playtime_submitted(
-            &context.instance.id,
-            updated_recent_playtime,
-            &state.pool,
-        )
-        .await?;
-    }
-
-    res
+    crate::state::instances::commands::mark_instance_playtime_submitted(
+        &context.instance.id,
+        updated_recent_playtime,
+        &state.pool,
+    )
+    .await
 }

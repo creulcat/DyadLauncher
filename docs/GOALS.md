@@ -58,7 +58,45 @@ Remove:
 - Account/login promos & ads
 - News/Discover/social panels
 
-Explicitly **keep** Discord Rich Presence, but revisit/tweak its behavior (specifics TBD).
+Explicitly **keep** Discord Rich Presence, but revisit/tweak its behavior (specifics TBD). Explicitly
+**keep** anonymous content browsing/searching/downloading against Modrinth's API (no login required) —
+that's the actual point of the launcher, not bloat.
+
+**Part 1 — done (telemetry, ads, promos, news/friends UI):**
+
+- Removed PostHog analytics (`helpers/analytics.ts` and all `trackEvent(...)` call sites) and Sentry
+  crash/performance reporting (`main.js`), including their dependencies and CSP entries. Removed the
+  Rust-side `analytics/playtime` and `analytics/minecraft-server-play` POSTs in
+  `packages/app-lib/src/api/instance/run.rs` (local playtime bookkeeping is preserved, it's just no
+  longer reported to Modrinth). Removed the `telemetry`/`personalized_ads` settings columns via a new
+  migration and their Privacy-settings UI.
+- Removed the entire native ads system: `apps/app/src/api/ads.rs`, the macOS/Windows occlusion-tracking
+  files, the IAB consent-management-platform scripts (`ads-consent/`), the `ads` Tauri
+  plugin/capability, and the frontend ad-slot plumbing (`helpers/ads.js`, `PromotionWrapper.vue`).
+- Removed promotional/upsell surfaces: the "Upgrade to Modrinth+" links (nav sidebar and account menu),
+  the Pride fundraiser banner, the Tally survey popups, and the Modrinth Servers Intercom support-chat
+  widget — pruning their CSP entries too.
+- Removed the News feed panel and the Friends/presence panel + "Add a friend" menu entry from the
+  sidebar. The underlying Friends source files (`components/ui/friends/`, `composables/use-friends.ts`,
+  `helpers/friends.ts`) are intentionally still present — they're still used internally by the
+  Modrinth-account-based "shared instances" cloud feature, and will be deleted together with that
+  feature in Part 2 below.
+
+**Part 2 — planned, not yet started (Modrinth account removal):** based on user direction during
+scoping, this goal turned out to require removing the Modrinth account system entirely (sign-in/OAuth,
+not the separate Microsoft/Minecraft account needed to launch the game), since keeping it would still
+suggest a live connection between Dyad and Modrinth. This cascades into removing:
+
+- Sign-in/OAuth (`mr_auth`, the hydra flow, `ModrinthAccountRequiredModal`, "Sign into Modrinth" UI).
+- The cloud "shared instances" feature (`pages/instance/share/` and its backend) — a different feature
+  from goal 2's symlink sharing; it only works via Modrinth accounts and has no way to function once
+  accounts are gone.
+- Modrinth Servers hosting + billing/Stripe (purchasing/managing a hosting plan).
+- Any other account-gated settings/UI (e.g. `SocialSettings.vue`), and the now-dead CSP entries for
+  Stripe/Intercom this leaves behind.
+
+Anonymous content browsing, search, and downloads against Modrinth's API are explicitly **not**
+affected by Part 2 — they don't require an account today and should keep working exactly as-is.
 
 ### 4. Auto-update mechanism
 
@@ -95,8 +133,10 @@ started, no implementation timeline yet.
 ## Status
 
 Goals 1-3 were agreed direction as of 2026-09-02; goal 4 was added on 2026-09-04. Goal 1
-(concurrent multi-account launches) is implemented as of 2026-09-04. Goal 4's phase 1
-(disabling Modrinth's updater) is implemented as of 2026-09-04 — phase 2 (the opt-in GitHub-Releases
-updater) is a future idea, not yet scoped or started. Goals 2-3 are not implemented yet. This
-document should be updated as scope changes — treat it as the source of truth for what this fork is
-trying to do, ahead of any individual issue or PR.
+(concurrent multi-account launches) is implemented as of 2026-09-04. Goal 3's part 1 (telemetry, ads,
+promos, news/friends UI) is implemented as of 2026-09-04 — part 2 (Modrinth account removal, which
+turned out to be necessary during scoping and is a larger, separate pass) is planned but not started.
+Goal 4's phase 1 (disabling Modrinth's updater) is implemented as of 2026-09-04 — phase 2 (the opt-in
+GitHub-Releases updater) is a future idea, not yet scoped or started. Goal 2 is not implemented yet.
+This document should be updated as scope changes — treat it as the source of truth for what this fork
+is trying to do, ahead of any individual issue or PR.
