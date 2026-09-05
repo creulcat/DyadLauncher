@@ -9,31 +9,20 @@ import {
 	VerboseLoggingFeature,
 } from '@modrinth/api-client'
 import {
-	ArrowLeftRightIcon,
 	ChevronLeftIcon,
 	ChevronRightIcon,
 	CompassIcon,
 	ImagesIcon,
-	LogInIcon,
-	LogOutIcon,
 	PlayIcon,
 	PlusIcon,
 	RefreshCwIcon,
 	RightArrowIcon,
-	ServerStackIcon,
 	SettingsIcon,
 	ShirtIcon,
-	SpinnerIcon,
-	ToggleRightIcon,
-	UserIcon,
-	XIcon,
 } from '@modrinth/assets'
 import {
-	AccountSwitchOverlay,
 	Admonition,
-	Avatar,
 	commonMessages,
-	commonSettingsMessages,
 	ContentInstallModal,
 	ContentUpdaterModal,
 	CreationFlowModal,
@@ -48,11 +37,9 @@ import {
 	provideNotificationManager,
 	providePageContext,
 	providePopupNotificationManager,
-	TeleportOverflowMenu,
 	TextLogo,
 	useDebugLogger,
 	useFormatBytes,
-	UserRoleIcon,
 	useVIntl,
 } from '@modrinth/ui'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
@@ -60,18 +47,16 @@ import { getVersion } from '@tauri-apps/api/app'
 import { convertFileSrc, invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
 import { getCurrentWindow } from '@tauri-apps/api/window'
-import { fetch as tauriFetch } from '@tauri-apps/plugin-http'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { type } from '@tauri-apps/plugin-os'
 import { saveWindowState, StateFlags } from '@tauri-apps/plugin-window-state'
-import { computed, nextTick, onMounted, onUnmounted, provide, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, provide, ref, watch } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 
 import AccountsCard from '@/components/ui/AccountsCard.vue'
 import AppActionBar from '@/components/ui/AppActionBar.vue'
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue'
 import ErrorModal from '@/components/ui/ErrorModal.vue'
-import HostingUpdateRequired from '@/components/ui/HostingUpdateRequired.vue'
 import AddServerToInstanceModal from '@/components/ui/install_flow/AddServerToInstanceModal.vue'
 import UnknownPackWarningModal from '@/components/ui/install_flow/UnknownPackWarningModal.vue'
 import IconEditorModal from '@/components/ui/instance_settings/icon-editor-modal/index.vue'
@@ -80,14 +65,12 @@ import MinecraftRequiredModal from '@/components/ui/minecraft-required-modal/Min
 import AppSettingsModal from '@/components/ui/modal/AppSettingsModal.vue'
 import InstallToPlayModal from '@/components/ui/modal/InstallToPlayModal.vue'
 import ModpackAlreadyInstalledModal from '@/components/ui/modal/ModpackAlreadyInstalledModal.vue'
-import ModrinthAccountRequiredModal from '@/components/ui/modal/ModrinthAccountRequiredModal.vue'
 import UpdateToPlayModal from '@/components/ui/modal/UpdateToPlayModal.vue'
 import NavButton from '@/components/ui/NavButton.vue'
 import NewIconEditorNotification from '@/components/ui/new-icon-editor-notification/index.vue'
 import { shouldShowNewIconEditorNotification } from '@/components/ui/new-icon-editor-notification/show-notification'
 import OnboardingChecklist from '@/components/ui/onboarding-checklist/index.vue'
 import QuickInstanceSwitcher from '@/components/ui/QuickInstanceSwitcher.vue'
-import SharedInstanceInviteHandler from '@/components/ui/shared-instances/shared-instance-invite-handler/index.vue'
 import SplashScreen from '@/components/ui/SplashScreen.vue'
 import WindowControls from '@/components/ui/WindowControls.vue'
 import { useCheckDisableMouseover } from '@/composables/macCssFix.js'
@@ -97,30 +80,18 @@ import { useError } from '@/composables/use-error.js'
 import { useInstanceMetadataRefresh } from '@/composables/use-instance-metadata-refresh'
 import { isDarkTheme, useTheme } from '@/composables/use-theme.ts'
 import { config } from '@/config'
-import { getAccountAppearance, rememberAccountAppearance } from '@/helpers/account-appearance.ts'
 import { check_reachable } from '@/helpers/auth.js'
-import { get_user, get_user_many, get_version } from '@/helpers/cache.js'
+import { get_version } from '@/helpers/cache.js'
 import { install_create_modpack_instance, install_get_modpack_preview } from '@/helpers/install'
 import {
-	can_current_user_use_shared_instances,
 	get as getInstance,
 	get_global_synced_options,
 	run,
 	set_global_synced_option,
 } from '@/helpers/instance'
-import {
-	get as getCreds,
-	getAll as getAllCreds,
-	login,
-	logout,
-	removeUser,
-	setActive,
-} from '@/helpers/mr_auth.ts'
 import { mergeUrlQuery, parseModrinthLink } from '@/helpers/project-links.ts'
 import { get as getSettings, set as setSettings } from '@/helpers/settings.ts'
 import { get_opening_command, initialize_state } from '@/helpers/state'
-import { hasActivePride26Midas, hasMidasBadge } from '@/helpers/user-campaigns.ts'
-import { get_user_preferences } from '@/helpers/user-preferences.ts'
 import { parse_modrinth_user_link } from '@/helpers/users'
 import {
 	areUpdatesEnabled,
@@ -133,7 +104,7 @@ import {
 } from '@/helpers/utils.js'
 import { start_join_server, start_join_singleplayer_world } from '@/helpers/worlds.ts'
 import i18n from '@/i18n.config'
-import { instanceKeys, screenshotKeys } from '@/pages/instance/query-options'
+import { screenshotKeys } from '@/pages/instance/query-options'
 import {
 	appUpdateState,
 	downloadAvailableAppUpdate,
@@ -162,10 +133,7 @@ import { generateSkinPreviews } from './helpers/rendering/batch-skin-renderer'
 import { get_available_capes, get_available_skins } from './helpers/skins'
 import { AppNotificationManager } from './providers/app-notifications'
 import { AppPopupNotificationManager } from './providers/app-popup-notifications'
-import {
-	appSettingsModalOpenProfileKey,
-	appSettingsModalOpenSyncedOptionsKey,
-} from './providers/app-settings-modal'
+import { appSettingsModalOpenSyncedOptionsKey } from './providers/app-settings-modal'
 
 const appSettings = useAppSettings()
 const appTheme = useTheme()
@@ -188,9 +156,7 @@ updateHistoryNavigationState()
 
 const APP_LEFT_NAV_WIDTH = '4rem'
 const APP_SIDEBAR_WIDTH = 300
-const credentials = ref()
-const storedModrinthAccounts = ref([])
-let credentialsRefreshId = 0
+const credentials = ref(null)
 const sidebarToggled = ref(true)
 watch(
 	() => appSettings.toggleSidebar,
@@ -205,13 +171,6 @@ const forceSidebar = computed(
 		route.path.startsWith('/user'),
 )
 const sidebarVisible = computed(() => sidebarToggled.value || forceSidebar.value)
-const hostingRouteActive = computed(() => route.path.startsWith('/hosting'))
-const hostingUpdateRequired = computed(
-	() =>
-		hostingRouteActive.value &&
-		!!appUpdateState.availableUpdate.value &&
-		appUpdateState.updatesEnabled.value,
-)
 const notificationManager = new AppNotificationManager()
 provideNotificationManager(notificationManager)
 const { handleError, addNotification } = notificationManager
@@ -247,35 +206,13 @@ const tauriApiClient = new TauriModrinthClient({
 			},
 		}),
 		new AuthFeature({
-			token: async () => (await getCreds())?.session,
+			token: async () => undefined,
 		}),
 		new PanelVersionFeature(),
 		new VerboseLoggingFeature(),
 	],
 })
 provideModrinthClient(tauriApiClient)
-const { data: authenticatedModrinthUser } = useQuery({
-	queryKey: computed(() => ['authenticated-user', 'campaigns', credentials.value?.user?.id]),
-	queryFn: () => tauriApiClient.labrinth.users_v3.getAuthenticated(),
-	enabled: () => !!credentials.value?.session,
-	retry: false,
-})
-useQuery({
-	queryKey: computed(() => instanceKeys.sharedEligibility(credentials.value?.user?.id)),
-	queryFn: can_current_user_use_shared_instances,
-	enabled: () => !!credentials.value?.session && !!credentials.value?.user?.id,
-	retry: false,
-	staleTime: Infinity,
-	refetchOnMount: false,
-	refetchOnWindowFocus: false,
-	refetchOnReconnect: false,
-})
-const hasPlus = computed(
-	() =>
-		!!credentials.value?.user &&
-		(hasMidasBadge(credentials.value.user) ||
-			hasActivePride26Midas(authenticatedModrinthUser.value?.campaigns?.pride_26)),
-)
 providePageContext({
 	hierarchicalSidebarAvailable: ref(true),
 	showAds: ref(false),
@@ -358,11 +295,6 @@ function onCreationIconSaved(iconPath, config) {
 	context.instanceIconUrl.value = convertFileSrc(iconPath)
 	context.instanceIconPath.value = iconPath
 }
-
-const displayedServerInviteNotifications = new Set()
-const serverInvitePopupNotificationIds = new Set()
-let liveNotificationGeneration = 0
-let liveNotificationsEnabled = true
 
 const offline = ref(!navigator.onLine)
 window.addEventListener('offline', () => {
@@ -482,10 +414,6 @@ const messages = defineMessages({
 		id: 'app.nav.home',
 		defaultMessage: 'Home',
 	},
-	modrinthHosting: {
-		id: 'app.nav.modrinth-hosting',
-		defaultMessage: 'Modrinth Hosting',
-	},
 	screenshots: {
 		id: 'app.nav.screenshots',
 		defaultMessage: 'Screenshots',
@@ -493,34 +421,6 @@ const messages = defineMessages({
 	createNewInstance: {
 		id: 'app.nav.create-new-instance',
 		defaultMessage: 'Create new instance',
-	},
-	modrinthAccount: {
-		id: 'app.nav.modrinth-account',
-		defaultMessage: 'Modrinth account',
-	},
-	viewProfile: {
-		id: 'app.nav.view-profile',
-		defaultMessage: 'View profile',
-	},
-	signInToModrinthAccount: {
-		id: 'app.nav.sign-in-to-modrinth-account',
-		defaultMessage: 'Sign into Modrinth',
-	},
-	loadingProfile: {
-		id: 'app.nav.loading-profile',
-		defaultMessage: 'Loading profile...',
-	},
-	switchAccount: {
-		id: 'app.nav.switch-account',
-		defaultMessage: 'Switch account',
-	},
-	addAccount: {
-		id: 'app.nav.add-account',
-		defaultMessage: 'Add account',
-	},
-	removeAccount: {
-		id: 'app.nav.remove-account',
-		defaultMessage: 'Remove account',
 	},
 	restarting: {
 		id: 'app.restarting',
@@ -818,12 +718,9 @@ const contentInstallModpackAlreadyInstalledModal = ref()
 const addServerToInstanceModal = ref()
 const incompatibilityWarningModal = ref()
 const installToPlayModal = ref()
-const sharedInstanceInviteHandler = ref()
 const updateToPlayModal = ref()
 
-const modrinthLoginModal = ref()
 const appSettingsModal = ref()
-provide(appSettingsModalOpenProfileKey, () => appSettingsModal.value?.showProfile())
 provide(appSettingsModalOpenSyncedOptionsKey, () => appSettingsModal.value?.showSyncedOptions())
 
 watch(incompatibilityWarningModal, (modal) => {
@@ -832,12 +729,8 @@ watch(incompatibilityWarningModal, (modal) => {
 	}
 })
 
-const authProvider = setupAuthProvider(credentials, async (_redirectPath, flow, options) => {
-	if (options?.showModal === false) {
-		await signIn(flow)
-	} else {
-		await requestSignIn(flow)
-	}
+const authProvider = setupAuthProvider(credentials, () => {
+	// Signing into a Modrinth account is not supported in this fork.
 })
 
 const userPreferences = setupAppUserPreferencesProvider(authProvider, notificationManager)
@@ -852,10 +745,6 @@ watch(
 			.then(async () => {
 				const settings = await getSettings()
 				const selectedTheme = preferences.appearance.auto ? 'system' : preferences.appearance.theme
-				const userId = credentials.value?.user_id ?? credentials.value?.user?.id
-				if (userId) {
-					rememberAccountAppearance(userId, preferences.appearance)
-				}
 				if (appTheme.syncAcrossDevices && isDarkTheme(preferences.appearance.theme)) {
 					appTheme.preferredDark = preferences.appearance.theme
 				}
@@ -940,227 +829,6 @@ watch(
 	{ immediate: true },
 )
 
-async function validateSession(sessionToken) {
-	try {
-		const response = await tauriFetch(`${config.labrinthBaseUrl}/v2/user`, {
-			method: 'GET',
-			headers: { Authorization: sessionToken },
-		})
-		if (response.status === 401) return false
-		return true
-	} catch {
-		return true
-	}
-}
-
-async function fetchCredentials() {
-	const hadSession = !!credentials.value?.session
-	const refreshId = ++credentialsRefreshId
-	credentials.value = undefined
-
-	const creds = await getCreds().catch(handleError)
-	if (refreshId !== credentialsRefreshId) return
-	if (!creds && hadSession) clearLiveNotifications()
-
-	if (creds && creds.user_id) {
-		if (creds.session && !(await validateSession(creds.session))) {
-			if (refreshId !== credentialsRefreshId) return
-
-			clearLiveNotifications()
-			await removeUser(creds.user_id).catch(handleError)
-			if (refreshId !== credentialsRefreshId) return
-
-			credentials.value = null
-			liveNotificationsEnabled = false
-			await fetchStoredModrinthAccounts()
-			return
-		}
-		creds.user = await get_user(creds.user_id, 'bypass').catch(handleError)
-		if (refreshId !== credentialsRefreshId) return
-	}
-	credentials.value = creds ?? null
-	liveNotificationsEnabled = !!creds?.session
-	await fetchStoredModrinthAccounts()
-}
-
-async function signIn(flow = 'sign-in', addAccount = false) {
-	try {
-		await login(flow, addAccount)
-		await fetchCredentials()
-	} catch (error) {
-		if (
-			typeof error === 'object' &&
-			typeof error['message'] === 'string' &&
-			error.message.includes('Login canceled')
-		) {
-			// user closed the login window
-		} else {
-			handleError(error)
-		}
-	}
-}
-
-async function requestSignIn(flow = 'sign-in', addAccount = false) {
-	await modrinthLoginModal.value?.showSigningIn(flow, addAccount)
-}
-
-async function requestModrinthAuth(flow = 'sign-in', addAccount = false) {
-	await signIn(flow, addAccount)
-	return !!credentials.value?.session
-}
-
-async function logOut() {
-	if (!credentials.value?.user) return
-	await completeAccountSwitch(() => logout())
-}
-
-async function fetchStoredModrinthAccounts() {
-	const all = (await getAllCreds().catch(handleError)) ?? []
-	const ids = all.map((account) => account.user_id)
-	const users = ids.length ? ((await get_user_many(ids).catch(handleError)) ?? []) : []
-	const usersById = new Map(users.map((user) => [user.id, user]))
-
-	storedModrinthAccounts.value = all.map((account) => ({
-		...account,
-		user: usersById.get(account.user_id) ?? {
-			id: account.user_id,
-			username: account.user_id,
-			avatar_url: null,
-			role: 'developer',
-		},
-	}))
-}
-
-const accountSwitcherAccounts = computed(() => {
-	const currentId = credentials.value?.session ? credentials.value.user_id : null
-
-	return storedModrinthAccounts.value.map((account) => ({
-		...account,
-		optionId: `account-${account.user_id}`,
-		current: account.user_id === currentId,
-	}))
-})
-
-const profileButtonTooltip = computed(() => {
-	if (credentials.value === undefined) return formatMessage(messages.loadingProfile)
-	if (credentials.value?.user) return formatMessage(messages.modrinthAccount)
-	return formatMessage(messages.signInToModrinthAccount)
-})
-
-const accountSwitcherOptions = computed(() => [
-	...accountSwitcherAccounts.value.map((account) => ({
-		id: account.optionId,
-		label: account.user.username,
-		selected: account.current,
-		action: () => switchModrinthAccount(account),
-		trailingAction: {
-			label: formatMessage(messages.removeAccount),
-			icon: XIcon,
-			color: 'red',
-			action: () => forgetModrinthAccount(account.user_id),
-		},
-	})),
-	{
-		type: 'divider',
-	},
-	{
-		id: 'add-account',
-		label: formatMessage(messages.addAccount),
-		icon: PlusIcon,
-		action: () => requestSignIn('sign-in', true),
-	},
-])
-
-const isSwitchingAccount = ref(false)
-
-async function persistAppearanceTheme(appearance) {
-	const selectedTheme = appearance.auto ? 'system' : appearance.theme
-	appTheme.applyAccountAppearance(appearance)
-	const settings = await getSettings()
-	if (settings.theme !== selectedTheme) {
-		settings.theme = selectedTheme
-		await setSettings(settings)
-	}
-}
-
-async function completeAccountSwitch(task) {
-	isSwitchingAccount.value = true
-	await nextTick()
-	try {
-		await task()
-		window.location.reload()
-	} catch (error) {
-		isSwitchingAccount.value = false
-		handleError(error)
-	}
-}
-
-async function switchModrinthAccount(account) {
-	if (account.current) return
-
-	const cached = getAccountAppearance(account.user_id)
-	if (cached) await persistAppearanceTheme(cached)
-	await nextTick()
-
-	await completeAccountSwitch(async () => {
-		await setActive(account.user_id)
-		if (cached) return
-
-		try {
-			const preferences = await get_user_preferences(account.user_id)
-			rememberAccountAppearance(account.user_id, preferences.appearance)
-			await persistAppearanceTheme(preferences.appearance)
-			await nextTick()
-		} catch {
-			// no saved appearance for this account
-		}
-	})
-}
-
-async function forgetModrinthAccount(userId) {
-	const isCurrent = credentials.value?.user_id === userId && !!credentials.value?.session
-	if (isCurrent) {
-		await completeAccountSwitch(() => removeUser(userId))
-		return
-	}
-
-	await removeUser(userId).catch(handleError)
-	await fetchStoredModrinthAccounts()
-}
-
-const modrinthAccountMenuOptions = computed(() => [
-	{
-		id: 'view-profile',
-		label: formatMessage(messages.viewProfile),
-		icon: UserIcon,
-		action: () => router.push(`/user/${encodeURIComponent(credentials.value.user.username)}`),
-	},
-	{
-		id: 'flags',
-		label: formatMessage(commonSettingsMessages.featureFlags),
-		icon: ToggleRightIcon,
-		shown: appSettings.devMode,
-		action: () => appSettingsModal.value?.showFeatureFlags(),
-	},
-	{
-		type: 'divider',
-	},
-	{
-		id: 'switch-account',
-		label: formatMessage(messages.switchAccount),
-		icon: ArrowLeftRightIcon,
-		type: 'submenu',
-		options: accountSwitcherOptions.value,
-	},
-	{
-		id: 'sign-out',
-		label: formatMessage(commonMessages.signOutButton),
-		icon: LogOutIcon,
-		tone: 'red',
-		action: () => logOut(),
-	},
-])
-
 onMounted(() => {
 	invoke('show_window')
 
@@ -1181,102 +849,6 @@ const accounts = ref(null)
 provide('accountsCard', accounts)
 
 useAppEvent('command', handleCommand, appEvents)
-useAppEvent('notification', handleLiveNotification, appEvents)
-
-async function markLiveNotificationRead(notification) {
-	try {
-		await tauriApiClient.labrinth.notifications_v2.markAsRead(notification.id)
-	} catch (error) {
-		if (error instanceof ModrinthApiError && error.statusCode === 404) {
-			console.warn(`notification ${notification.id} could not be marked as read`, error)
-			return
-		}
-		throw error
-	}
-}
-
-async function respondToServerInvite(notification, action) {
-	const serverId = notification.body?.server_id
-	if (typeof serverId !== 'string') {
-		throw new Error('Missing server ID for invite notification.')
-	}
-
-	await tauriApiClient.request(`/servers/${serverId}/invites/${action}`, {
-		api: 'archon',
-		version: 1,
-		method: 'POST',
-	})
-	await markLiveNotificationRead(notification)
-
-	return serverId
-}
-
-async function acceptServerInviteNotification(notification) {
-	try {
-		const serverId = await respondToServerInvite(notification, 'accept')
-		await router.push(`/hosting/manage/${encodeURIComponent(serverId)}`)
-		queryClient.invalidateQueries({ queryKey: ['servers'] })
-	} catch (error) {
-		handleError(error)
-	}
-}
-
-async function declineServerInviteNotification(notification) {
-	try {
-		await respondToServerInvite(notification, 'decline')
-	} catch (error) {
-		handleError(error)
-	}
-}
-
-function openServerInviteInviterProfile(inviterName) {
-	if (!inviterName) return
-	void router.push(`/user/${encodeURIComponent(inviterName)}`)
-}
-
-async function handleLiveNotification(notification) {
-	if (!liveNotificationsEnabled || !notification?.body || notification.read) return
-	if (await sharedInstanceInviteHandler.value?.handleNotification(notification)) return
-
-	if (notification.body.type === 'server_invite') {
-		if (displayedServerInviteNotifications.has(notification.id)) return
-
-		const generation = liveNotificationGeneration
-		displayedServerInviteNotifications.add(notification.id)
-
-		const serverName =
-			typeof notification.body.server_name === 'string' ? notification.body.server_name : 'a server'
-		const inviterId = notification.body.invited_by
-		const invitedBy =
-			typeof inviterId === 'string' ? await get_user(inviterId, 'bypass').catch(() => null) : null
-		if (generation !== liveNotificationGeneration) return
-
-		const popupNotification = addPopupNotification({
-			contentType: 'toast',
-			title: serverName,
-			type: 'server-invite',
-			actorName: invitedBy?.username ?? null,
-			actorAvatarUrl: invitedBy?.avatar_url ?? null,
-			entityName: serverName,
-			autoCloseMs: null,
-			onAccept: () => acceptServerInviteNotification(notification),
-			onDecline: () => declineServerInviteNotification(notification),
-			onOpenActor: () => openServerInviteInviterProfile(invitedBy?.username ?? null),
-		})
-		serverInvitePopupNotificationIds.add(popupNotification.id)
-	}
-}
-
-function clearLiveNotifications() {
-	liveNotificationGeneration++
-	liveNotificationsEnabled = false
-	for (const id of serverInvitePopupNotificationIds) {
-		popupNotificationManager.removeNotification(id)
-	}
-	displayedServerInviteNotifications.clear()
-	serverInvitePopupNotificationIds.clear()
-	sharedInstanceInviteHandler.value?.clearNotifications()
-}
 
 async function handleCommand(e) {
 	if (!e) return
@@ -1309,8 +881,6 @@ async function handleCommand(e) {
 		} else {
 			await run(e.id).catch(handleError)
 		}
-	} else if (e.event === 'InstallSharedInstanceInvite') {
-		await sharedInstanceInviteHandler.value?.installFromInviteId(e.invite_id)
 	} else if (e.event === 'InstallServer') {
 		await router.push(`/project/${e.id}`)
 		await playServerProject(e.id).catch(handleError)
@@ -1696,7 +1266,6 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 <template>
 	<SplashScreen v-if="!stateFailed" ref="splashScreen" data-tauri-drag-region />
 	<div id="teleports"></div>
-	<AccountSwitchOverlay :show="isSwitchingAccount" />
 	<div
 		v-if="stateInitialized"
 		class="app-grid-layout relative"
@@ -1719,9 +1288,6 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 		</Transition>
 		<Suspense>
 			<AppSettingsModal ref="appSettingsModal" />
-		</Suspense>
-		<Suspense>
-			<ModrinthAccountRequiredModal ref="modrinthLoginModal" :request-auth="requestModrinthAuth" />
 		</Suspense>
 		<CreationFlowModal
 			ref="installationModal"
@@ -1760,10 +1326,8 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 			<NavButton
 				v-tooltip.right="formatMessage(commonMessages.discoverContentLabel)"
 				to="/browse/modpack"
-				:is-primary="() => route.path.startsWith('/browse') && !route.query.i && !route.query.sid"
-				:is-subpage="
-					(route) => route.path.startsWith('/project') && !route.query.i && !route.query.sid
-				"
+				:is-primary="() => route.path.startsWith('/browse') && !route.query.i"
+				:is-subpage="(route) => route.path.startsWith('/project') && !route.query.i"
 			>
 				<CompassIcon />
 			</NavButton>
@@ -1776,18 +1340,6 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 				to="/screenshots"
 			>
 				<ImagesIcon />
-			</NavButton>
-			<NavButton
-				v-tooltip.right="formatMessage(messages.modrinthHosting)"
-				to="/hosting/manage"
-				:is-primary="(r) => r.path === '/hosting/manage' || r.path === '/hosting/manage/'"
-				:is-subpage="
-					(r) =>
-						(r.path.startsWith('/hosting/manage/') && r.path !== '/hosting/manage/') ||
-						((r.path.startsWith('/browse') || r.path.startsWith('/project')) && r.query.sid)
-				"
-			>
-				<ServerStackIcon />
 			</NavButton>
 			<suspense>
 				<QuickInstanceSwitcher />
@@ -1806,69 +1358,6 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 			>
 				<SettingsIcon />
 			</NavButton>
-			<span v-tooltip.right="profileButtonTooltip" class="inline-flex">
-				<IconButton
-					v-if="credentials === undefined"
-					type="quiet"
-					size="xl"
-					disabled
-					class="pointer-events-none"
-					:label="formatMessage(messages.loadingProfile)"
-				>
-					<SpinnerIcon class="animate-spin" />
-				</IconButton>
-				<TeleportOverflowMenu
-					v-else-if="credentials?.user"
-					type="quiet"
-					size="xl"
-					:label="formatMessage(messages.modrinthAccount)"
-					:options="modrinthAccountMenuOptions"
-					placement="right-end"
-					:distance="4"
-					class="brightness-100 hover:!brightness-100 focus-visible:!brightness-100"
-				>
-					<Avatar
-						:src="credentials?.user?.avatar_url"
-						alt=""
-						size="32px"
-						circle
-						no-shadow
-						class="pointer-events-none !size-8"
-					/>
-					<template
-						v-for="account in accountSwitcherAccounts"
-						:key="account.user_id"
-						#[account.optionId]
-					>
-						<Avatar :src="account.user.avatar_url" size="1.25rem" aria-hidden="true" circle />
-						{{ account.user.username }}
-						<UserRoleIcon :role="account.user.role" />
-					</template>
-				</TeleportOverflowMenu>
-				<TeleportOverflowMenu
-					v-else-if="accountSwitcherAccounts.length > 0"
-					type="quiet"
-					size="xl"
-					:label="formatMessage(messages.signInToModrinthAccount)"
-					:options="accountSwitcherOptions"
-					placement="right-end"
-					:distance="4"
-				>
-					<LogInIcon class="!text-brand" />
-					<template
-						v-for="account in accountSwitcherAccounts"
-						:key="account.user_id"
-						#[account.optionId]
-					>
-						<Avatar :src="account.user.avatar_url" size="1.25rem" aria-hidden="true" circle />
-						{{ account.user.username }}
-						<UserRoleIcon :role="account.user.role" />
-					</template>
-				</TeleportOverflowMenu>
-				<NavButton v-else :to="() => requestSignIn()">
-					<LogInIcon class="text-brand" />
-				</NavButton>
-			</span>
 		</div>
 		<div data-tauri-drag-region class="app-grid-statusbar bg-bg-raised h-[--top-bar-height] flex">
 			<div data-tauri-drag-region class="flex min-w-0 flex-1 items-center overflow-hidden p-2">
@@ -1961,8 +1450,7 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 			>
 				{{ formatMessage(messages.authUnreachableBody) }}
 			</Admonition>
-			<HostingUpdateRequired v-if="hostingUpdateRequired" />
-			<RouterView v-else v-slot="{ Component }">
+			<RouterView v-slot="{ Component }">
 				<template v-if="Component">
 					<Suspense @pending="onSuspensePending" @resolve="onSuspenseResolve">
 						<KeepAlive include="LibraryPage">
@@ -1974,18 +1462,15 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 		</div>
 		<div
 			class="app-sidebar mt-px shrink-0 flex flex-col border-0 border-l-[1px] border-[--brand-gradient-border] border-solid"
-			:class="{ 'has-plus': hasPlus }"
 		>
 			<div
 				v-overlay-scrollbars="sidebarOverlayScrollbarsOptions"
-				class="app-sidebar-scrollable flex-grow shrink relative"
-				:class="{ 'pb-12': !hasPlus }"
+				class="app-sidebar-scrollable flex-grow shrink relative pb-12"
 				data-overlayscrollbars-initialize
 			>
 				<OnboardingChecklist
 					@create-instance="installationModal?.show()"
 					@login-minecraft="accounts?.login()"
-					@login-modrinth="signIn"
 				/>
 				<div id="sidebar-teleport-target" class="sidebar-teleport-content"></div>
 				<div class="sidebar-default-content" :class="{ 'sidebar-enabled': sidebarVisible }">
@@ -2055,7 +1540,6 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 		@create-anyway="handleContentInstallModpackDuplicateCreateAnyway"
 		@go-to-instance="handleContentInstallModpackDuplicateGoToInstance"
 	/>
-	<SharedInstanceInviteHandler ref="sharedInstanceInviteHandler" />
 	<InstallToPlayModal ref="installToPlayModal" :show-external-warnings="false" />
 	<UpdateToPlayModal ref="updateToPlayModal" :show-external-warnings="false" />
 </template>

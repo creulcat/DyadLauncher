@@ -248,7 +248,6 @@ fn main() {
 
     builder = builder
         .plugin(api::auth::init())
-        .plugin(api::mr_auth::init())
         .plugin(api::onboarding_checklist::init())
         .plugin(api::import::init())
         .plugin(api::install::init())
@@ -266,7 +265,6 @@ fn main() {
         .plugin(api::utils::init())
         .plugin(api::cache::init())
         .plugin(api::files::init())
-        .plugin(api::friends::init())
         .plugin(api::worlds::init())
         .manage(PendingUpdateData::default())
         .invoke_handler(tauri::generate_handler![

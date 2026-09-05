@@ -16,7 +16,6 @@ pub struct OnboardingChecklist {
 pub(crate) enum OnboardingChecklistItem {
     CreatedInstance,
     LoggedIntoMinecraft,
-    LoggedIntoModrinth,
 }
 
 pub(crate) async fn get_onboarding_checklist(
@@ -66,17 +65,6 @@ pub(crate) async fn mark_onboarding_checklist_item(
                 UPDATE onboarding_checklist
                 SET has_logged_into_minecraft = TRUE
                 WHERE id = 0 AND has_logged_into_minecraft = FALSE
-                ",
-            )
-            .execute(pool)
-            .await?
-        }
-        OnboardingChecklistItem::LoggedIntoModrinth => {
-            sqlx::query!(
-                "
-                UPDATE onboarding_checklist
-                SET has_logged_into_modrinth = TRUE
-                WHERE id = 0 AND has_logged_into_modrinth = FALSE
                 ",
             )
             .execute(pool)

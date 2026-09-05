@@ -10,8 +10,8 @@ use crate::state::{
     CacheValue, CachedEntry, CachedFile, CachedFileHash, CachedFileUpdate,
     Credentials, DefaultPage, DependencyType, DeviceToken, DeviceTokenKey,
     DeviceTokenPair, FileType, Hooks, InstanceInstallStage,
-    LauncherFeatureVersion, MemorySettings, ModrinthCredentials,
-    ReleaseChannel, TeamMember, Theme, VersionFile, WindowSize,
+    LauncherFeatureVersion, MemorySettings, ReleaseChannel, TeamMember, Theme,
+    VersionFile, WindowSize,
 };
 use crate::util::fetch::{IoSemaphore, read_json};
 use chrono::{DateTime, Utc};
@@ -91,24 +91,6 @@ where
             {
                 java_version.upsert(exec).await?;
             }
-        }
-
-        let modrinth_auth_path =
-            old_launcher_root.join("caches/metadata/auth.json");
-        if let Ok(creds) = read_json::<LegacyModrinthCredentials>(
-            &modrinth_auth_path,
-            &io_semaphore,
-        )
-        .await
-        {
-            ModrinthCredentials {
-                session: creds.session,
-                expires: creds.expires_at,
-                user_id: creds.user.id,
-                active: true,
-            }
-            .upsert(exec)
-            .await?;
         }
 
         let minecraft_auth_path =
@@ -746,13 +728,6 @@ struct LegacyModrinthUser {
     pub bio: Option<String>,
     pub created: DateTime<Utc>,
     pub role: String,
-}
-
-#[derive(Deserialize, Clone, Debug)]
-struct LegacyModrinthCredentials {
-    pub session: String,
-    pub expires_at: DateTime<Utc>,
-    pub user: LegacyModrinthUser,
 }
 
 #[derive(Deserialize, Debug)]

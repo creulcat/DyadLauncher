@@ -8,17 +8,11 @@ import { injectOnboardingChecklist } from '@/providers/onboarding-checklist'
 const emit = defineEmits<{
 	'create-instance': []
 	'login-minecraft': []
-	'login-modrinth': []
 }>()
 
 const { formatMessage } = useVIntl()
-const {
-	hasCreatedInstance,
-	hasLoggedIntoMinecraft,
-	hasLoggedIntoModrinth,
-	isReady,
-	showChecklist,
-} = injectOnboardingChecklist()
+const { hasCreatedInstance, hasLoggedIntoMinecraft, isReady, showChecklist } =
+	injectOnboardingChecklist()
 const collapsedCornersVisible = ref(false)
 let collapseTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -35,10 +29,6 @@ const messages = defineMessages({
 		id: 'onboarding-checklist.login-minecraft',
 		defaultMessage: 'Sign in to Minecraft',
 	},
-	loginModrinth: {
-		id: 'onboarding-checklist.login-modrinth',
-		defaultMessage: 'Sign in to Modrinth',
-	},
 })
 
 const steps = computed(() => [
@@ -53,12 +43,6 @@ const steps = computed(() => [
 		label: formatMessage(messages.loginMinecraft),
 		complete: hasLoggedIntoMinecraft.value,
 		action: () => emit('login-minecraft'),
-	},
-	{
-		id: 'login-modrinth',
-		label: formatMessage(messages.loginModrinth),
-		complete: hasLoggedIntoModrinth.value,
-		action: () => emit('login-modrinth'),
 	},
 ])
 

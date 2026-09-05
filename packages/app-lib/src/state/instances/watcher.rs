@@ -1,5 +1,4 @@
 use crate::State;
-use crate::api::instance::CONFIG_DIRECTORY;
 use crate::event::InstancePayloadType;
 use crate::event::emit::{emit_instance, emit_warning};
 use crate::state::{
@@ -12,6 +11,8 @@ use std::{collections::HashMap, sync::Arc, time::Duration};
 use tokio::sync::{RwLock, mpsc::channel};
 
 use super::adapters::sqlite::instance_rows;
+
+const CONFIG_DIRECTORY: &str = "config";
 
 pub struct FileWatcher {
     watcher: RwLock<Debouncer<RecommendedWatcher>>,

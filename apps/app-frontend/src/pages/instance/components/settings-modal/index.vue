@@ -1,13 +1,6 @@
 <script setup lang="ts">
 import type { Labrinth } from '@modrinth/api-client'
-import {
-	ChevronRightIcon,
-	EyeIcon,
-	InfoIcon,
-	Settings2Icon,
-	UsersIcon,
-	WrenchIcon,
-} from '@modrinth/assets'
+import { ChevronRightIcon, EyeIcon, InfoIcon, Settings2Icon, WrenchIcon } from '@modrinth/assets'
 import {
 	Avatar,
 	commonMessages,
@@ -30,7 +23,6 @@ import BehaviorSettings from './behavior-settings.vue'
 import GeneralSettings from './general-settings.vue'
 import InstallationSettings from './installation-settings.vue'
 import { provideInstanceSettings } from './instance-settings-context.ts'
-import SharingSettings from './sharing-settings.vue'
 import SyncedOptionsSettings from './synced-options-settings.vue'
 
 const { formatMessage } = useVIntl()
@@ -111,15 +103,6 @@ const tabs = computed<TabbedModalTab[]>(() => [
 		}),
 		icon: Settings2Icon,
 		content: SyncedOptionsSettings,
-	},
-	{
-		name: defineMessage({
-			id: 'instance.settings.tabs.sharing',
-			defaultMessage: 'Sharing',
-		}),
-		icon: UsersIcon,
-		content: SharingSettings,
-		shown: props.instance.shared_instance?.role === 'owner' && !props.instance.quarantined,
 	},
 ])
 

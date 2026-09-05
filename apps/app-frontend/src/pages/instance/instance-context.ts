@@ -9,7 +9,6 @@ export interface InstancePageContext {
 	readonly instance: ComputedRef<GameInstance>
 	readonly linkedProject: ComputedRef<Labrinth.Projects.v3.Project | undefined>
 	readonly isServerInstance: ComputedRef<boolean>
-	readonly sharedInstanceUpdateAvailable: ComputedRef<boolean>
 	readonly offline: Readonly<Ref<boolean>>
 	readonly playing: ComputedRef<boolean>
 	readonly loading: Readonly<Ref<boolean>>
@@ -22,7 +21,6 @@ export interface InstancePageContext {
 	openSettings: (tab?: number) => void
 	browseContent: (projectType?: string) => Promise<void>
 	browseServers: () => Promise<void>
-	reviewSharedInstanceUpdate: (event?: MouseEvent) => void
 }
 
 export const [injectInstancePage, provideInstancePage] =

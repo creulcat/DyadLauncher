@@ -355,21 +355,6 @@ pub static REQWEST_CLIENT: LazyLock<reqwest::Client> = LazyLock::new(|| {
         .expect("client configuration should be valid")
 });
 
-pub static INSECURE_NO_TIMEOUT_REQWEST_CLIENT: LazyLock<reqwest::Client> =
-    LazyLock::new(|| {
-        reqwest_client_builder()
-            .build()
-            .expect("client configuration should be valid")
-    });
-
-pub static NO_TIMEOUT_REQWEST_CLIENT: LazyLock<reqwest::Client> =
-    LazyLock::new(|| {
-        reqwest_client_builder()
-            .https_only(true)
-            .build()
-            .expect("client configuration should be valid")
-    });
-
 const FETCH_ATTEMPTS: usize = 2;
 
 pub type FetchProgressFn<'a> = dyn FnMut(
@@ -623,7 +608,7 @@ async fn fetch_advanced_with_client_and_progress(
     loading_bar: Option<(&LoadingBarId, f64)>,
     uri_path: Option<&'static str>,
     semaphore: &FetchSemaphore,
-    exec: impl sqlx::Executor<'_, Database = sqlx::Sqlite>,
+    _exec: impl sqlx::Executor<'_, Database = sqlx::Sqlite>,
     client: &reqwest::Client,
     mut progress: Option<&mut FetchProgressFn<'_>>,
 ) -> crate::Result<Bytes> {
@@ -632,16 +617,6 @@ async fn fetch_advanced_with_client_and_progress(
     let is_api_url = url.starts_with(env!("MODRINTH_API_URL"))
         || url.starts_with(env!("MODRINTH_API_URL_V3"));
     let fence_key = if is_api_url { uri_path } else { None };
-
-    let creds = if header
-        .as_ref()
-        .is_none_or(|x| &*x.0.to_lowercase() != "authorization")
-        && (url.starts_with("https://cdn.modrinth.com") || is_api_url)
-    {
-        crate::state::ModrinthCredentials::get_active(exec).await?
-    } else {
-        None
-    };
 
     let download_meta_header = download_meta
         .map(|m| (DOWNLOAD_META_HEADER.to_string(), m.to_header_value()));
@@ -670,10 +645,6 @@ async fn fetch_advanced_with_client_and_progress(
 
         if let Some(header) = header {
             req = req.header(header.0, header.1);
-        }
-
-        if let Some(ref creds) = creds {
-            req = req.header("Authorization", &creds.session);
         }
 
         if let Some((name, value)) = &download_meta_header {

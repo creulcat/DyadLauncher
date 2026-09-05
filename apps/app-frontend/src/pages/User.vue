@@ -6,7 +6,6 @@
 			variant="app"
 			site-url="https://modrinth.com"
 			project-link-mode="app"
-			:edit-profile-link="openProfileSettings"
 			external-navigation
 		>
 			<template #project-actions="{ project }">
@@ -48,7 +47,7 @@ import {
 	useVIntl,
 } from '@modrinth/ui'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import { computed, inject, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 
 import {
@@ -63,13 +62,11 @@ import {
 	patch_user,
 	unblock_user,
 } from '@/helpers/users'
-import { appSettingsModalOpenProfileKey } from '@/providers/app-settings-modal'
 import { useBreadcrumb } from '@/providers/breadcrumbs'
 import { injectContentInstall } from '@/providers/content-install'
 
 const route = useRoute()
 const router = useRouter()
-const openProfileSettings = inject(appSettingsModalOpenProfileKey, () => {})
 const queryClient = useQueryClient()
 const { formatMessage } = useVIntl()
 const { handleError } = injectNotificationManager()
