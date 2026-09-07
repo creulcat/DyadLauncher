@@ -107,6 +107,10 @@ const tabs = [
 		category: tabCategories.display,
 		icon: ShieldIcon,
 		content: PrivacySettings,
+		// Hidden: its only setting (Discord Rich Presence) is force-disabled for now
+		// (see Settings::get in packages/app-lib/src/state/settings.rs). Remove `hidden`
+		// here to bring the tab back once that's ready to ship.
+		hidden: true,
 	},
 	{
 		name: defineMessage({
@@ -138,7 +142,7 @@ const tabs = [
 ]
 
 const availableTabs = computed(() =>
-	tabs.filter((tab) => !tab.developerOnly || appSettings.devMode),
+	tabs.filter((tab) => !tab.hidden && (!tab.developerOnly || appSettings.devMode)),
 )
 
 const modal = ref<InstanceType<typeof TabbedModal> | null>(null)
