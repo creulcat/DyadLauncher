@@ -188,12 +188,6 @@
   "app.behavior-settings.startup-and-navigation.title": {
     "message": "Uppstart och navigering"
   },
-  "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Logga in på ett Modrinth-konto för att synkronisera inställningar."
-  },
-  "app.behavior-settings.sync-across-devices.title": {
-    "message": "Synkronisera beteende mellan enheter"
-  },
   "app.browse.add-servers-to-instance": {
     "message": "Lägger till server till instans"
   },

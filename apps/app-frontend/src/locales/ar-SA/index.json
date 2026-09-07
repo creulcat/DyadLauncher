@@ -194,9 +194,6 @@
   "app.behavior-settings.startup-and-navigation.title": {
     "message": "بدء التشغيل والتنقل"
   },
-  "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "قم بتسجيل الدخول إلى حساب Mrinth لمزامنة الإعدادات"
-  },
   "app.browse.add-servers-to-instance": {
     "message": "إضافة خادم إلى المثيل"
   },

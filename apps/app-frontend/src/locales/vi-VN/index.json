@@ -197,15 +197,6 @@
   "app.behavior-settings.startup-and-navigation.title": {
     "message": "Khởi động và điều hướng"
   },
-  "app.behavior-settings.sync-across-devices.description": {
-    "message": "Sử dụng các cài đặt hành vi này ở mọi nơi bạn đăng nhập. Hãy tắt tùy chọn này nếu muốn duy trì các cài đặt riêng cho thiết bị này."
-  },
-  "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Đăng nhập vào tài khoản Modrinth để đồng bộ hóa cài đặt."
-  },
-  "app.behavior-settings.sync-across-devices.title": {
-    "message": "Đồng bộ hóa hành vi trên các thiết bị"
-  },
   "app.browse.add-servers-to-instance": {
     "message": "Thêm máy chủ vào phiên bản"
   },

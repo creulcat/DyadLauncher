@@ -200,15 +200,6 @@
   "app.behavior-settings.startup-and-navigation.title": {
     "message": "Запуск и навигация"
   },
-  "app.behavior-settings.sync-across-devices.description": {
-    "message": "Применять текущие настройки везде, где вы вошли. Отключите, чтобы настроить это устройство отдельно."
-  },
-  "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Войдите в аккаунт Modrinth для синхронизации настроек."
-  },
-  "app.behavior-settings.sync-across-devices.title": {
-    "message": "Синхронизация поведения между устройствами"
-  },
   "app.browse.add-servers-to-instance": {
     "message": "Добавление серверов в сборку"
   },

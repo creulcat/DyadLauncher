@@ -200,15 +200,6 @@
   "app.behavior-settings.startup-and-navigation.title": {
     "message": "Başlatma ve gezinme"
   },
-  "app.behavior-settings.sync-across-devices.description": {
-    "message": "Bu davranış ayarlarını oturum açtığınız her yerde kullanın. Bu cihazda ayrı ayarlar tutmak için bunu kapatın."
-  },
-  "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Ayarları senkronize etmek için Modrinth'e giriş yapın."
-  },
-  "app.behavior-settings.sync-across-devices.title": {
-    "message": "Cihazlar arası senkronizasyon davranışı"
-  },
   "app.browse.add-servers-to-instance": {
     "message": "Sunucuyu kuruluma ekle"
   },

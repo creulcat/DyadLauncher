@@ -200,15 +200,6 @@
   "app.behavior-settings.startup-and-navigation.title": {
     "message": "启动与导航"
   },
-  "app.behavior-settings.sync-across-devices.description": {
-    "message": "在你登录的所有设备上使用这些行为设置。关闭它后可以在设备上单独设置。"
-  },
-  "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "登录 Modrinth 账户以同步设置。"
-  },
-  "app.behavior-settings.sync-across-devices.title": {
-    "message": "跨设备同步行为"
-  },
   "app.browse.add-servers-to-instance": {
     "message": "添加服务器到实例"
   },

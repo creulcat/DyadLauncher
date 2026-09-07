@@ -200,15 +200,6 @@
   "app.behavior-settings.startup-and-navigation.title": {
     "message": "Avvio e navigazione"
   },
-  "app.behavior-settings.sync-across-devices.description": {
-    "message": "Usa queste impostazioni su tutti i dispositivi. Se disattivata, le impostazioni su questo resteranno separate."
-  },
-  "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Accedi a Modrinth per sincronizzare le impostazioni."
-  },
-  "app.behavior-settings.sync-across-devices.title": {
-    "message": "Sincronizza tra i dispositivi"
-  },
   "app.browse.add-servers-to-instance": {
     "message": "Aggiunta del server all'istanza"
   },

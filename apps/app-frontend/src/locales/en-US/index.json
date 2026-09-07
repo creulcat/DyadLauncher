@@ -206,15 +206,6 @@
   "app.behavior-settings.startup-and-navigation.title": {
     "message": "Startup and navigation"
   },
-  "app.behavior-settings.sync-across-devices.description": {
-    "message": "Use these behavior settings everywhere you're signed in. Turn this off to keep separate settings on this device."
-  },
-  "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Sign into a Modrinth account to sync settings."
-  },
-  "app.behavior-settings.sync-across-devices.title": {
-    "message": "Sync behavior across devices"
-  },
   "app.browse.add-servers-to-instance": {
     "message": "Adding server to instance"
   },

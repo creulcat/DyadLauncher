@@ -200,15 +200,6 @@
   "app.behavior-settings.startup-and-navigation.title": {
     "message": "啟動與瀏覽"
   },
-  "app.behavior-settings.sync-across-devices.description": {
-    "message": "在你登入的所有裝置套用這些行為設定。如果要在這個裝置上單獨設定，請關閉這個選項。"
-  },
-  "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "登入 Modrinth 帳號即可同步設定。"
-  },
-  "app.behavior-settings.sync-across-devices.title": {
-    "message": "同步所有裝置的行為"
-  },
   "app.browse.add-servers-to-instance": {
     "message": "將伺服器新增至實例"
   },

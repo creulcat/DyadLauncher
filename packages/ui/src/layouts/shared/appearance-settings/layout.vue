@@ -16,8 +16,9 @@ const currentTheme = theme.current
 const themeOptions = theme.options
 const systemTheme = theme.system
 const preferredDarkTheme = theme.preferredDark
-const syncAcrossDevices = theme.syncAcrossDevices.value
-const syncDisabled = theme.syncAcrossDevices.disabled
+const themeSync = theme.syncAcrossDevices
+const syncAcrossDevices = themeSync?.value
+const syncDisabled = themeSync?.disabled
 const advancedRendering = appearance.advancedRendering.value
 const nativeDecorations = appearance.nativeDecorations
 const nativeDecorationsValue = nativeDecorations?.value
@@ -37,7 +38,11 @@ const sidebarPreferenceValues = sidebarPreferences?.value
 					{{ formatMessage(messages.colorThemeTitle) }}
 				</h2>
 				<p class="m-0 text-secondary">
-					{{ formatMessage(messages.colorThemeDescription) }}
+					{{
+						formatMessage(
+							themeSync ? messages.colorThemeDescription : messages.colorThemeDescriptionStandalone,
+						)
+					}}
 				</p>
 			</div>
 
@@ -52,6 +57,7 @@ const sidebarPreferenceValues = sidebarPreferences?.value
 			/>
 
 			<AppearanceSettingRow
+				v-if="themeSync"
 				class="mt-6"
 				control-id="sync-theme-across-devices"
 				:heading-level="3"
@@ -70,7 +76,7 @@ const sidebarPreferenceValues = sidebarPreferences?.value
 							:model-value="syncDisabled ? false : syncAcrossDevices"
 							:disabled="syncDisabled"
 							:aria-labelledby="labelledBy"
-							@update:model-value="theme.syncAcrossDevices.update"
+							@update:model-value="themeSync.update"
 						/>
 					</span>
 				</template>

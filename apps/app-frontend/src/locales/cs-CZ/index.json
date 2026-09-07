@@ -200,15 +200,6 @@
   "app.behavior-settings.startup-and-navigation.title": {
     "message": "Spuštění a navigace"
   },
-  "app.behavior-settings.sync-across-devices.description": {
-    "message": "Používejte toto nastavení všude, kde jste přihlášeni. Vypněte ho, pokud chcete různé nastavení na různých zařízeních."
-  },
-  "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Přihlašte se do vašeho Modrinth účtu aby jste si mohli synchronizovat nastavení."
-  },
-  "app.behavior-settings.sync-across-devices.title": {
-    "message": "Synchronizovat nastavení mezi různými zařízeními"
-  },
   "app.browse.add-servers-to-instance": {
     "message": "Přidání serveru do instance"
   },
