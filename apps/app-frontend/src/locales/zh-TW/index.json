@@ -92,9 +92,6 @@
   "app.action-bar.install.unknown-instance": {
     "message": "未知的實例"
   },
-  "app.action-bar.install.updating-shared-content": {
-    "message": "正在更新共用內容"
-  },
   "app.action-bar.installs": {
     "message": "安裝"
   },
@@ -133,21 +130,6 @@
   },
   "app.action-bar.view-logs": {
     "message": "查看紀錄"
-  },
-  "app.ads-consent.accept": {
-    "message": "全部接受"
-  },
-  "app.ads-consent.body": {
-    "message": "廣告使 Modrinth 得以營運，並為創作者提供收益。我們的合作夥伴可能會在應用程式中儲存或存取 Cookie，以實現個人化廣告並衡量廣告成效。"
-  },
-  "app.ads-consent.manage": {
-    "message": "管理偏好設定"
-  },
-  "app.ads-consent.reject": {
-    "message": "全部拒絕"
-  },
-  "app.ads-consent.title": {
-    "message": "關於你的隱私，以及廣告如何幫助 Modrinth"
   },
   "app.appearance-settings.compact-mode.description": {
     "message": "以密集的橫列版面顯示遊戲庫實例。"
@@ -338,18 +320,6 @@
   "app.home.jump-back-in.view-instance": {
     "message": "查看實例"
   },
-  "app.hosting.update-required.description": {
-    "message": "你需要更新才能透過 Dyad Launcher 使用 Modrinth Hosting"
-  },
-  "app.hosting.update-required.download": {
-    "message": "下載即可更新"
-  },
-  "app.hosting.update-required.rinthbot-alt": {
-    "message": "興奮的 Modrinth 機器人"
-  },
-  "app.hosting.update-required.title": {
-    "message": "需要更新 Dyad Launcher"
-  },
   "app.icon-editor.apply-icons-modal.apply-error": {
     "message": "無法將隨機圖示套用到實例。"
   },
@@ -485,36 +455,6 @@
   "app.instance.add-server.title": {
     "message": "將伺服器新增至實例"
   },
-  "app.instance.admonitions.shared-instance.added-label": {
-    "message": "已新增"
-  },
-  "app.instance.admonitions.shared-instance.changes-body": {
-    "message": "你的本機實例有尚未同步給其他使用者的變更。"
-  },
-  "app.instance.admonitions.shared-instance.changes-header": {
-    "message": "變更尚未共用"
-  },
-  "app.instance.admonitions.shared-instance.publish-button": {
-    "message": "推送更新"
-  },
-  "app.instance.admonitions.shared-instance.publishing-button": {
-    "message": "正在推送..."
-  },
-  "app.instance.admonitions.shared-instance.removed-label": {
-    "message": "已移除"
-  },
-  "app.instance.admonitions.shared-instance.review-admonition-header": {
-    "message": "推送更新"
-  },
-  "app.instance.admonitions.shared-instance.review-description": {
-    "message": "審查即將與這個實例的所有使用者共用的內容變更。"
-  },
-  "app.instance.admonitions.shared-instance.review-header": {
-    "message": "檢視變更"
-  },
-  "app.instance.admonitions.shared-instance.reviewing-button": {
-    "message": "正在檢視..."
-  },
   "app.instance.card.icon-alt": {
     "message": "實例圖示"
   },
@@ -620,117 +560,6 @@
   "app.instance.navigation.back-to-instance": {
     "message": "回到實例"
   },
-  "app.instance.share.empty.description": {
-    "message": "你可以與好友共用這個實例！"
-  },
-  "app.instance.share.empty.heading": {
-    "message": "未邀請任何好友"
-  },
-  "app.instance.share.empty.invite-friends-button": {
-    "message": "邀請好友"
-  },
-  "app.instance.share.invite-modal.heading": {
-    "message": "共用「{name}」"
-  },
-  "app.instance.share.invite-modal.user-limit-reached": {
-    "message": "這個實例已達到 {limit} 位使用者的上限。"
-  },
-  "app.instance.share.locked.empty-description-prefix": {
-    "message": "你需要以"
-  },
-  "app.instance.share.locked.empty-description-suffix": {
-    "message": "登入才能存取這個頁面。"
-  },
-  "app.instance.share.locked.linked-account-fallback": {
-    "message": "已連結的帳號"
-  },
-  "app.instance.share.locked.signed-out-heading": {
-    "message": "未登入"
-  },
-  "app.instance.share.locked.switch-account-button": {
-    "message": "切換帳號"
-  },
-  "app.instance.share.locked.wrong-account-heading": {
-    "message": "帳號錯誤"
-  },
-  "app.instance.share.members.empty": {
-    "message": "還沒有使用者加入"
-  },
-  "app.instance.share.members.no-filter-results": {
-    "message": "沒有找到使用者。"
-  },
-  "app.instance.share.remove-user-modal.effect-access": {
-    "message": "他不會再收到這個共用實例的更新"
-  },
-  "app.instance.share.remove-user-modal.effect-installed-copy": {
-    "message": "他已經安裝的副本仍會保留在他的裝置上"
-  },
-  "app.instance.share.remove-user-modal.effect-invite-again": {
-    "message": "你可以稍後再次邀請他"
-  },
-  "app.instance.share.remove-user-modal.effect-last-user": {
-    "message": "這是最後一位共用使用者，這個實例的共用功能將被關閉"
-  },
-  "app.instance.share.remove-user-modal.effects-label": {
-    "message": "會發生什麼事？"
-  },
-  "app.instance.share.remove-user-modal.header": {
-    "message": "撤銷存取權"
-  },
-  "app.instance.share.remove-user-modal.remove-button": {
-    "message": "撤銷存取權"
-  },
-  "app.instance.share.remove-user-modal.user-avatar-alt": {
-    "message": "{username} 的顯示圖片"
-  },
-  "app.instance.share.remove-user-modal.warning-body": {
-    "message": "如果你撤銷了 {username} 對這個共用實例的存取權，你需要重新邀請他，他才會收到更新。"
-  },
-  "app.instance.share.sign-in.button": {
-    "message": "登入"
-  },
-  "app.instance.share.unable-to-connect.description": {
-    "message": "目前無法存取共用實例服務，請稍後再試"
-  },
-  "app.instance.share.unable-to-connect.heading": {
-    "message": "無法連線"
-  },
-  "app.instance.share.unlink.body": {
-    "message": "你必須先與模組包取消連結才能共用實例"
-  },
-  "app.instance.share.unlink.header": {
-    "message": "共用前需要取消連結"
-  },
-  "app.instance.shared-instance-already-installed.body": {
-    "message": "這個共用實例已經在本機安裝，名稱為「<bold>{instanceName}</bold>」。確定要再安裝一個副本嗎？"
-  },
-  "app.instance.shared-instance-already-installed.header": {
-    "message": "共用實例已經安裝"
-  },
-  "app.instance.shared-instance-already-installed.install-anyway": {
-    "message": "仍要安裝"
-  },
-  "app.instance.shared-instance-already-installed.instance": {
-    "message": "實例"
-  },
-  "app.instance.shared-instance-wrong-account.fallback-username": {
-    "message": "已連結的帳號"
-  },
-  "app.instance.shared-instance-wrong-account.owner-admonition-body-v2": {
-    "message": "登入才能管理這個共用實例，否則你將無法向使用者推送更新。"
-  },
-  "app.instance.shared-instance-wrong-account.sign-in-as-label": {
-    "message": "你需要以"
-  },
-  "app.instance.shared-instance-wrong-account.signed-out-header": {
-    "message": "你需要登入 Modrinth"
-  },
-  "app.instance.shared-instance-wrong-account.user-admonition-body-v2": {
-    "message": "登入才能收到這個共用實例的更新。"
-  },
-  "app.instance.shared-instance-wrong-account.warning-header": {
-    "message": "你目前使用的 Modrinth 帳號不正確"
-  },
   "app.instance.shortcut.created": {
     "message": "已建立捷徑"
   },
@@ -745,9 +574,6 @@
   },
   "app.instance.tab.logs": {
     "message": "紀錄"
-  },
-  "app.instance.tab.share": {
-    "message": "共用"
   },
   "app.instance.tab.worlds": {
     "message": "世界"
@@ -1103,21 +929,6 @@
   "app.library.title": {
     "message": "遊戲庫"
   },
-  "app.modal.install-to-play.additional-context": {
-    "message": "補充說明"
-  },
-  "app.modal.install-to-play.additional-context-placeholder": {
-    "message": "若可行且相關，請一併附上連結與圖片"
-  },
-  "app.modal.install-to-play.block-user": {
-    "message": "封鎖使用者"
-  },
-  "app.modal.install-to-play.content-you-are-reporting": {
-    "message": "你要檢舉的實例"
-  },
-  "app.modal.install-to-play.delete-instance": {
-    "message": "刪除實例"
-  },
   "app.modal.install-to-play.external-files-dont-install": {
     "message": "不要安裝"
   },
@@ -1133,50 +944,17 @@
   "app.modal.install-to-play.invite-warning": {
     "message": "這份邀請是由另一位 Modrinth 使用者建立，並非由 Modrinth 官方建立。請僅接受來自你信任的人的邀請。"
   },
-  "app.modal.install-to-play.invite-warning-with-creator": {
-    "message": "這份邀請是由 <creator>{username}</creator> 建立，並非由 Modrinth 官方建立。請僅接受來自你信任的人的邀請。"
-  },
   "app.modal.install-to-play.managed-content.modpack-header": {
     "message": "模組包內容"
   },
   "app.modal.install-to-play.mod-count": {
     "message": "{count, plural, other {# 個模組}}"
   },
-  "app.modal.install-to-play.report-description": {
-    "message": "用這個表單檢舉可能違反我們的《<rules-link>內容規範</rules-link>》或《<terms-link>使用條款</terms-link>》的實例。"
-  },
-  "app.modal.install-to-play.report-image-invalid-type": {
-    "message": "不支援的圖片格式"
-  },
-  "app.modal.install-to-play.report-image-too-large": {
-    "message": "檔案大小超過 1 MiB 限制"
-  },
-  "app.modal.install-to-play.report-legal-claims": {
-    "message": "關於 DMCA 通知或其他法律訴求，請參閱我們的《<copyright-link>著作權政策</copyright-link>》。"
-  },
-  "app.modal.install-to-play.report-reason": {
-    "message": "這個實例違反了哪一條規則？"
-  },
-  "app.modal.install-to-play.report-shared-instance-header": {
-    "message": "檢舉共用實例"
-  },
-  "app.modal.install-to-play.report-submitted": {
-    "message": "檢舉已提交"
-  },
-  "app.modal.install-to-play.report-support-and-bugs": {
-    "message": "如需客服支援，請聯絡我們的<support-link>客服團隊</support-link>。如需回報錯誤，請<github-link>在 GitHub 上提交 issue</github-link>。"
-  },
   "app.modal.install-to-play.reviewed-files": {
     "message": "未在 Modrinth 上發布的檔案未經過審查。"
   },
   "app.modal.install-to-play.shared-instance": {
     "message": "共用實例"
-  },
-  "app.modal.install-to-play.shared-instance-content": {
-    "message": "共用實例的內容"
-  },
-  "app.modal.install-to-play.shared-instance-unknown-files-description": {
-    "message": "這個共用實例包含未在 Modrinth 上發布的檔案。強烈建議你僅安裝來自信任來源的檔案。"
   },
   "app.modal.install-to-play.unknown-files-description": {
     "message": "這個伺服器模組包中包含未在 Modrinth 上發布的檔案。強烈建議你僅安裝來自信任來源的檔案。"
@@ -1186,9 +964,6 @@
   },
   "app.modal.install-to-play.unrecognized-files": {
     "message": "無法辨識的檔案"
-  },
-  "app.modal.install-to-play.user-blocked": {
-    "message": "使用者已封鎖"
   },
   "app.modal.install-to-play.view-contents": {
     "message": "查看內容"
@@ -1202,18 +977,6 @@
   "app.modal.update-to-play.server-modpack-unknown-files-description": {
     "message": "這個伺服器模組包更新包含未在 Modrinth 上發布的檔案。強烈建議你僅安裝來自信任來源的檔案。"
   },
-  "app.modal.update-to-play.shared-instance-added-label": {
-    "message": "已新增"
-  },
-  "app.modal.update-to-play.shared-instance-removed-label": {
-    "message": "已移除"
-  },
-  "app.modal.update-to-play.shared-instance-unknown-files-description": {
-    "message": "這個共用實例更新包含未在 Modrinth 上發布的檔案。強烈建議你僅安裝來自信任來源的檔案。"
-  },
-  "app.modal.update-to-play.update-required": {
-    "message": "需要更新"
-  },
   "app.modal.update-to-play.update-required-description": {
     "message": "需要更新才能遊玩「{name}」。請更新至最新版本以啟動遊戲。"
   },
@@ -1222,18 +985,6 @@
   },
   "app.nav.home": {
     "message": "首頁"
-  },
-  "app.nav.modrinth-account": {
-    "message": "Modrinth 帳號"
-  },
-  "app.nav.modrinth-hosting": {
-    "message": "Modrinth Hosting"
-  },
-  "app.nav.sign-in-to-modrinth-account": {
-    "message": "登入 Modrinth 帳號"
-  },
-  "app.nav.upgrade-to-modrinth-plus": {
-    "message": "升級至 Modrinth+"
   },
   "app.navigation.go-back": {
     "message": "上一頁"
@@ -1246,12 +997,6 @@
   },
   "app.navigation.next-image": {
     "message": "下一張圖片"
-  },
-  "app.news.title": {
-    "message": "新聞"
-  },
-  "app.news.view-all": {
-    "message": "查看所有新聞"
   },
   "app.notification.warning": {
     "message": "警告"
@@ -1400,20 +1145,11 @@
   "app.settings.operating-system.macos": {
     "message": "macOS"
   },
-  "app.settings.privacy.ads-consent.intro": {
-    "message": "廣告使 Modrinth 得以營運，並為創作者提供收益。我們的合作夥伴可能會在應用程式中儲存或存取 Cookie，以實現個人化廣告並衡量廣告成效。你可以在下方選擇退出或管理偏好設定。"
-  },
   "app.settings.privacy.discord-rich-presence.description": {
     "message": "在 Discord 上將 Dyad Launcher 顯示為目前活動。這不會影響模組為實例新增的豐富狀態。需要重新啟動應用程式。"
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord 豐富狀態"
-  },
-  "app.settings.privacy.telemetry.description": {
-    "message": "Modrinth 會收集匿名化的分析與使用資料，以提升使用者體驗並提供客製化服務。若停用此選項，即表示你選擇退出，你的資料將不再被收集。"
-  },
-  "app.settings.privacy.telemetry.title": {
-    "message": "遙測"
   },
   "app.settings.resource-management.always-show-copy-details.description": {
     "message": "當安裝已排入佇列或正在執行時，顯示「複製詳細資訊」按鈕。這項設定僅適用於前述安裝情形，安裝失敗或中斷時一律顯示該按鈕。"
@@ -1655,26 +1391,8 @@
   "app.skins.toggle-ears-features-on": {
     "message": "開啟"
   },
-  "app.survey.body": {
-    "message": "你方便回答幾個關於 Dyad Launcher 使用體驗的問題嗎？"
-  },
-  "app.survey.footer": {
-    "message": "你的回覆將直接傳送給 Modrinth 團隊，作為未來更新方向的指引！"
-  },
-  "app.survey.no-thanks": {
-    "message": "不用了，謝謝"
-  },
-  "app.survey.take-survey": {
-    "message": "填寫問卷調查"
-  },
-  "app.survey.title": {
-    "message": "你好啊，Modrinth 使用者！"
-  },
   "app.update-popup.body.download-complete": {
     "message": "Dyad Launcher v{version} 已完成下載！立即重新載入以更新，或在關閉 Dyad Launcher 時自動更新。"
-  },
-  "app.update-popup.body.linux": {
-    "message": "Dyad Launcher v{version} 現已推出。請使用軟體包管理員進行更新，以取得最新的功能與修正！"
   },
   "app.update-popup.body.metered": {
     "message": "Dyad Launcher v{version} 現已推出！由於你目前使用的是計量付費網路，我們並未自動下載更新。"
@@ -1742,9 +1460,6 @@
   "app.world.world-item.players-online": {
     "message": "{count} 人在線上"
   },
-  "content.shared-instance.change-version-body": {
-    "message": "變更版本只會影響本機副本。未來共用實例更新時可能會再次復原或變更這個專案。"
-  },
   "content.shared-instance.delete-bulk-body": {
     "message": "部分選取的專案是共用實例的一部分。刪除這些專案只會影響你的本機副本，而未來共用實例更新時可能會還原或再次變更這些專案。"
   },
@@ -1769,116 +1484,8 @@
   "content.shared-instance.disable-single-body": {
     "message": "停用這個專案只會影響本機副本。未來共用實例更新時，可能會重新啟用、還原或再次變更這個專案。"
   },
-  "content.shared-instance.unlink-body": {
-    "message": "解除連結只會影響本機副本。未來共用實例更新時可能會復原或再次變更。"
-  },
   "content.shared-instance.warning-header": {
     "message": "這是共用實例的一部分"
-  },
-  "friends.action.add-friend": {
-    "message": "新增好友"
-  },
-  "friends.action.view-friend-requests": {
-    "message": "{count} 個好友{count, plural, other {邀請}}"
-  },
-  "friends.add-friend.submit": {
-    "message": "送出好友邀請"
-  },
-  "friends.add-friend.title": {
-    "message": "新增好友"
-  },
-  "friends.add-friend.username.description": {
-    "message": "這可能與對方的 Minecraft 使用者名稱不同！"
-  },
-  "friends.add-friend.username.placeholder": {
-    "message": "輸入 Modrinth 使用者名稱..."
-  },
-  "friends.add-friend.username.title": {
-    "message": "你好友的 Modrinth 使用者名稱是什麼？"
-  },
-  "friends.add-friends-to-share": {
-    "message": "<link>新增好友</link>即可查看他們正在玩什麼！"
-  },
-  "friends.friend.cancel-request": {
-    "message": "取消請求"
-  },
-  "friends.friend.remove-friend": {
-    "message": "移除好友"
-  },
-  "friends.friend.request-sent": {
-    "message": "已送出好友邀請"
-  },
-  "friends.friend.view-profile": {
-    "message": "查看個人檔案"
-  },
-  "friends.heading": {
-    "message": "好友"
-  },
-  "friends.heading.active": {
-    "message": "活躍中"
-  },
-  "friends.heading.offline": {
-    "message": "離線"
-  },
-  "friends.heading.online": {
-    "message": "線上"
-  },
-  "friends.heading.pending": {
-    "message": "待處理"
-  },
-  "friends.no-friends-match": {
-    "message": "找不到相符「{query}」的好友"
-  },
-  "friends.search-friends-placeholder": {
-    "message": "搜尋好友..."
-  },
-  "friends.section.heading": {
-    "message": "{title} - {count}"
-  },
-  "friends.sign-in-to-add-friends": {
-    "message": "<link>登入 Modrinth 帳號</link>即可新增好友並查看他們正在玩什麼！"
-  },
-  "installation-settings.shared-instance.linked-title": {
-    "message": "已連結的共用實例"
-  },
-  "installation-settings.shared-instance.title": {
-    "message": "取消發布實例"
-  },
-  "installation-settings.shared-instance.unlink-button": {
-    "message": "取消連結共用實例"
-  },
-  "installation-settings.shared-instance.unlink-description": {
-    "message": "解除這個本機實例與後續共用更新的連結。"
-  },
-  "installation-settings.shared-instance.unlinking-button": {
-    "message": "正在取消連結..."
-  },
-  "installation-settings.shared-instance.unpublish-button": {
-    "message": "取消發布共用實例"
-  },
-  "installation-settings.shared-instance.unpublish-description": {
-    "message": "在 Modrinth 上移除這個共用實例，並停止向任何使用者推送更新。你的本機實例不會受到影響。"
-  },
-  "installation-settings.shared-instance.unpublishing-button": {
-    "message": "正在取消發布..."
-  },
-  "installation-settings.unlink-shared-instance.modal.admonition-body": {
-    "message": "這只會影響你的本機實例。你已安裝的內容仍會保留在此裝置上，共用實例及其他使用者都不會受到影響。"
-  },
-  "installation-settings.unlink-shared-instance.modal.admonition-header": {
-    "message": "即將取消連結共用實例"
-  },
-  "installation-settings.unlink-shared-instance.modal.header": {
-    "message": "取消連結共用實例"
-  },
-  "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "這會從 Modrinth 的伺服器刪除共用實例。在 Dyad Launcher 使用該實例的使用者將不再收到更新，但本機實例及其內容仍會保留在此裝置上。"
-  },
-  "installation-settings.unpublish-shared-instance.modal.admonition-header": {
-    "message": "即將取消發布共用實例"
-  },
-  "installation-settings.unpublish-shared-instance.modal.header": {
-    "message": "取消發布共用實例"
   },
   "instance.action.create-shortcut": {
     "message": "建立捷徑"
@@ -2165,9 +1772,6 @@
   "instance.last-played": {
     "message": "最後遊玩時間："
   },
-  "instance.locked.delete-button": {
-    "message": "刪除實例"
-  },
   "instance.locked.play-tooltip": {
     "message": "這個實例已被鎖定"
   },
@@ -2185,45 +1789,6 @@
   },
   "instance.server-modal.resource-pack": {
     "message": "資源包"
-  },
-  "instance.settings.sharing.active-invites.actions": {
-    "message": "動作"
-  },
-  "instance.settings.sharing.active-invites.code": {
-    "message": "邀請連結"
-  },
-  "instance.settings.sharing.active-invites.description": {
-    "message": "任何使用者都可透過下列任何一個有效邀請連結加入。"
-  },
-  "instance.settings.sharing.active-invites.empty": {
-    "message": "目前沒有有效的邀請。"
-  },
-  "instance.settings.sharing.active-invites.expires": {
-    "message": "有效期限"
-  },
-  "instance.settings.sharing.active-invites.revoke": {
-    "message": "撤銷邀請"
-  },
-  "instance.settings.sharing.active-invites.revoke-with-code": {
-    "message": "撤銷邀請 {code}"
-  },
-  "instance.settings.sharing.active-invites.title": {
-    "message": "有效邀請"
-  },
-  "instance.settings.sharing.active-invites.uses": {
-    "message": "使用次數"
-  },
-  "instance.settings.sharing.revoke-invite.admonition-body": {
-    "message": "邀請連結 <monospace>{code}</monospace> 將立即失效。已加入的使用者不受影響。"
-  },
-  "instance.settings.sharing.revoke-invite.admonition-header": {
-    "message": "這項動作無法復原"
-  },
-  "instance.settings.sharing.revoke-invite.confirm": {
-    "message": "撤銷邀請"
-  },
-  "instance.settings.sharing.revoke-invite.header": {
-    "message": "撤銷邀請"
   },
   "instance.settings.tabs.general": {
     "message": "一般"
@@ -2399,9 +1964,6 @@
   "instance.settings.tabs.java.java-path-placeholder": {
     "message": "/path/to/java"
   },
-  "instance.settings.tabs.sharing": {
-    "message": "共用"
-  },
   "instance.settings.tabs.window": {
     "message": "視窗"
   },
@@ -2431,63 +1993,6 @@
   },
   "instance.settings.tabs.window.width.enter": {
     "message": "輸入寬度..."
-  },
-  "instance.shared-instance.error.title": {
-    "message": "出了點狀況"
-  },
-  "instance.shared-instance.network-error.text": {
-    "message": "無法連線到共用實例 API"
-  },
-  "instance.shared-instance.network-error.title": {
-    "message": "網路錯誤"
-  },
-  "instance.shared-instance.owner-tooltip": {
-    "message": "這個實例的內容正在與其他使用者共用。"
-  },
-  "instance.shared-instance.publish-review.added-label": {
-    "message": "已新增"
-  },
-  "instance.shared-instance.publish-review.admonition-header": {
-    "message": "向玩家推送更新"
-  },
-  "instance.shared-instance.publish-review.config-title-v2": {
-    "message": "選擇設定檔"
-  },
-  "instance.shared-instance.publish-review.description": {
-    "message": "審查內容變更，並選擇要包含在本次更新的設定檔。"
-  },
-  "instance.shared-instance.publish-review.header": {
-    "message": "檢視變更"
-  },
-  "instance.shared-instance.publish-review.publish-button": {
-    "message": "推送更新"
-  },
-  "instance.shared-instance.publish-review.removed-label": {
-    "message": "已移除"
-  },
-  "instance.shared-instance.tooltip": {
-    "message": "這個實例的內容由其他使用者負責管理。"
-  },
-  "instance.shared-instance.unavailable.access-revoked-text": {
-    "message": "你對共用實例的存取權已被撤銷。這個實例仍可正常使用，但已不再與共用實例連結，且不再接收更新。"
-  },
-  "instance.shared-instance.unavailable.deleted-text": {
-    "message": "主要實例已被刪除。這個實例仍可正常使用，但已不再與共用實例連結，且不再接收更新。"
-  },
-  "instance.shared-instance.unavailable.locked-text": {
-    "message": "這個共用實例已被內容管理團隊鎖定，不會再接收來自主要實例的更新，且無法遊玩。"
-  },
-  "instance.shared-instance.unavailable.locked-title": {
-    "message": "實例已鎖定"
-  },
-  "instance.shared-instance.unavailable.manager-fallback": {
-    "message": "實例管理者"
-  },
-  "instance.shared-instance.unavailable.text": {
-    "message": "你的本機實例仍可正常使用，但已不再與共用實例連結，且不再接收更新。"
-  },
-  "instance.shared-instance.unavailable.title": {
-    "message": "你無法使用這個共用實例"
   },
   "instance.worlds.a_minecraft_server": {
     "message": "Minecraft 伺服器"
@@ -2585,51 +2090,6 @@
   "minecraft-required.sign-in": {
     "message": "登入 Microsoft"
   },
-  "modal.modrinth-account-required.browser-description": {
-    "message": "一個新分頁已開啟供你登入。請在該分頁完成登入，然後返回應用程式。"
-  },
-  "modal.modrinth-account-required.continue-in-browser-heading": {
-    "message": "在瀏覽器中繼續"
-  },
-  "modal.modrinth-account-required.create-account-button": {
-    "message": "建立帳號"
-  },
-  "modal.modrinth-account-required.description": {
-    "message": "你必須登入 Modrinth 帳號才能使用這個功能。"
-  },
-  "modal.modrinth-account-required.header": {
-    "message": "需要帳號"
-  },
-  "modal.modrinth-account-required.open-browser-again-button": {
-    "message": "再次開啟瀏覽器"
-  },
-  "modal.modrinth-account-required.sign-in-button": {
-    "message": "登入 Modrinth"
-  },
-  "modal.modrinth-account-required.sign-in-heading": {
-    "message": "登入 Modrinth 帳號"
-  },
-  "modal.modrinth-account-required.signing-in-header": {
-    "message": "登入"
-  },
-  "modal.modrinth-account-required.support-prompt": {
-    "message": "登入時遇到問題嗎？<support>取得支援</support>"
-  },
-  "modal.modrinth-account-required.waiting-for-browser": {
-    "message": "等待瀏覽器確認..."
-  },
-  "onboarding-checklist.create-instance": {
-    "message": "建立第一個實例"
-  },
-  "onboarding-checklist.login-minecraft": {
-    "message": "登入 Minecraft"
-  },
-  "onboarding-checklist.login-modrinth": {
-    "message": "登入 Modrinth"
-  },
-  "onboarding-checklist.title": {
-    "message": "開始使用"
-  },
   "search.filter.locked.instance": {
     "message": "由該實例提供"
   },
@@ -2644,9 +2104,6 @@
   },
   "search.filter.locked.server-environment.title": {
     "message": "只有用戶端模組可以被加到伺服器實例"
-  },
-  "settings.sidebar.label.account": {
-    "message": "帳號"
   },
   "settings.sidebar.label.display": {
     "message": "顯示"

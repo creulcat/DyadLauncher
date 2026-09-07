@@ -89,9 +89,6 @@
   "app.action-bar.install.unknown-instance": {
     "message": "Okänd instans"
   },
-  "app.action-bar.install.updating-shared-content": {
-    "message": "Uppdaterar delat innehåll"
-  },
   "app.action-bar.installs": {
     "message": "Installationer"
   },
@@ -130,21 +127,6 @@
   },
   "app.action-bar.view-logs": {
     "message": "Visa loggar"
-  },
-  "app.ads-consent.accept": {
-    "message": "Godkänn alla"
-  },
-  "app.ads-consent.body": {
-    "message": "Reklam gör Modrinth möjligt och finansierar utbetalningar till skapare. Våra partner kan lagra eller komma åt kakor i appen för att rikta reklam och mäta statistik."
-  },
-  "app.ads-consent.manage": {
-    "message": "Hantera inställningar"
-  },
-  "app.ads-consent.reject": {
-    "message": "Neka alla"
-  },
-  "app.ads-consent.title": {
-    "message": "Din integritet och hur reklam stödjer Modrinth"
   },
   "app.appearance-settings.compact-mode.title": {
     "message": "Kompakt läge"
@@ -317,18 +299,6 @@
   "app.home.jump-back-in.view-instance": {
     "message": "Visa instans"
   },
-  "app.hosting.update-required.description": {
-    "message": "Du behöver uppdatera för att använda Modrinth Hosting genom Dyad Launcher"
-  },
-  "app.hosting.update-required.download": {
-    "message": "Ladda ner för att uppdatera"
-  },
-  "app.hosting.update-required.rinthbot-alt": {
-    "message": "Exalterad Modrinth-bot"
-  },
-  "app.hosting.update-required.title": {
-    "message": "Dyad Launcher-uppdatering krävs"
-  },
   "app.icon-editor.apply-icons-modal.apply-error": {
     "message": "Kunde inte tillämpa slumpmässiga ikoner till instanser."
   },
@@ -458,36 +428,6 @@
   "app.instance.add-server.title": {
     "message": "Lägg till server till instansen"
   },
-  "app.instance.admonitions.shared-instance.added-label": {
-    "message": "Tillagd"
-  },
-  "app.instance.admonitions.shared-instance.changes-body": {
-    "message": "Din lokala instans ligger före användarna du delar den med."
-  },
-  "app.instance.admonitions.shared-instance.changes-header": {
-    "message": "Dina ändringar har inte delats än"
-  },
-  "app.instance.admonitions.shared-instance.publish-button": {
-    "message": "Ge ut en uppdatering"
-  },
-  "app.instance.admonitions.shared-instance.publishing-button": {
-    "message": "Ger ut..."
-  },
-  "app.instance.admonitions.shared-instance.removed-label": {
-    "message": "Borttagen"
-  },
-  "app.instance.admonitions.shared-instance.review-admonition-header": {
-    "message": "Ge ut en uppdatering"
-  },
-  "app.instance.admonitions.shared-instance.review-description": {
-    "message": "Granska innehållsändringarna som kommer delas med alla som använder den här instansen."
-  },
-  "app.instance.admonitions.shared-instance.review-header": {
-    "message": "Granskar ändringar"
-  },
-  "app.instance.admonitions.shared-instance.reviewing-button": {
-    "message": "Granskar..."
-  },
   "app.instance.card.icon-alt": {
     "message": "Instans ikon"
   },
@@ -587,117 +527,6 @@
   "app.instance.navigation.back-to-instance": {
     "message": "Tillbaka till instans"
   },
-  "app.instance.share.empty.description": {
-    "message": "Du kan dela denna instansen med dina vänner!"
-  },
-  "app.instance.share.empty.heading": {
-    "message": "Inga inbjudna vänner"
-  },
-  "app.instance.share.empty.invite-friends-button": {
-    "message": "Bjud in vänner"
-  },
-  "app.instance.share.invite-modal.heading": {
-    "message": "Dela {name}"
-  },
-  "app.instance.share.invite-modal.user-limit-reached": {
-    "message": "Instansen har nått gränsen på {limit} användare."
-  },
-  "app.instance.share.locked.empty-description-prefix": {
-    "message": "Du behöver logga in som"
-  },
-  "app.instance.share.locked.empty-description-suffix": {
-    "message": "för att komma åt denna sida."
-  },
-  "app.instance.share.locked.linked-account-fallback": {
-    "message": "det länkade kontot"
-  },
-  "app.instance.share.locked.signed-out-heading": {
-    "message": "Inte inloggad"
-  },
-  "app.instance.share.locked.switch-account-button": {
-    "message": "Byt konto"
-  },
-  "app.instance.share.locked.wrong-account-heading": {
-    "message": "Fel konto"
-  },
-  "app.instance.share.members.empty": {
-    "message": "Inga användare har anslutit än"
-  },
-  "app.instance.share.members.no-filter-results": {
-    "message": "Ingen användare matchade dina filter."
-  },
-  "app.instance.share.remove-user-modal.effect-access": {
-    "message": "De kommer inte längre få uppdateringar för denna delade instansen"
-  },
-  "app.instance.share.remove-user-modal.effect-installed-copy": {
-    "message": "Alla kopior de redan har installerat kommer vara kvar på deras enhet"
-  },
-  "app.instance.share.remove-user-modal.effect-invite-again": {
-    "message": "Du kan bjuda in dem igen senare"
-  },
-  "app.instance.share.remove-user-modal.effect-last-user": {
-    "message": "Detta är den sista användaren, delning kommer avaktiveras för den här instansen"
-  },
-  "app.instance.share.remove-user-modal.effects-label": {
-    "message": "Vad händer?"
-  },
-  "app.instance.share.remove-user-modal.header": {
-    "message": "Återkalla åtkomst"
-  },
-  "app.instance.share.remove-user-modal.remove-button": {
-    "message": "Återkalla åtkomst"
-  },
-  "app.instance.share.remove-user-modal.user-avatar-alt": {
-    "message": "{username}s avatar"
-  },
-  "app.instance.share.remove-user-modal.warning-body": {
-    "message": "Återkallar du {username}s åtkomst till denna delade instansen behöver du bjuda in dem igen innan de kan få uppdateringar."
-  },
-  "app.instance.share.sign-in.button": {
-    "message": "Logga in"
-  },
-  "app.instance.share.unable-to-connect.description": {
-    "message": "Delade instanser-tjänsten är inte tillgänglig för tillfället, vänligen försök igen senare"
-  },
-  "app.instance.share.unable-to-connect.heading": {
-    "message": "Kunde inte ansluta"
-  },
-  "app.instance.share.unlink.body": {
-    "message": "Du måste avlänka detta modpaket för att dela din instans"
-  },
-  "app.instance.share.unlink.header": {
-    "message": "Delning kräver avlänkning"
-  },
-  "app.instance.shared-instance-already-installed.body": {
-    "message": "Denna delade instansen är redan installerad som <bold>{instanceName}</bold>. Är du säker på att du vill installera en till kopia?"
-  },
-  "app.instance.shared-instance-already-installed.header": {
-    "message": "Delad instans redan installerad"
-  },
-  "app.instance.shared-instance-already-installed.install-anyway": {
-    "message": "Installera ändå"
-  },
-  "app.instance.shared-instance-already-installed.instance": {
-    "message": "Instans"
-  },
-  "app.instance.shared-instance-wrong-account.fallback-username": {
-    "message": "det länkade kontot"
-  },
-  "app.instance.shared-instance-wrong-account.owner-admonition-body-v2": {
-    "message": "för att hantera denna delade instans. Du kommer inte ge ut uppdateringar till användare."
-  },
-  "app.instance.shared-instance-wrong-account.sign-in-as-label": {
-    "message": "Logga in som"
-  },
-  "app.instance.shared-instance-wrong-account.signed-out-header": {
-    "message": "Du behöver logga in på Modrinth"
-  },
-  "app.instance.shared-instance-wrong-account.user-admonition-body-v2": {
-    "message": "för att få uppdateringar till den här delade instansen."
-  },
-  "app.instance.shared-instance-wrong-account.warning-header": {
-    "message": "Du använder fel Modrinth-konto"
-  },
   "app.instance.shortcut.created": {
     "message": "Genväg skapad"
   },
@@ -712,9 +541,6 @@
   },
   "app.instance.tab.logs": {
     "message": "Loggar"
-  },
-  "app.instance.tab.share": {
-    "message": "Dela"
   },
   "app.instance.tab.worlds": {
     "message": "Världar"
@@ -1049,21 +875,6 @@
   "app.library.title": {
     "message": "Bibliotek"
   },
-  "app.modal.install-to-play.additional-context": {
-    "message": "Ytterligare sammanhang"
-  },
-  "app.modal.install-to-play.additional-context-placeholder": {
-    "message": "Inkludera länkar och bilder om möjligt och relevant"
-  },
-  "app.modal.install-to-play.block-user": {
-    "message": "Blockera användare"
-  },
-  "app.modal.install-to-play.content-you-are-reporting": {
-    "message": "Instans du anmäler"
-  },
-  "app.modal.install-to-play.delete-instance": {
-    "message": "Radera instans"
-  },
   "app.modal.install-to-play.external-files-dont-install": {
     "message": "Installera inte"
   },
@@ -1079,50 +890,17 @@
   "app.modal.install-to-play.invite-warning": {
     "message": "Denna inbjudan skapades av en annan Modrinth-användare, inte Modrinth. Acceptera endast inbjudningar från personer du litar på."
   },
-  "app.modal.install-to-play.invite-warning-with-creator": {
-    "message": "Denna inbjudan skapades av <creator>{username}</creator>, inte Modrinth. Acceptera endast inbjudningar från personer du litar på."
-  },
   "app.modal.install-to-play.managed-content.modpack-header": {
     "message": "Modpaketsinnehåll"
   },
   "app.modal.install-to-play.mod-count": {
     "message": "{count, plural, one {# mod} other {# moddar}}"
   },
-  "app.modal.install-to-play.report-description": {
-    "message": "Använd denna formulär för att anmäla instanser som kan bryta mot våra <rules-link>Regler</rules-link> eller <terms-link>Användarvillkor</terms-link>."
-  },
-  "app.modal.install-to-play.report-image-invalid-type": {
-    "message": "Filen är inte en godkänd bildtyp"
-  },
-  "app.modal.install-to-play.report-image-too-large": {
-    "message": "Fil överskrider storleksgränsen på 1 MiB"
-  },
-  "app.modal.install-to-play.report-legal-claims": {
-    "message": "För DMCA-meddelanden eller andra juridiska anspråk, se våran <copyright-link>Copyright Policy</copyright-link>."
-  },
-  "app.modal.install-to-play.report-reason": {
-    "message": "Vilken regel bryter instansen mot?"
-  },
-  "app.modal.install-to-play.report-shared-instance-header": {
-    "message": "Rapportera delad instans"
-  },
-  "app.modal.install-to-play.report-submitted": {
-    "message": "Rapport skickad"
-  },
-  "app.modal.install-to-play.report-support-and-bugs": {
-    "message": "För supportärenden, kontakta vårt <support-link>supportteam</support-link>. För buggrapporter, öppna ett <github-link>GitHub issue</github-link>."
-  },
   "app.modal.install-to-play.reviewed-files": {
     "message": "Filer som inte publiceras på Modrinth granskas inte."
   },
   "app.modal.install-to-play.shared-instance": {
     "message": "Delad instans"
-  },
-  "app.modal.install-to-play.shared-instance-content": {
-    "message": "Delat instansinnehåll"
-  },
-  "app.modal.install-to-play.shared-instance-unknown-files-description": {
-    "message": "Denna delad instans innehåller filer som inte är publicerade på Modrinth. Vi rekommenderar stark att du endast installerar filer från källor du litar på."
   },
   "app.modal.install-to-play.unknown-files-description": {
     "message": "Detta server-modpaket innehåller filer som inte är utgivna på Modrinth. Vi rekommenderar att endast installera filer från källor du litar på."
@@ -1132,9 +910,6 @@
   },
   "app.modal.install-to-play.unrecognized-files": {
     "message": "Okända filer"
-  },
-  "app.modal.install-to-play.user-blocked": {
-    "message": "Användare blockerad"
   },
   "app.modal.install-to-play.view-contents": {
     "message": "Visa innehåll"
@@ -1148,18 +923,6 @@
   "app.modal.update-to-play.server-modpack-unknown-files-description": {
     "message": "Uppdateringen för detta server-modpaket innehåller filer som inte är utgivna på Modrinth. Vi rekommenderar att endast installera filer från källor du litar på."
   },
-  "app.modal.update-to-play.shared-instance-added-label": {
-    "message": "Lade till"
-  },
-  "app.modal.update-to-play.shared-instance-removed-label": {
-    "message": "Tog bort"
-  },
-  "app.modal.update-to-play.shared-instance-unknown-files-description": {
-    "message": "Uppdateringen för denna delad instans innehåller filer som inte är publicerade på Modrinth. Vi rekommenderar stark att du endast installerar filer från källor du litar på."
-  },
-  "app.modal.update-to-play.update-required": {
-    "message": "Uppdatering krävs"
-  },
   "app.modal.update-to-play.update-required-description": {
     "message": "En uppdatering krävs för att spela {name}. Vänligen uppdatera till den senaste verisoner för att köra spelet."
   },
@@ -1168,18 +931,6 @@
   },
   "app.nav.home": {
     "message": "Hem"
-  },
-  "app.nav.modrinth-account": {
-    "message": "Modrinth-konto"
-  },
-  "app.nav.modrinth-hosting": {
-    "message": "Modrinth Hosting"
-  },
-  "app.nav.sign-in-to-modrinth-account": {
-    "message": "Logga in till ett Modrinth-konto"
-  },
-  "app.nav.upgrade-to-modrinth-plus": {
-    "message": "Uppgradera till Modrinth+"
   },
   "app.navigation.go-back": {
     "message": "Gå tillbaka"
@@ -1192,12 +943,6 @@
   },
   "app.navigation.next-image": {
     "message": "Nästa bild"
-  },
-  "app.news.title": {
-    "message": "Nyheter"
-  },
-  "app.news.view-all": {
-    "message": "Se alla nyheter"
   },
   "app.notification.warning": {
     "message": "Varning"
@@ -1313,17 +1058,8 @@
   "app.settings.operating-system.macos": {
     "message": "macOS"
   },
-  "app.settings.privacy.ads-consent.intro": {
-    "message": "Reklam gör Modrinth möjligt och finansierar utbetalningar till skapare. Våra partner kan lagra eller komma åt kakor i appen för att rikta reklam och mäta statistik. Du kan välja bort eller hantera dina preferenser nedan."
-  },
   "app.settings.privacy.discord-rich-presence.description": {
     "message": "Visa Dyad Launcher som din nuvarande aktivitet på Discord. Detta påverkar inte Rich Presence som lagts till i instanser av moddar. Kräver en app omstart."
-  },
-  "app.settings.privacy.telemetry.description": {
-    "message": "Modrinth samlar in anonymiserad statistik och användningsdata för att förbättra vår användarupplevelse och anpassa din upplevelse. Genom att inaktivera det här alternativet avanmäler du dig och din data kommer inte längre samlas in."
-  },
-  "app.settings.privacy.telemetry.title": {
-    "message": "Telemetri"
   },
   "app.settings.resource-management.always-show-copy-details.title": {
     "message": "Visa alltid kopieringsdetaljer"
@@ -1544,20 +1280,8 @@
   "app.skins.toggle-ears-features-on": {
     "message": "Växla på"
   },
-  "app.survey.footer": {
-    "message": "Den här återkopplingen kommer gå direkt till Modrinth-teamet och hjälper till att vägleda framtida uppdateringar!"
-  },
-  "app.survey.no-thanks": {
-    "message": "Nej tack"
-  },
-  "app.survey.title": {
-    "message": "Hej där Modrinth-användare!"
-  },
   "app.update-popup.body.download-complete": {
     "message": "Dyad Launcher v{version} har laddats ner. Ladda om för att uppdatera nu, eller automatiskt när du stänger Dyad Launcher."
-  },
-  "app.update-popup.body.linux": {
-    "message": "Dyad Launcher v{version} är tillgänglig. Använd din pakethanterare för att uppdatera och få tillgång till de senaste funktionerna och buggfixarna!"
   },
   "app.update-popup.body.metered": {
     "message": "Dyad Launcher v{version} är nu tillgänglig! Eftersom du använder ett nätverk med datatrafikbegränsningar har vi inte laddat ner det automatiskt."
@@ -1619,9 +1343,6 @@
   "app.world.world-item.players-online": {
     "message": "{count} online"
   },
-  "content.shared-instance.change-version-body": {
-    "message": "Att ändra versionen ändrar endast din lokala kopia. Framtida uppdateringar till den delade instansen kan återställa eller ändra den igen."
-  },
   "content.shared-instance.delete-bulk-body": {
     "message": "Vissa valda projekt är en del av den delade instansen. Att radera dem ändrar endast din lokala kopia och framtida uppdateringar till den delade instansen kan återställa eller ändra dem igen."
   },
@@ -1640,110 +1361,8 @@
   "content.shared-instance.disable-many-button": {
     "message": "Inaktivera {count, number} projekt ändå"
   },
-  "content.shared-instance.unlink-body": {
-    "message": "Avlänkning ändrar endast din lokala kopia. Framtida uppdateringar av den delade instansen kan återställa och ändra den igen."
-  },
   "content.shared-instance.warning-header": {
     "message": "Det här är en del av den delade instansen"
-  },
-  "friends.action.add-friend": {
-    "message": "Lägg till en vän"
-  },
-  "friends.action.view-friend-requests": {
-    "message": "{count} vän{count, plural, one {förfrågan} other {förfrågningar}}"
-  },
-  "friends.add-friend.submit": {
-    "message": "Skicka vänförfrågan"
-  },
-  "friends.add-friend.title": {
-    "message": "Lägga till en vän"
-  },
-  "friends.add-friend.username.description": {
-    "message": "Det kan vara annorlunda från deras Minecraft-användarnamn!"
-  },
-  "friends.add-friend.username.placeholder": {
-    "message": "Ange Modrinth-användarnamn..."
-  },
-  "friends.add-friend.username.title": {
-    "message": "Vad är din väns Modrinth-användarnamn?"
-  },
-  "friends.add-friends-to-share": {
-    "message": "<link>Lägg till vänner</link> för att se vad de spelar!"
-  },
-  "friends.friend.cancel-request": {
-    "message": "Avbryt förfrågan"
-  },
-  "friends.friend.remove-friend": {
-    "message": "Ta bort vän"
-  },
-  "friends.friend.request-sent": {
-    "message": "Vänförfrågan skickad"
-  },
-  "friends.friend.view-profile": {
-    "message": "Visa profil"
-  },
-  "friends.heading": {
-    "message": "Vänner"
-  },
-  "friends.heading.active": {
-    "message": "Aktiva"
-  },
-  "friends.heading.offline": {
-    "message": "Offline"
-  },
-  "friends.heading.online": {
-    "message": "Online"
-  },
-  "friends.heading.pending": {
-    "message": "Väntar"
-  },
-  "friends.no-friends-match": {
-    "message": "Inga vänner matchar ''{query}''"
-  },
-  "friends.search-friends-placeholder": {
-    "message": "Sök efter vänner..."
-  },
-  "friends.section.heading": {
-    "message": "{title} - {count}"
-  },
-  "friends.sign-in-to-add-friends": {
-    "message": "<link>Logga in på ett Modrinth-konto</link> för att lägga till vänner och se vad de spelar!"
-  },
-  "installation-settings.shared-instance.linked-title": {
-    "message": "Länkad delad instans"
-  },
-  "installation-settings.shared-instance.title": {
-    "message": "Avpublicera instans"
-  },
-  "installation-settings.shared-instance.unlink-button": {
-    "message": "Avlänka delad instans"
-  },
-  "installation-settings.shared-instance.unlinking-button": {
-    "message": "Avlänkar..."
-  },
-  "installation-settings.shared-instance.unpublish-button": {
-    "message": "Avpublicera delad instans"
-  },
-  "installation-settings.shared-instance.unpublish-description": {
-    "message": "Ta bort den delade instansen från Modrinth och sluta skicka uppdateringar till alla som använder den. Din lokala instans kommer inte att påverkas."
-  },
-  "installation-settings.shared-instance.unpublishing-button": {
-    "message": "Avpublicerar..."
-  },
-  "installation-settings.unlink-shared-instance.modal.admonition-header": {
-    "message": "Avlänkar delad instans"
-  },
-  "installation-settings.unlink-shared-instance.modal.header": {
-    "message": "Avlänka delad instans"
-  },
-  "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "Det här raderar den delade instansen från Modrinths servrar. De som använder den i Dyad Launcher kommer inte längre få uppdateringar, men din lokala instans och dess innehåll är kvar på den här enheten."
-  },
-  "installation-settings.unpublish-shared-instance.modal.admonition-header": {
-    "message": "Avpublicerar delad instans"
-  },
-  "installation-settings.unpublish-shared-instance.modal.header": {
-    "message": "Avpublicera delad instans"
   },
   "instance.action.create-shortcut": {
     "message": "Skapa genväg"
@@ -2000,9 +1619,6 @@
   "instance.last-played": {
     "message": "Senast spelad"
   },
-  "instance.locked.delete-button": {
-    "message": "Radera instans"
-  },
   "instance.locked.play-tooltip": {
     "message": "Denna instans har låsts"
   },
@@ -2020,45 +1636,6 @@
   },
   "instance.server-modal.resource-pack": {
     "message": "Resurs pack"
-  },
-  "instance.settings.sharing.active-invites.actions": {
-    "message": "Åtgärder"
-  },
-  "instance.settings.sharing.active-invites.code": {
-    "message": "Inbjudningslänk"
-  },
-  "instance.settings.sharing.active-invites.description": {
-    "message": "Vem som helst med en av de här inbjudningslänkarna kan ansluta medan den är aktiv."
-  },
-  "instance.settings.sharing.active-invites.empty": {
-    "message": "Det finns inga aktiva inbjudningar."
-  },
-  "instance.settings.sharing.active-invites.expires": {
-    "message": "Går ut"
-  },
-  "instance.settings.sharing.active-invites.revoke": {
-    "message": "Återkalla inbjudan"
-  },
-  "instance.settings.sharing.active-invites.revoke-with-code": {
-    "message": "Återkalla inbjudan {code}"
-  },
-  "instance.settings.sharing.active-invites.title": {
-    "message": "Aktiva inbjudningar"
-  },
-  "instance.settings.sharing.active-invites.uses": {
-    "message": "Användningar"
-  },
-  "instance.settings.sharing.revoke-invite.admonition-body": {
-    "message": "Inbjudningslänken <monospace>{code}</monospace> kommer sluta fungera omedelbart. De som redan gått med kommer ha kvar åtkomst."
-  },
-  "instance.settings.sharing.revoke-invite.admonition-header": {
-    "message": "Den här åtgärden kan inte ångras"
-  },
-  "instance.settings.sharing.revoke-invite.confirm": {
-    "message": "Återkalla inbjudan"
-  },
-  "instance.settings.sharing.revoke-invite.header": {
-    "message": "Återkalla inbjudan"
   },
   "instance.settings.tabs.general": {
     "message": "Allmänt"
@@ -2225,9 +1802,6 @@
   "instance.settings.tabs.java.java-path-placeholder": {
     "message": "/sökväg/till/java"
   },
-  "instance.settings.tabs.sharing": {
-    "message": "Dela"
-  },
   "instance.settings.tabs.window": {
     "message": "Fönster"
   },
@@ -2257,63 +1831,6 @@
   },
   "instance.settings.tabs.window.width.enter": {
     "message": "Ange bredd..."
-  },
-  "instance.shared-instance.error.title": {
-    "message": "Något gick fel"
-  },
-  "instance.shared-instance.network-error.text": {
-    "message": "Kan inte ansluta till den delade instansens API"
-  },
-  "instance.shared-instance.network-error.title": {
-    "message": "Nätverksfel"
-  },
-  "instance.shared-instance.owner-tooltip": {
-    "message": "Den här instansens innehåll delas med andra användare."
-  },
-  "instance.shared-instance.publish-review.added-label": {
-    "message": "Lade till"
-  },
-  "instance.shared-instance.publish-review.admonition-header": {
-    "message": "Skicka uppdatering till spelare"
-  },
-  "instance.shared-instance.publish-review.config-title-v2": {
-    "message": "Välj konfigurationsfiler"
-  },
-  "instance.shared-instance.publish-review.description": {
-    "message": "Granska innehållsändringar och välj vilka konfigurationsfiler att inkludera i den här uppdateringen."
-  },
-  "instance.shared-instance.publish-review.header": {
-    "message": "Granska ändringar"
-  },
-  "instance.shared-instance.publish-review.publish-button": {
-    "message": "Skicka uppdatering"
-  },
-  "instance.shared-instance.publish-review.removed-label": {
-    "message": "Tog bort"
-  },
-  "instance.shared-instance.tooltip": {
-    "message": "Den här instansens innehåll hanteras av någon annan."
-  },
-  "instance.shared-instance.unavailable.access-revoked-text": {
-    "message": "Din åtkomst till den delade instansen återkallades. Den här instansen är fortfarande tillgänglig, men är inte längre länkad och kommer inte längre få uppdateringar."
-  },
-  "instance.shared-instance.unavailable.deleted-text": {
-    "message": "Primärinstansen raderades. Den här instansen är fortfarande tillgänglig, men är inte längre länkad och kommer inte längre få uppdateringar."
-  },
-  "instance.shared-instance.unavailable.locked-text": {
-    "message": "Den här instansen låstes av innehållsmodereringsteamet. Den kommer inte längre få uppdateringar från primärinstansen och kan inte spelas."
-  },
-  "instance.shared-instance.unavailable.locked-title": {
-    "message": "Instans låst"
-  },
-  "instance.shared-instance.unavailable.manager-fallback": {
-    "message": "instanshanteraren"
-  },
-  "instance.shared-instance.unavailable.text": {
-    "message": "Din lokala instans är fortfarande tillgänglig, men är inte längre länkad och kommer inte få uppdateringar."
-  },
-  "instance.shared-instance.unavailable.title": {
-    "message": "Delad instans inte längre tillgänglig"
   },
   "instance.worlds.a_minecraft_server": {
     "message": "En Minecraft Server"
@@ -2411,51 +1928,6 @@
   "minecraft-required.sign-in": {
     "message": "Logga in på Microsoft"
   },
-  "modal.modrinth-account-required.browser-description": {
-    "message": "En ny flik öppnades för att logga in. Slutför inloggningen där, kom sedan tillbaka till appen."
-  },
-  "modal.modrinth-account-required.continue-in-browser-heading": {
-    "message": "Fortsätt i din webbläsare"
-  },
-  "modal.modrinth-account-required.create-account-button": {
-    "message": "Skapa ett konto"
-  },
-  "modal.modrinth-account-required.description": {
-    "message": "Du behöver logga in på ditt Modrinth-konto innan du kan använda den här funktionen."
-  },
-  "modal.modrinth-account-required.header": {
-    "message": "Konto behövs"
-  },
-  "modal.modrinth-account-required.open-browser-again-button": {
-    "message": "Öppna webbläsare igen"
-  },
-  "modal.modrinth-account-required.sign-in-button": {
-    "message": "Logga in på Modrinth"
-  },
-  "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Logga in till ett Modrinth-konto"
-  },
-  "modal.modrinth-account-required.signing-in-header": {
-    "message": "Loggar in"
-  },
-  "modal.modrinth-account-required.support-prompt": {
-    "message": "Har du problem med att logga in? <support>Få hjälp</support>"
-  },
-  "modal.modrinth-account-required.waiting-for-browser": {
-    "message": "Väntar på bekräftelse från webbläsaren..."
-  },
-  "onboarding-checklist.create-instance": {
-    "message": "Skapa först en instans"
-  },
-  "onboarding-checklist.login-minecraft": {
-    "message": "Logga på Minecraft"
-  },
-  "onboarding-checklist.login-modrinth": {
-    "message": "Logga in på Modrinth"
-  },
-  "onboarding-checklist.title": {
-    "message": "Kom igång"
-  },
   "search.filter.locked.instance": {
     "message": "Tillhandahållet av instansen"
   },
@@ -2470,9 +1942,6 @@
   },
   "search.filter.locked.server-environment.title": {
     "message": "Endast klient-sido moddar kan läggas till i serverinstansen"
-  },
-  "settings.sidebar.label.account": {
-    "message": "Konto"
   },
   "settings.sidebar.label.display": {
     "message": "Visning"

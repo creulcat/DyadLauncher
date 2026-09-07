@@ -92,9 +92,6 @@
   "app.action-bar.install.unknown-instance": {
     "message": "نسخة غير معروفة"
   },
-  "app.action-bar.install.updating-shared-content": {
-    "message": "جارٍ تحديث المحتوى المشترك"
-  },
   "app.action-bar.installs": {
     "message": "عمليات التثبيت"
   },
@@ -133,21 +130,6 @@
   },
   "app.action-bar.view-logs": {
     "message": "عرض السجلات"
-  },
-  "app.ads-consent.accept": {
-    "message": "قبول الكل"
-  },
-  "app.ads-consent.body": {
-    "message": "تُتيح الإعلانات استمرارية Modrinth وتُمول مدفوعات المنشئين. قد يقوم شركاؤنا بتخزين أو الوصول إلى ملفات تعريف الارتباط (cookies) في التطبيق لتخصيص الإعلانات وقياس الأداء."
-  },
-  "app.ads-consent.manage": {
-    "message": "إدارة التفضيلات"
-  },
-  "app.ads-consent.reject": {
-    "message": "رفض الكل"
-  },
-  "app.ads-consent.title": {
-    "message": "خصوصيتك وكيف تساهم الإعلانات في دعم Modrinth"
   },
   "app.appearance-settings.default-landing-page.home": {
     "message": "الصفحة الرئيسية"
@@ -326,18 +308,6 @@
   "app.home.jump-back-in.view-instance": {
     "message": "عرض النسخة"
   },
-  "app.hosting.update-required.description": {
-    "message": "يجب عليك التحديث لاستخدام Modrinth Hosting بواسطة تطبيق Modrinth"
-  },
-  "app.hosting.update-required.download": {
-    "message": "نزّل للتحديث"
-  },
-  "app.hosting.update-required.rinthbot-alt": {
-    "message": "بوت Modrinth المتحمّس"
-  },
-  "app.hosting.update-required.title": {
-    "message": "يلزم تحديث تطبيق Modrinth"
-  },
   "app.icon-editor.apply-icons-modal.apply-error": {
     "message": "تعذّر تطبيق أيقونات عشوائية على النسخ."
   },
@@ -467,36 +437,6 @@
   "app.instance.add-server.title": {
     "message": "أضفة السيرفر للنسخة"
   },
-  "app.instance.admonitions.shared-instance.added-label": {
-    "message": "مضاف"
-  },
-  "app.instance.admonitions.shared-instance.changes-body": {
-    "message": "نسختك المحلية أحدث من النسخة لدى المستخدمين الذين شاركتها معهم."
-  },
-  "app.instance.admonitions.shared-instance.changes-header": {
-    "message": "لم يتم مشاركة تغييراتك بعد"
-  },
-  "app.instance.admonitions.shared-instance.publish-button": {
-    "message": "رفع التحديث"
-  },
-  "app.instance.admonitions.shared-instance.publishing-button": {
-    "message": "جاري الرفع..."
-  },
-  "app.instance.admonitions.shared-instance.removed-label": {
-    "message": "تمت الإزالة"
-  },
-  "app.instance.admonitions.shared-instance.review-admonition-header": {
-    "message": "رفع التحديث"
-  },
-  "app.instance.admonitions.shared-instance.review-description": {
-    "message": "مراجعة تغييرات المحتوى التي سيتم مشاركتها مع جميع مستخدمي هذه النسخة."
-  },
-  "app.instance.admonitions.shared-instance.review-header": {
-    "message": "مراجعة التغييرات "
-  },
-  "app.instance.admonitions.shared-instance.reviewing-button": {
-    "message": "مراجعة..."
-  },
   "app.instance.card.icon-alt": {
     "message": "أيقونة نسخ"
   },
@@ -587,114 +527,6 @@
   "app.instance.navigation.back-to-instance": {
     "message": "العودة إلى النسخة"
   },
-  "app.instance.share.empty.description": {
-    "message": "يمكنك مشاركة هذه النسخة مع أصدقائك!"
-  },
-  "app.instance.share.empty.heading": {
-    "message": "لا يوجد أصدقاء مدعوين"
-  },
-  "app.instance.share.empty.invite-friends-button": {
-    "message": "دعوة الأصدقاء"
-  },
-  "app.instance.share.invite-modal.heading": {
-    "message": "شارك {name}"
-  },
-  "app.instance.share.invite-modal.user-limit-reached": {
-    "message": "وصلت هذه النسخة إلى الحد الأقصى المسموح به من المستخدمين ({limit})"
-  },
-  "app.instance.share.locked.empty-description-prefix": {
-    "message": "تحتاج إلى تسجيل الدخول كـ"
-  },
-  "app.instance.share.locked.empty-description-suffix": {
-    "message": "للوصول إلى هذه الصفحة."
-  },
-  "app.instance.share.locked.linked-account-fallback": {
-    "message": "الحساب المرتبط"
-  },
-  "app.instance.share.locked.signed-out-heading": {
-    "message": "لم يتم تسجيل الدخول"
-  },
-  "app.instance.share.locked.switch-account-button": {
-    "message": "تبديل الحسابات"
-  },
-  "app.instance.share.locked.wrong-account-heading": {
-    "message": "حساب خاطئ"
-  },
-  "app.instance.share.members.empty": {
-    "message": "لم ينضم أي مستخدمين حتى الآن"
-  },
-  "app.instance.share.members.no-filter-results": {
-    "message": "لا يوجد مستخدمون يطابقون الفلاتر الخاصة بك."
-  },
-  "app.instance.share.remove-user-modal.effect-access": {
-    "message": "لن يتلقوا أي تحديثات لهذه النسخة المشتركة بعد الآن."
-  },
-  "app.instance.share.remove-user-modal.effect-installed-copy": {
-    "message": "أي نسخة تم تثبيتها بالفعل ستبقى على جهازهم"
-  },
-  "app.instance.share.remove-user-modal.effect-invite-again": {
-    "message": "يمكنك دعوتهم لاحقاً"
-  },
-  "app.instance.share.remove-user-modal.effect-last-user": {
-    "message": "هذا هو آخر مستخدم، سيتم إيقاف المشاركة لهذه النسخة."
-  },
-  "app.instance.share.remove-user-modal.effects-label": {
-    "message": "ماذا حدث؟"
-  },
-  "app.instance.share.remove-user-modal.header": {
-    "message": "إلغاء الوصول"
-  },
-  "app.instance.share.remove-user-modal.remove-button": {
-    "message": "إلغاء الوصول"
-  },
-  "app.instance.share.remove-user-modal.user-avatar-alt": {
-    "message": "صورة {username}"
-  },
-  "app.instance.share.remove-user-modal.warning-body": {
-    "message": "إذا قمت بإلغاء وصول {username}إلى هذه النسخة المشتركة، سوف تحتاج إلى دعوتهم مرة أخرى قبل أن يتمكنوا من تلقي التحديثات."
-  },
-  "app.instance.share.sign-in.button": {
-    "message": "تسجيل الدخول"
-  },
-  "app.instance.share.unable-to-connect.description": {
-    "message": "تعذر الوصول إلى خدمة النسخ المُشاركة في الوقت الحالي، يُرجى المحاولة مرة أخرى لاحقاً."
-  },
-  "app.instance.share.unable-to-connect.heading": {
-    "message": "تعذر الاتصال "
-  },
-  "app.instance.share.unlink.body": {
-    "message": "يجب إلغاء ربط المودباك هذا لمشاركة نسختك"
-  },
-  "app.instance.share.unlink.header": {
-    "message": "تتطلب المشاركة إلغاء الربط"
-  },
-  "app.instance.shared-instance-already-installed.header": {
-    "message": "النسخة المشتركة مثبّتة بالفعل"
-  },
-  "app.instance.shared-instance-already-installed.install-anyway": {
-    "message": "تثبيت على أي حال"
-  },
-  "app.instance.shared-instance-already-installed.instance": {
-    "message": "النسخة"
-  },
-  "app.instance.shared-instance-wrong-account.fallback-username": {
-    "message": "الحساب المرتبط"
-  },
-  "app.instance.shared-instance-wrong-account.owner-admonition-body-v2": {
-    "message": "لإدارة هذه النسخة المُشاركة. لن تمكن من إرسال التحديثات للمستخدمين."
-  },
-  "app.instance.shared-instance-wrong-account.sign-in-as-label": {
-    "message": "تسجيل الدخول كـ"
-  },
-  "app.instance.shared-instance-wrong-account.signed-out-header": {
-    "message": "تحتاج إلى تسجيل الدخول إلى مودرينث"
-  },
-  "app.instance.shared-instance-wrong-account.user-admonition-body-v2": {
-    "message": "لتلقي التحديثات لهذه النسخة المشتركة."
-  },
-  "app.instance.shared-instance-wrong-account.warning-header": {
-    "message": "أنت تستخدم حساب Modrinth الخاطئ"
-  },
   "app.instance.shortcut.created": {
     "message": "تم إنشاء الاختصار"
   },
@@ -709,9 +541,6 @@
   },
   "app.instance.tab.logs": {
     "message": "سجلات"
-  },
-  "app.instance.tab.share": {
-    "message": "مشاركة"
   },
   "app.instance.tab.worlds": {
     "message": "عوالم"
@@ -1025,21 +854,6 @@
   "app.library.title": {
     "message": "مكتبة"
   },
-  "app.modal.install-to-play.additional-context": {
-    "message": "سياق إضافي"
-  },
-  "app.modal.install-to-play.additional-context-placeholder": {
-    "message": "تضمين الروابط والصور إن أمكن وكانت ذات صلة"
-  },
-  "app.modal.install-to-play.block-user": {
-    "message": "حظر المستخدم"
-  },
-  "app.modal.install-to-play.content-you-are-reporting": {
-    "message": "النسخة التي تُبلغ عنها"
-  },
-  "app.modal.install-to-play.delete-instance": {
-    "message": "حذف النسخة"
-  },
   "app.modal.install-to-play.external-files-dont-install": {
     "message": "لا تقم بالتثبيت"
   },
@@ -1055,50 +869,17 @@
   "app.modal.install-to-play.invite-warning": {
     "message": "تم إنشاء هذه الدعوة بواسطة مستخدم Modrinth آخر، وليس Modrinth. لا تقبل الدعوات إلا من الأشخاص الذين تثق بهم فقط."
   },
-  "app.modal.install-to-play.invite-warning-with-creator": {
-    "message": "تم إنشاء دعوة الانضمام هذه بواسطة <creator>{username}</creator>، وليس بواسطة Modrinth. لا تقبل الدعوات إلا من أشخاص تثق بهم."
-  },
   "app.modal.install-to-play.managed-content.modpack-header": {
     "message": "محتوى المودباك"
   },
   "app.modal.install-to-play.mod-count": {
     "message": "{count, plural, one {# تعديل} other {# تعديلات}}"
   },
-  "app.modal.install-to-play.report-description": {
-    "message": "استخدم هذا النموذج للإبلاغ عن الحالات التي قد تنتهك <rules-link>القواعد</rules-link> أو <terms-link>شروط الاستخدام</terms-link> الخاصة بنا."
-  },
-  "app.modal.install-to-play.report-image-invalid-type": {
-    "message": "الملف ليس من أنواع الصور المقبولة"
-  },
-  "app.modal.install-to-play.report-image-too-large": {
-    "message": "يتجاوز الملف الحد الأقصى للحجم وهو 1 ميجابايت"
-  },
-  "app.modal.install-to-play.report-legal-claims": {
-    "message": "بالنسبة لإشعارات DMCA أو المطالبات القانونية الأخرى، راجع <copyright-link>سياسة حقوق الطبع والنشر</copyright-link>."
-  },
-  "app.modal.install-to-play.report-reason": {
-    "message": "ما هي القاعدة التي تنتهكها هذه النسخة؟"
-  },
-  "app.modal.install-to-play.report-shared-instance-header": {
-    "message": "الإبلاغ عن نسخة مُشاركة"
-  },
-  "app.modal.install-to-play.report-submitted": {
-    "message": "تم إرسال البلاغ"
-  },
-  "app.modal.install-to-play.report-support-and-bugs": {
-    "message": "لطلبات الدعم، تواصل مع <support-link>فريق الدعم</support-link>. وللإبلاغ عن الأخطاء، أنشئ <github-link>بلاغًا على GitHub</github-link>."
-  },
   "app.modal.install-to-play.reviewed-files": {
     "message": "الملفات التي لم يتم نشرها على Modrinth لا يتم مراجعتها."
   },
   "app.modal.install-to-play.shared-instance": {
     "message": "النماذج المشتركة"
-  },
-  "app.modal.install-to-play.shared-instance-content": {
-    "message": "محتوى النسخة المشتركة"
-  },
-  "app.modal.install-to-play.shared-instance-unknown-files-description": {
-    "message": "تحتوي هذه النسخة المُشاركة على ملفات غير منشور على Modrinth. نوصي بشدة بعدم تثبيت الملفات إلا من مصادر تثق بها فقط."
   },
   "app.modal.install-to-play.unknown-files-description": {
     "message": "تحتوي مودباك السيرفر هذا على ملفات غير منشور على Modrinth. نوصي بشدة بعدم تثبيت الملفات إلا من مصادر تثق بها فقط."
@@ -1108,9 +889,6 @@
   },
   "app.modal.install-to-play.unrecognized-files": {
     "message": "ملفات غير متعرّف عليها"
-  },
-  "app.modal.install-to-play.user-blocked": {
-    "message": "المستخدم محظور"
   },
   "app.modal.install-to-play.view-contents": {
     "message": "عرض المحتويات"
@@ -1124,18 +902,6 @@
   "app.modal.update-to-play.server-modpack-unknown-files-description": {
     "message": "يحتوي تحديث مودباك السيرفر هذا على ملفات غير منشور على Modrinth. نوصي بشدة بعدم تثبيت الملفات إلا من مصادر تثق بها فقط."
   },
-  "app.modal.update-to-play.shared-instance-added-label": {
-    "message": "تمت الإضافة"
-  },
-  "app.modal.update-to-play.shared-instance-removed-label": {
-    "message": "تمت الإزالة"
-  },
-  "app.modal.update-to-play.shared-instance-unknown-files-description": {
-    "message": "يحتوي تحديث هذه النسخة المُشاركة على ملفات غير منشور على Modrinth. نوصي بشدة بعدم تثبيت الملفات إلا من مصادر تثق بها فقط."
-  },
-  "app.modal.update-to-play.update-required": {
-    "message": "يلزم التحديث"
-  },
   "app.modal.update-to-play.update-required-description": {
     "message": "يتطلب تحديث للعب {name}. يُرجى التحديث إلى أحدث إصدار لتشغيل اللعبة."
   },
@@ -1144,18 +910,6 @@
   },
   "app.nav.home": {
     "message": "الصفحة الرئيسية"
-  },
-  "app.nav.modrinth-account": {
-    "message": "حساب Modrinth"
-  },
-  "app.nav.modrinth-hosting": {
-    "message": "استضافة Modrinth"
-  },
-  "app.nav.sign-in-to-modrinth-account": {
-    "message": "تسجيل الدخول إلى حساب Modrinth"
-  },
-  "app.nav.upgrade-to-modrinth-plus": {
-    "message": "الترقية إلى Modrinth+"
   },
   "app.navigation.go-back": {
     "message": "العودة"
@@ -1168,12 +922,6 @@
   },
   "app.navigation.next-image": {
     "message": "الصورة التالية"
-  },
-  "app.news.title": {
-    "message": "الأخبار"
-  },
-  "app.news.view-all": {
-    "message": "عرض كل الأخبار"
   },
   "app.notification.warning": {
     "message": "تحذير"
@@ -1322,20 +1070,11 @@
   "app.settings.operating-system.macos": {
     "message": "macOS"
   },
-  "app.settings.privacy.ads-consent.intro": {
-    "message": "الإعلانات تجعل Modrinth ممكناً وتمول مدفوعات المنشئين. قد يقوم شركاؤنا بتخزين أو الوصول إلى ملفات تعريف الارتباط (cookies) في التطبيق لتخصيص الإعلانات وقياس الأداء. يمكنك إلغاء الاشتراك أو إدارة تفضيلاتك أدناه."
-  },
   "app.settings.privacy.discord-rich-presence.description": {
     "message": "إظهار تطبيق Modrinth كنشاطك الحالي على Discord. لا يؤثر هذا على الـ Rich Presence المُضاف للنسخ بواسطة المودات. يتطلب إعادة تشغيل التطبيق."
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord Rich Presence"
-  },
-  "app.settings.privacy.telemetry.description": {
-    "message": "يجمع Modrinth بيانات تحليلات واستخدام مجهولة الهوية لتحسين تجربة المستخدم وتخصيص تجربتك. عند تعطيل هذا الخيار، فإنك تلغي الاشتراك ولن يتم جمع بياناتك بعد الآن."
-  },
-  "app.settings.privacy.telemetry.title": {
-    "message": "بيانات قياس الاستخدام"
   },
   "app.settings.resource-management.always-show-copy-details.description": {
     "message": "إظهار إجراء \"نسخ التفاصيل\" أثناء إدراج التثبيت في قائمة الانتظار أو تشغيله. يكون متاحاً دائماً للتثبيتات الفاشلة أو المقاطعة."
@@ -1577,26 +1316,8 @@
   "app.skins.toggle-ears-features-on": {
     "message": "تشغيل"
   },
-  "app.survey.body": {
-    "message": "هل تمانع في الإجابة على بضعة أسئلة حول تجربتك مع تطبيق Modrinth؟"
-  },
-  "app.survey.footer": {
-    "message": "ستنتقل هذه الملاحظات مباشرة إلى فريق Modrinth وتساعد في توجيه التحديثات القادمة!أهلاً بك يا مستخدم Modrinth!"
-  },
-  "app.survey.no-thanks": {
-    "message": "لا شكراً"
-  },
-  "app.survey.take-survey": {
-    "message": "شارك في الاستطلاع"
-  },
-  "app.survey.title": {
-    "message": "أهلاً بك يا مستخدم Modrinth!"
-  },
   "app.update-popup.body.download-complete": {
     "message": "انتهى تنزيل تطبيق Modrinth v{version}. أعد التحميل للتحديث الآن، أو تلقائيًا عند إغلاق تطبيق Modrinth."
-  },
-  "app.update-popup.body.linux": {
-    "message": "يتوفر الآن Dyad Launcher v{version}. استخدم مدير الحزم لتحديث التطبيق والحصول على أحدث الميزات والإصلاحات!"
   },
   "app.update-popup.body.metered": {
     "message": "تطبيق Modrinth v{version} متاح الآن! وبما أنك متصل بشبكة مقيّدة، لم نقم بتنزيله تلقائيًا."
@@ -1658,9 +1379,6 @@
   "app.world.world-item.players-online": {
     "message": "نشط {count} "
   },
-  "content.shared-instance.change-version-body": {
-    "message": "تغيير الإصدار يغير نسختك المحلية فقط. قد تقوم التحديثات المستقبلية للنسخة المشتركة باستعادته أو تغييره مرة أخرى."
-  },
   "content.shared-instance.delete-bulk-body": {
     "message": "بعض المشاريع المحددة جزء من النسخة المشتركة. حذفها يغير نسختك المحلية فقط، وقد تقوم تحديثات النسخة المشتركة القادمة باستعادتها أو تغييرها مجدداً."
   },
@@ -1685,116 +1403,8 @@
   "content.shared-instance.disable-single-body": {
     "message": "تعطيلها يغير نسختك المحلية فقط. قد تقوم تحديثات النسخة المشتركة القادمة بإعادة تفعيلها، استعادتها، أو تغييرها مجدداً."
   },
-  "content.shared-instance.unlink-body": {
-    "message": "إلغاء الربط يغير نسختك المحلية فقط. قد تقوم تحديثات النسخة المشتركة القادمة باستعادتها أو تغييرها مجدداً."
-  },
   "content.shared-instance.warning-header": {
     "message": "هذا جزء من النسخة المشتركة"
-  },
-  "friends.action.add-friend": {
-    "message": "إضافة صديق"
-  },
-  "friends.action.view-friend-requests": {
-    "message": "{count} {count, plural, one {طلب صداقة} other {طلبات صداقة}}"
-  },
-  "friends.add-friend.submit": {
-    "message": "إرسال طلب صداقة"
-  },
-  "friends.add-friend.title": {
-    "message": "جار إضافة صديق"
-  },
-  "friends.add-friend.username.description": {
-    "message": "قد يختلف عن اسم المستخدم الخاص بهم في ماينكرافت!"
-  },
-  "friends.add-friend.username.placeholder": {
-    "message": "أدخل اسم مستخدم Modrinth..."
-  },
-  "friends.add-friend.username.title": {
-    "message": "ما اسم مستخدم صديقك في Modrinth؟"
-  },
-  "friends.add-friends-to-share": {
-    "message": "<link>أضف أصدقاء</link> لمعرفة ما الذي يلعبونه!"
-  },
-  "friends.friend.cancel-request": {
-    "message": "إلغاء الطلب"
-  },
-  "friends.friend.remove-friend": {
-    "message": "إزالة صديق"
-  },
-  "friends.friend.request-sent": {
-    "message": "إرسال طلب الصداقة"
-  },
-  "friends.friend.view-profile": {
-    "message": "عرض الملف الشخصي"
-  },
-  "friends.heading": {
-    "message": "أصدقاء"
-  },
-  "friends.heading.active": {
-    "message": "نشط"
-  },
-  "friends.heading.offline": {
-    "message": "غير متصل"
-  },
-  "friends.heading.online": {
-    "message": "متصل"
-  },
-  "friends.heading.pending": {
-    "message": "قيد الانتظار"
-  },
-  "friends.no-friends-match": {
-    "message": "لا يوجد أصدقاء يطابقون ‎''{query}''‎"
-  },
-  "friends.search-friends-placeholder": {
-    "message": "ابحث عن الأصدقاء..."
-  },
-  "friends.section.heading": {
-    "message": "{title} - {count}"
-  },
-  "friends.sign-in-to-add-friends": {
-    "message": "<link>سجّل الدخول إلى حساب Modrinth</link> لإضافة الأصدقاء ومعرفة ما الذي يلعبونه!"
-  },
-  "installation-settings.shared-instance.linked-title": {
-    "message": "النسخة المشتركة المرتبطة"
-  },
-  "installation-settings.shared-instance.title": {
-    "message": "إلغاء نشر النسخة"
-  },
-  "installation-settings.shared-instance.unlink-button": {
-    "message": "إلغاء ربط النسخة المشتركة"
-  },
-  "installation-settings.shared-instance.unlink-description": {
-    "message": "فصل هذه النسخة المحلية عن التحديثات المشتركة القادمة."
-  },
-  "installation-settings.shared-instance.unlinking-button": {
-    "message": "جاري إلغاء الربط..."
-  },
-  "installation-settings.shared-instance.unpublish-button": {
-    "message": "إلغاء نشر النسخة المُشاركة"
-  },
-  "installation-settings.shared-instance.unpublish-description": {
-    "message": "إزالة هذه النسخة المُشاركة من Modrinth والتوقف عن إرسال التحديثات لأي شخص يستخدمها. لن تتأثر نسختك المحلية."
-  },
-  "installation-settings.shared-instance.unpublishing-button": {
-    "message": "جاري إلغاء النشر..."
-  },
-  "installation-settings.unlink-shared-instance.modal.admonition-body": {
-    "message": "هذا يؤثر فقط على نسختك المحلية. سيبقى المحتوى المثبت على هذا الجهاز، ولن تتأثر النسخة المُشاركة أو الأشخاص الآخرون الذين يستخدمونها."
-  },
-  "installation-settings.unlink-shared-instance.modal.admonition-header": {
-    "message": "إلغاء ربط النسخة المُشاركة"
-  },
-  "installation-settings.unlink-shared-instance.modal.header": {
-    "message": "إلغاء ربط النسخة المُشاركة"
-  },
-  "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "سيؤدي هذا إلى حذف النسخة المُشاركة من خوادم Modrinth. سيتوقف الأشخاص الذين يستخدمونها على تطبيق Modrinth عن تلقي التحديثات، ولكن ستظل نسختك المحلية ومحتواها على هذا الجهاز."
-  },
-  "installation-settings.unpublish-shared-instance.modal.admonition-header": {
-    "message": "جاري إلغاء نشر النسخة المُشاركة"
-  },
-  "installation-settings.unpublish-shared-instance.modal.header": {
-    "message": "إلغاء نشر النسخة المُشاركة"
   },
   "instance.action.create-shortcut": {
     "message": "إنشاء اختصار"
@@ -2072,9 +1682,6 @@
   "instance.last-played": {
     "message": "آخر لعب"
   },
-  "instance.locked.delete-button": {
-    "message": "حذف النسخة"
-  },
   "instance.locked.play-tooltip": {
     "message": "تم قفل هذه النسخة"
   },
@@ -2092,45 +1699,6 @@
   },
   "instance.server-modal.resource-pack": {
     "message": "حزمة الموارد"
-  },
-  "instance.settings.sharing.active-invites.actions": {
-    "message": "الإجراءات"
-  },
-  "instance.settings.sharing.active-invites.code": {
-    "message": "رابط الدعوة"
-  },
-  "instance.settings.sharing.active-invites.description": {
-    "message": "يمكن لأي شخص لديه أحد روابط الدعوة هذه الانضمام طالما ظلت نشطة."
-  },
-  "instance.settings.sharing.active-invites.empty": {
-    "message": "لا توجد أي دعوات نشطة."
-  },
-  "instance.settings.sharing.active-invites.expires": {
-    "message": "تنتهي الصلاحية في"
-  },
-  "instance.settings.sharing.active-invites.revoke": {
-    "message": "إلغاء الدعوة"
-  },
-  "instance.settings.sharing.active-invites.revoke-with-code": {
-    "message": "إلغاء الدعوة {code}"
-  },
-  "instance.settings.sharing.active-invites.title": {
-    "message": "الدعوات النشطة"
-  },
-  "instance.settings.sharing.active-invites.uses": {
-    "message": "الاستخدامات"
-  },
-  "instance.settings.sharing.revoke-invite.admonition-body": {
-    "message": "سيتوقف رابط الدعوة <monospace>{code}</monospace> عن العمل فورًا. وسيظل الأشخاص الذين انضموا فعلًا قادرين على الوصول."
-  },
-  "instance.settings.sharing.revoke-invite.admonition-header": {
-    "message": "لا يمكن التراجع عن هذا الإجراء"
-  },
-  "instance.settings.sharing.revoke-invite.confirm": {
-    "message": "إلغاء الدعوة"
-  },
-  "instance.settings.sharing.revoke-invite.header": {
-    "message": "إلغاء الدعوة"
   },
   "instance.settings.tabs.general": {
     "message": "عام"
@@ -2306,9 +1874,6 @@
   "instance.settings.tabs.java.java-path-placeholder": {
     "message": "/path/to/java"
   },
-  "instance.settings.tabs.sharing": {
-    "message": "مشاركة"
-  },
   "instance.settings.tabs.window": {
     "message": "النافذة"
   },
@@ -2338,63 +1903,6 @@
   },
   "instance.settings.tabs.window.width.enter": {
     "message": "أدخل العرض..."
-  },
-  "instance.shared-instance.error.title": {
-    "message": "حدث خطأ ما"
-  },
-  "instance.shared-instance.network-error.text": {
-    "message": "تعذر الاتصال بـ API النسخ المشتركة"
-  },
-  "instance.shared-instance.network-error.title": {
-    "message": "خطأ بالشبكة"
-  },
-  "instance.shared-instance.owner-tooltip": {
-    "message": "يتم مشاركة محتوى هذه النسخة مع مستخدمين آخرين."
-  },
-  "instance.shared-instance.publish-review.added-label": {
-    "message": "مضاف"
-  },
-  "instance.shared-instance.publish-review.admonition-header": {
-    "message": "رفع التحديث للاعبين"
-  },
-  "instance.shared-instance.publish-review.config-title-v2": {
-    "message": "اختر مِلَف الإعداد"
-  },
-  "instance.shared-instance.publish-review.description": {
-    "message": "راجع تغييرات المحتوى واختر أي ملفات تكوين (config) لضرورة تضمينها في هذا التحديث."
-  },
-  "instance.shared-instance.publish-review.header": {
-    "message": "مراجعة التغييرات"
-  },
-  "instance.shared-instance.publish-review.publish-button": {
-    "message": "رفع تحديث"
-  },
-  "instance.shared-instance.publish-review.removed-label": {
-    "message": "تمت الإزالة"
-  },
-  "instance.shared-instance.tooltip": {
-    "message": "يتم إدارة محتوى هذه النسخة بواسطة شخص آخر."
-  },
-  "instance.shared-instance.unavailable.access-revoked-text": {
-    "message": "تم إلغاء وصولك إلى النسخة المشتركة. هذه النسخة لا تزال متاحة، ولكنها لم تعد مرتبطة ولن تتلقى التحديثات بعد الآن."
-  },
-  "instance.shared-instance.unavailable.deleted-text": {
-    "message": "تم حذف النسخة الرئيسية. هذه النسخة لا تزال متاحة، ولكنها لم تعد مرتبطة ولن تتلقى التحديثات بعد الآن."
-  },
-  "instance.shared-instance.unavailable.locked-text": {
-    "message": "تم قفل هذه النسخة المُشارَكة بواسطة فريق الإشراف على المحتوى. لن تتلقى هذه النسخة أي تحديثات أخرى من النسخة الرئيسية ولا يمكن لعبها."
-  },
-  "instance.shared-instance.unavailable.locked-title": {
-    "message": "النسخة مقفلة"
-  },
-  "instance.shared-instance.unavailable.manager-fallback": {
-    "message": "مدير النسخة"
-  },
-  "instance.shared-instance.unavailable.text": {
-    "message": "نسختك المحلية لا تزال متاحة، ولكنها لم تعد مرتبطة ولن تتلقى التحديثات."
-  },
-  "instance.shared-instance.unavailable.title": {
-    "message": "النسخة المشتركة لم تعد متاحة"
   },
   "instance.worlds.a_minecraft_server": {
     "message": "خادم ماين كرافت"
@@ -2492,51 +2000,6 @@
   "minecraft-required.sign-in": {
     "message": "سجل دخولك لـ ماين كرافت"
   },
-  "modal.modrinth-account-required.browser-description": {
-    "message": "تم فتح علامة تبويب جديدة لتسجيل الدخول. أكمل تسجيل الدخول هناك، ثم أرجع إلى التطبيق."
-  },
-  "modal.modrinth-account-required.continue-in-browser-heading": {
-    "message": "المتابعة في المتصفح الخاص بك"
-  },
-  "modal.modrinth-account-required.create-account-button": {
-    "message": "انشئ حساب"
-  },
-  "modal.modrinth-account-required.description": {
-    "message": "ستحتاج إلى تسجيل الدخول إلى حساب مودرنيث الخاص بك قبل أن تتمكن من استخدام هذه الميزة."
-  },
-  "modal.modrinth-account-required.header": {
-    "message": "الحساب مطلوب"
-  },
-  "modal.modrinth-account-required.open-browser-again-button": {
-    "message": "افتح المتصفح مرة أخرى"
-  },
-  "modal.modrinth-account-required.sign-in-button": {
-    "message": "تسجيل الدخول إلى Modrinth"
-  },
-  "modal.modrinth-account-required.sign-in-heading": {
-    "message": "تسجيل الدخول إلى حساب Modrinth"
-  },
-  "modal.modrinth-account-required.signing-in-header": {
-    "message": "جار تسجيل الدخول"
-  },
-  "modal.modrinth-account-required.support-prompt": {
-    "message": "هل تواجه مشكلة في تسجيل الدخول؟ <support>احصل على الدعم</support>"
-  },
-  "modal.modrinth-account-required.waiting-for-browser": {
-    "message": "في انتظار تأكيد المتصفح..."
-  },
-  "onboarding-checklist.create-instance": {
-    "message": "انشء اول مثيل"
-  },
-  "onboarding-checklist.login-minecraft": {
-    "message": "تسجيل الدخول إلى ماين كرافت"
-  },
-  "onboarding-checklist.login-modrinth": {
-    "message": "تسجيل الدخول إلى مودرينة"
-  },
-  "onboarding-checklist.title": {
-    "message": "ابدأ ألان"
-  },
   "search.filter.locked.instance": {
     "message": "مقدَّم من النسخة"
   },
@@ -2551,9 +2014,6 @@
   },
   "search.filter.locked.server-environment.title": {
     "message": "يمكن إضافة التعديلات **المحليه** فقط إلى نموذج الخادم"
-  },
-  "settings.sidebar.label.account": {
-    "message": "الحساب"
   },
   "settings.sidebar.label.display": {
     "message": "المظهر"
