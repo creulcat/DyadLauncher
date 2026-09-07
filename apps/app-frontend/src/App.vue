@@ -69,7 +69,6 @@ import UpdateToPlayModal from '@/components/ui/modal/UpdateToPlayModal.vue'
 import NavButton from '@/components/ui/NavButton.vue'
 import NewIconEditorNotification from '@/components/ui/new-icon-editor-notification/index.vue'
 import { shouldShowNewIconEditorNotification } from '@/components/ui/new-icon-editor-notification/show-notification'
-import OnboardingChecklist from '@/components/ui/onboarding-checklist/index.vue'
 import QuickInstanceSwitcher from '@/components/ui/QuickInstanceSwitcher.vue'
 import SplashScreen from '@/components/ui/SplashScreen.vue'
 import WindowControls from '@/components/ui/WindowControls.vue'
@@ -249,7 +248,6 @@ const {
 	setModpackAlreadyInstalledModal,
 	handleModpackDuplicateCreateAnyway,
 	handleModpackDuplicateGoToInstance,
-	onboardingChecklist,
 } = setupProviders(
 	tauriApiClient,
 	notificationManager,
@@ -258,7 +256,6 @@ const {
 	(iconPath) =>
 		creationGeneratedIcon.value?.path === iconPath ? creationGeneratedIcon.value.config : null,
 )
-const { hasLoggedIntoMinecraft, showChecklist } = onboardingChecklist
 
 async function randomizeCreationIcon() {
 	const generated = await creationIconEditorModal.value?.randomizeAndSave()
@@ -433,9 +430,7 @@ const messages = defineMessages({
 })
 
 async function setupApp() {
-	await onboardingChecklist.initialize()
-
-	if (shouldShowNewIconEditorNotification(showChecklist.value)) {
+	if (shouldShowNewIconEditorNotification()) {
 		addPopupNotification({
 			contentType: 'custom',
 			component: NewIconEditorNotification,
@@ -1468,16 +1463,9 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 				class="app-sidebar-scrollable flex-grow shrink relative pb-12"
 				data-overlayscrollbars-initialize
 			>
-				<OnboardingChecklist
-					@create-instance="installationModal?.show()"
-					@login-minecraft="accounts?.login()"
-				/>
 				<div id="sidebar-teleport-target" class="sidebar-teleport-content"></div>
 				<div class="sidebar-default-content" :class="{ 'sidebar-enabled': sidebarVisible }">
-					<div
-						v-show="hasLoggedIntoMinecraft"
-						class="p-4 border-0 border-b-[1px] border-[--brand-gradient-border] border-solid"
-					>
+					<div class="p-4 border-0 border-b-[1px] border-[--brand-gradient-border] border-solid">
 						<h3 class="text-base text-primary font-medium m-0">
 							{{ formatMessage(messages.playingAs) }}
 						</h3>
