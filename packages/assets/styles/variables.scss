@@ -160,11 +160,8 @@
 
 	--loading-bar-gradient: linear-gradient(to right, var(--color-brand) 0%, #00af5c 100%);
 
-	--splash-tint-top: rgba(185, 255, 207, 0.465);
-	--splash-tint-bottom: rgba(183, 226, 255, 0.563);
-	--splash-overlay: rgba(181, 255, 213, 0.315);
-	--splash-cube-opacity: 0.4;
-	--splash-cube-blend: multiply;
+	--splash-tint-top: rgba(120, 150, 130, 0.3);
+	--splash-tint-bottom: rgba(110, 140, 150, 0.3);
 
 	--color-platform-fabric: #8a7b71;
 	--color-platform-quilt: #8b61b4;
@@ -380,11 +377,8 @@ html {
 
 	--loading-bar-gradient: linear-gradient(to right, var(--color-brand) 0%, #1ffa9a 100%);
 
-	--splash-tint-top: rgba(66, 131, 92, 0.275);
-	--splash-tint-bottom: rgba(17, 35, 43, 0.5);
-	--splash-overlay: rgba(22, 24, 28, 0.64);
-	--splash-cube-opacity: 0.8;
-	--splash-cube-blend: normal;
+	--splash-tint-top: rgba(70, 100, 85, 0.45);
+	--splash-tint-bottom: rgba(35, 55, 65, 0.65);
 
 	--color-platform-fabric: #dbb69b;
 	--color-platform-quilt: #c796f9;
