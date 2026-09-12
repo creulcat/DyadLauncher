@@ -27,7 +27,7 @@ interface ThemeSettings {
 	system: AppearanceRef<AppearanceTheme>
 	preferredDark: AppearanceRef<AppearanceTheme>
 	update: AppearanceSetter<AppearanceThemeSelection>
-	syncAcrossDevices: AppearanceSetting<boolean>
+	syncAcrossDevices?: AppearanceSetting<boolean>
 }
 
 interface ProjectLayoutSettings {
@@ -57,8 +57,8 @@ export interface AppearanceSettingsProviderOptions {
 		system: AppearanceRef<AppearanceTheme>
 		preferredDark: AppearanceRef<AppearanceTheme>
 		set: AppearanceSetter<AppearanceThemeSelection>
-		syncAcrossDevices: WritableAppearanceSetting<boolean>
-		syncDisabled: AppearanceRef<boolean>
+		syncAcrossDevices?: WritableAppearanceSetting<boolean>
+		syncDisabled?: AppearanceRef<boolean>
 	}
 	advancedRendering: WritableAppearanceSetting<boolean>
 	nativeDecorations?: WritableAppearanceSetting<boolean>
@@ -71,7 +71,7 @@ export interface AppearanceSettingsProviderOptions {
 		value: AppearanceRef<SidebarPreferences>
 		set: (key: keyof SidebarPreferences, enabled: boolean) => void | Promise<void>
 	}
-	updatePreferences: (
+	updatePreferences?: (
 		preferences: Labrinth.Users.v3.PartialUserPreferences,
 	) => Promise<Labrinth.Users.v3.UserPreferences | undefined>
 }
@@ -109,6 +109,7 @@ export function provideAppearanceSettings(
 	const sidebarPreferences = options.sidebarPreferences
 
 	async function syncThemePreference(theme: AppearanceThemeSelection): Promise<void> {
+		if (!options.updatePreferences) return
 		await options.updatePreferences({
 			appearance:
 				theme === 'system'
@@ -121,6 +122,7 @@ export function provideAppearanceSettings(
 	}
 
 	async function syncThemeOrDisable(theme: AppearanceThemeSelection): Promise<void> {
+		if (!options.theme.syncAcrossDevices) return
 		try {
 			await syncThemePreference(theme)
 		} catch {
@@ -131,6 +133,7 @@ export function provideAppearanceSettings(
 	async function updateTheme(theme: AppearanceThemeSelection): Promise<void> {
 		await options.theme.set(theme)
 		if (options.deferPersistence) return
+		if (!options.theme.syncAcrossDevices) return
 		if (!toValue(options.theme.syncAcrossDevices.value) || toValue(options.theme.syncDisabled)) {
 			return
 		}
@@ -139,6 +142,7 @@ export function provideAppearanceSettings(
 	}
 
 	async function updateThemeSync(enabled: boolean): Promise<void> {
+		if (!options.theme.syncAcrossDevices) return
 		if (toValue(options.theme.syncDisabled)) return
 
 		await options.theme.syncAcrossDevices.set(enabled)
@@ -159,7 +163,7 @@ export function provideAppearanceSettings(
 		)?.layout
 
 		await projectLayouts.set(type, layout)
-		if (options.deferPersistence) return
+		if (options.deferPersistence || !options.updatePreferences) return
 		try {
 			const layouts: Partial<Labrinth.Users.v3.LayoutPreferences> = {}
 			layouts[layoutPreferenceKeys[type]] = layout
@@ -182,7 +186,7 @@ export function provideAppearanceSettings(
 
 		const previousValue = toValue(sidebarPreferences.value)[key]
 		await sidebarPreferences.set(key, enabled)
-		if (options.deferPersistence) return
+		if (options.deferPersistence || !options.updatePreferences) return
 		try {
 			const sidebars: Partial<SidebarPreferences> = {}
 			sidebars[key] = enabled
@@ -201,11 +205,13 @@ export function provideAppearanceSettings(
 			system: options.theme.system,
 			preferredDark: options.theme.preferredDark,
 			update: updateTheme,
-			syncAcrossDevices: {
-				value: options.theme.syncAcrossDevices.value,
-				disabled: options.theme.syncDisabled,
-				update: updateThemeSync,
-			},
+			syncAcrossDevices: options.theme.syncAcrossDevices
+				? {
+						value: options.theme.syncAcrossDevices.value,
+						disabled: options.theme.syncDisabled,
+						update: updateThemeSync,
+					}
+				: undefined,
 		},
 		advancedRendering: createSetting(options.advancedRendering),
 		nativeDecorations: options.nativeDecorations

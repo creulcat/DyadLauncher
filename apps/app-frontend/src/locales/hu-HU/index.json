@@ -92,9 +92,6 @@
   "app.action-bar.install.unknown-instance": {
     "message": "Ismeretlen példány"
   },
-  "app.action-bar.install.updating-shared-content": {
-    "message": "Megosztott tartalom frissítése"
-  },
   "app.action-bar.installs": {
     "message": "Telepítések"
   },
@@ -133,21 +130,6 @@
   },
   "app.action-bar.view-logs": {
     "message": "Naplók megtekintése"
-  },
-  "app.ads-consent.accept": {
-    "message": "Összes elfogadása"
-  },
-  "app.ads-consent.body": {
-    "message": "A hirdetések teszik lehetővé a Modrinth működését, és biztosítják a tartalomkészítők juttatásait. Partnereink sütiket tárolhatnak vagy érhetnek el az alkalmazásban a hirdetések személyre szabása és a teljesítmény mérése céljából."
-  },
-  "app.ads-consent.manage": {
-    "message": "Beállítások kezelése"
-  },
-  "app.ads-consent.reject": {
-    "message": "Összes elutasítása"
-  },
-  "app.ads-consent.title": {
-    "message": "Adataid védelme és a hirdetések szerepe a Modrinth működésében"
   },
   "app.appearance-settings.compact-mode.description": {
     "message": "A könyvtári játékprofilok megjelenítése egy összetett, soros elrendezésben."
@@ -326,18 +308,6 @@
   "app.home.jump-back-in.view-instance": {
     "message": "Játékprofil megtekintése"
   },
-  "app.hosting.update-required.description": {
-    "message": "Frissítened kell, hogy használhasd a Modrinth Hostingot a Dyad Launcheron keresztül"
-  },
-  "app.hosting.update-required.download": {
-    "message": "Letöltés a frissítéshez"
-  },
-  "app.hosting.update-required.rinthbot-alt": {
-    "message": "Izgatott Modrinth bot"
-  },
-  "app.hosting.update-required.title": {
-    "message": "Frissítés szükséges a Dyad Launcherhoz"
-  },
   "app.icon-editor.apply-icons-modal.apply-error": {
     "message": "Nem sikerült véletlenszerű ikonokat rendelni a játékprofilokhoz."
   },
@@ -458,36 +428,6 @@
   "app.instance.add-server.cancel": {
     "message": "Mégse"
   },
-  "app.instance.admonitions.shared-instance.added-label": {
-    "message": "Hozzáadva"
-  },
-  "app.instance.admonitions.shared-instance.changes-body": {
-    "message": "A te gépeden lévő példány újabb, mint azoké a felhasználóké, akikkel megosztottad."
-  },
-  "app.instance.admonitions.shared-instance.changes-header": {
-    "message": "A változtatásaid még nem lettek megosztva"
-  },
-  "app.instance.admonitions.shared-instance.publish-button": {
-    "message": "Frissítés közzététele"
-  },
-  "app.instance.admonitions.shared-instance.publishing-button": {
-    "message": "Közzététel..."
-  },
-  "app.instance.admonitions.shared-instance.removed-label": {
-    "message": "Eltávolítva"
-  },
-  "app.instance.admonitions.shared-instance.review-admonition-header": {
-    "message": "Frissítés közzététele"
-  },
-  "app.instance.admonitions.shared-instance.review-description": {
-    "message": "A példányt használó összes résztvevővel megosztásra kerülő tartalomváltoztatások áttekintése."
-  },
-  "app.instance.admonitions.shared-instance.review-header": {
-    "message": "Változtatások áttekintése"
-  },
-  "app.instance.admonitions.shared-instance.reviewing-button": {
-    "message": "Áttekintés..."
-  },
   "app.instance.card.play": {
     "message": "Játék"
   },
@@ -569,117 +509,6 @@
   "app.instance.mods.unfreeze-content": {
     "message": "Verzió feloldása"
   },
-  "app.instance.share.empty.description": {
-    "message": "Ezt a példányt megoszthatod a barátaiddal!"
-  },
-  "app.instance.share.empty.heading": {
-    "message": "Nincsenek barátok meghívva"
-  },
-  "app.instance.share.empty.invite-friends-button": {
-    "message": "Barátok meghívása"
-  },
-  "app.instance.share.invite-modal.heading": {
-    "message": "{name} megosztása"
-  },
-  "app.instance.share.invite-modal.user-limit-reached": {
-    "message": "Ez a példány elérte a {limit} felhasználós korlátot."
-  },
-  "app.instance.share.locked.empty-description-prefix": {
-    "message": "Be kell jelentkezned mint"
-  },
-  "app.instance.share.locked.empty-description-suffix": {
-    "message": ", hogy hozzáférj ehhez az oldalhoz."
-  },
-  "app.instance.share.locked.linked-account-fallback": {
-    "message": "az összekapcsolt fiók"
-  },
-  "app.instance.share.locked.signed-out-heading": {
-    "message": "Nem vagy bejelentkezve"
-  },
-  "app.instance.share.locked.switch-account-button": {
-    "message": "Fiókváltás"
-  },
-  "app.instance.share.locked.wrong-account-heading": {
-    "message": "Helytelen fiók"
-  },
-  "app.instance.share.members.empty": {
-    "message": "Még senki sem csatlakozott"
-  },
-  "app.instance.share.members.no-filter-results": {
-    "message": "Nem található a keresésnek megfelelő felhasználó"
-  },
-  "app.instance.share.remove-user-modal.effect-access": {
-    "message": "Többé nem fog frissítéseket kapni ehhez a megosztott példányhoz"
-  },
-  "app.instance.share.remove-user-modal.effect-installed-copy": {
-    "message": "A már telepített példányok megmaradnak az eszközökön"
-  },
-  "app.instance.share.remove-user-modal.effect-invite-again": {
-    "message": "Később újra meghívhatod"
-  },
-  "app.instance.share.remove-user-modal.effect-last-user": {
-    "message": "Ő az utolsó felhasználó, a megosztás ezen az példányon le lesz állítva"
-  },
-  "app.instance.share.remove-user-modal.effects-label": {
-    "message": "Mi fog történni?"
-  },
-  "app.instance.share.remove-user-modal.header": {
-    "message": "Hozzáférés megvonása"
-  },
-  "app.instance.share.remove-user-modal.remove-button": {
-    "message": "Hozzáférés megvonása"
-  },
-  "app.instance.share.remove-user-modal.user-avatar-alt": {
-    "message": "{username} avatárja"
-  },
-  "app.instance.share.remove-user-modal.warning-body": {
-    "message": "Ha megvonod {username} hozzáférését ehhez a megosztott példányhoz, újra meg kell hívnod, mielőtt frissítéseket kaphatna."
-  },
-  "app.instance.share.sign-in.button": {
-    "message": "Bejelentkezés"
-  },
-  "app.instance.share.unable-to-connect.description": {
-    "message": "A megosztott példányok szolgáltatás pillanatnyilag nem érhető el. Kérjük, próbáld újra később"
-  },
-  "app.instance.share.unable-to-connect.heading": {
-    "message": "Nem sikerült csatlakozni"
-  },
-  "app.instance.share.unlink.body": {
-    "message": "A példány megosztásához le kell választanod ezt a modcsomagot"
-  },
-  "app.instance.share.unlink.header": {
-    "message": "A megosztáshoz le kell választani"
-  },
-  "app.instance.shared-instance-already-installed.body": {
-    "message": "Ez a megosztott példány már telepítve van <bold>{instanceName} </bold> néven. Biztosan telepíteni szeretnél egy másik másolatot?"
-  },
-  "app.instance.shared-instance-already-installed.header": {
-    "message": "A megosztott példány már telepítve van"
-  },
-  "app.instance.shared-instance-already-installed.install-anyway": {
-    "message": "Telepítés mindenképp"
-  },
-  "app.instance.shared-instance-already-installed.instance": {
-    "message": "Példány"
-  },
-  "app.instance.shared-instance-wrong-account.fallback-username": {
-    "message": "az összekapcsolt fiók"
-  },
-  "app.instance.shared-instance-wrong-account.owner-admonition-body-v2": {
-    "message": ", hogy kezelhesd ezt a megosztott példányt. Nem fogod tudni közzétenni a frissítéseket."
-  },
-  "app.instance.shared-instance-wrong-account.sign-in-as-label": {
-    "message": "Jelentkezz be mint"
-  },
-  "app.instance.shared-instance-wrong-account.signed-out-header": {
-    "message": "Be kell jelentkezned a Modrinthba"
-  },
-  "app.instance.shared-instance-wrong-account.user-admonition-body-v2": {
-    "message": ", hogy frissítéseket kapj ehhez a megosztott példányhoz."
-  },
-  "app.instance.shared-instance-wrong-account.warning-header": {
-    "message": "Nem a megfelelő Modrinth-fiókot használod"
-  },
   "app.instance.tab.content": {
     "message": "Tartalom"
   },
@@ -688,9 +517,6 @@
   },
   "app.instance.tab.logs": {
     "message": "Naplók"
-  },
-  "app.instance.tab.share": {
-    "message": "Megosztás"
   },
   "app.instance.tab.worlds": {
     "message": "Világok"
@@ -854,21 +680,6 @@
   "app.library.sort.name": {
     "message": "Név"
   },
-  "app.modal.install-to-play.additional-context": {
-    "message": "További kontextus"
-  },
-  "app.modal.install-to-play.additional-context-placeholder": {
-    "message": "Ha lehetséges és hasznos, adj meg linkeket és képeket is"
-  },
-  "app.modal.install-to-play.block-user": {
-    "message": "Felhasználó letiltása"
-  },
-  "app.modal.install-to-play.content-you-are-reporting": {
-    "message": "A példány, amelyet bejelenteni kívánsz"
-  },
-  "app.modal.install-to-play.delete-instance": {
-    "message": "Példány törlése"
-  },
   "app.modal.install-to-play.external-files-dont-install": {
     "message": "Ne telepítse"
   },
@@ -884,50 +695,17 @@
   "app.modal.install-to-play.invite-warning": {
     "message": "Ezt a meghívót nem a Modrinth, hanem egy másik Modrinth-felhasználó hozta létre. Csak olyan személyektől fogadd el a meghívásokat, akikben megbízol."
   },
-  "app.modal.install-to-play.invite-warning-with-creator": {
-    "message": "Ezt a meghívót <creator>{username}</creator> készítette, nem pedig a Modrinth. Csak olyan személyektől fogadd el a meghívásokat, akikben megbízol."
-  },
   "app.modal.install-to-play.managed-content.modpack-header": {
     "message": "A modcsomag tartalma"
   },
   "app.modal.install-to-play.mod-count": {
     "message": "{count} mod"
   },
-  "app.modal.install-to-play.report-description": {
-    "message": "Ezt az űrlapot használva olyan példányokat jelenthetsz, amelyek megsérthetik a <rules-link>Szabályzatunkat</rules-link> vagy a <terms-link>Felhasználási feltételeinket</terms-link>."
-  },
-  "app.modal.install-to-play.report-image-invalid-type": {
-    "message": "A fájl nem támogatott képfájlformátumot használ"
-  },
-  "app.modal.install-to-play.report-image-too-large": {
-    "message": "A fájl meghaladja az 1 MiB-os méretkorlátot"
-  },
-  "app.modal.install-to-play.report-legal-claims": {
-    "message": "A DMCA-bejelentésekkel és egyéb jogi igényekkel kapcsolatban lásd a <copyright-link>Szerzői jogi szabályzatunkat</copyright-link>."
-  },
-  "app.modal.install-to-play.report-reason": {
-    "message": "Melyik szabályt sérti ez az adott példány?"
-  },
-  "app.modal.install-to-play.report-shared-instance-header": {
-    "message": "Megosztott példány jelentése"
-  },
-  "app.modal.install-to-play.report-submitted": {
-    "message": "Jelentés elküldve"
-  },
-  "app.modal.install-to-play.report-support-and-bugs": {
-    "message": "Ha segítségre van szükséged, vedd fel a kapcsolatot a <support-link>támogatási csapatunkkal</support-link>. Hibajelentésekhez nyiss egy <github-link>GitHub-issue-t</github-link>."
-  },
   "app.modal.install-to-play.reviewed-files": {
     "message": "Azok a fájlok, amelyek nincsenek közzétéve a Modrinthon, nincsenek ellenőrizve."
   },
   "app.modal.install-to-play.shared-instance": {
     "message": "Megosztott példány"
-  },
-  "app.modal.install-to-play.shared-instance-content": {
-    "message": "Megosztott példány tartalma"
-  },
-  "app.modal.install-to-play.shared-instance-unknown-files-description": {
-    "message": "Ez a megosztott példány olyan fájlokat tartalmaz, amelyek nincsenek közzétéve a Modrinth-on. Határozottan javasoljuk, hogy kizárólag olyan forrásokból telepíts fájlokat, amelyekben megbízol."
   },
   "app.modal.install-to-play.unknown-files-description": {
     "message": "Ez a szervermodcsomag olyan fájlokat tartalmaz, amelyeket nem tettek közzé a Modrinthen. Nyomatékosan javasoljuk, hogy csak megbízható forrásból származó fájlokat telepíts."
@@ -937,9 +715,6 @@
   },
   "app.modal.install-to-play.unrecognized-files": {
     "message": "Felismerhetetlen fájlok"
-  },
-  "app.modal.install-to-play.user-blocked": {
-    "message": "Felhasználó letiltva"
   },
   "app.modal.install-to-play.view-contents": {
     "message": "Tartalom megtekintése"
@@ -953,18 +728,6 @@
   "app.modal.update-to-play.server-modpack-unknown-files-description": {
     "message": "Ez a szervermodcsomag-frissítés olyan fájlokat tartalmaz, amelyek nem találhatók meg a Modrinthen. Erősen javasoljuk, hogy csak megbízható forrásokból telepíts fájlokat."
   },
-  "app.modal.update-to-play.shared-instance-added-label": {
-    "message": "Hozzáadva"
-  },
-  "app.modal.update-to-play.shared-instance-removed-label": {
-    "message": "Eltávolítva"
-  },
-  "app.modal.update-to-play.shared-instance-unknown-files-description": {
-    "message": "Ez a megosztott példányfrissítés olyan fájlokat tartalmaz, amelyek nincsenek közzétéve a Modrinth-on. Határozottan javasoljuk, hogy kizárólag olyan forrásokból telepíts fájlokat, amelyekben megbízol."
-  },
-  "app.modal.update-to-play.update-required": {
-    "message": "Frissítés szükséges"
-  },
   "app.modal.update-to-play.update-required-description": {
     "message": "Egy frssítés szükséges a(z) {name} játékprofilhoz. Kérjük, frissítsd a játékot a legújabb verzióra az indításhoz."
   },
@@ -973,24 +736,6 @@
   },
   "app.nav.home": {
     "message": "Kezdőlap"
-  },
-  "app.nav.modrinth-account": {
-    "message": "Modrinth fiók"
-  },
-  "app.nav.modrinth-hosting": {
-    "message": "Modrinth Hosting"
-  },
-  "app.nav.sign-in-to-modrinth-account": {
-    "message": "Bejelentkezés egy Modrinth-fiókba"
-  },
-  "app.nav.upgrade-to-modrinth-plus": {
-    "message": "Frissíts a Modrinth+-ra"
-  },
-  "app.news.title": {
-    "message": "Hírek"
-  },
-  "app.news.view-all": {
-    "message": "Összes hír"
   },
   "app.notification.warning": {
     "message": "Figyelmeztetés"
@@ -1136,20 +881,11 @@
   "app.settings.operating-system.macos": {
     "message": "macOS"
   },
-  "app.settings.privacy.ads-consent.intro": {
-    "message": "A hirdetések teszik lehetővé a Modrinth működését, és biztosítják a tartalomkészítők juttatásait. Partnereink sütiket tárolhatnak vagy érhetnek el az alkalmazásban a hirdetések személyre szabása és a teljesítmény mérése céljából. Alább leiratkozhatsz erről, illetve beállíthatod a preferenciáidat."
-  },
   "app.settings.privacy.discord-rich-presence.description": {
     "message": "A Dyad Launcher megjelenítése aktuális tevékenységként a Discordon. Ez nem érinti a modok által a példányokhoz hozzáadott Rich Presence-t. Az alkalmazás újraindítását igényli."
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord Rich Presence"
-  },
-  "app.settings.privacy.telemetry.description": {
-    "message": "A Modrinth névtelen használati és telemetriai adatokat gyűjt a felhasználói élmény javítása és személyre szabása érdekében. Ha kikapcsolod ezt a beállítást, leiratkozol erről, és a rendszer többé nem gyűjti az adataidat."
-  },
-  "app.settings.privacy.telemetry.title": {
-    "message": "Telemetria"
   },
   "app.settings.resource-management.always-show-copy-details.description": {
     "message": "A „Részletek másolása” művelet megjelenítése, amíg a telepítés várólistán van vagy fut. A művelet mindig elérhető a sikertelen vagy megszakított telepítések esetén."
@@ -1376,26 +1112,8 @@
   "app.skins.toggle-ears-features-on": {
     "message": "Bekapcsolás"
   },
-  "app.survey.body": {
-    "message": "Megosztanád velünk a tapasztalataidat a Dyad Launcher használatáról néhány kérdés megválaszolásával?"
-  },
-  "app.survey.footer": {
-    "message": "A visszajelzésed közvetlenül a Modrinth csapatához kerül, és segít a jövőbeli frissítések alakításában!"
-  },
-  "app.survey.no-thanks": {
-    "message": "Nem, köszönöm"
-  },
-  "app.survey.take-survey": {
-    "message": "Kérdőív kitöltése"
-  },
-  "app.survey.title": {
-    "message": "Hali, Modrinth-felhasználó!"
-  },
   "app.update-popup.body.download-complete": {
     "message": "A Dyad Launcher v{version} letöltése befejeződött. Válaszd a Frissítés lehetőséget a frissítéshez, vagy az alkalmazás bezárásakor automatikusan frissül."
-  },
-  "app.update-popup.body.linux": {
-    "message": "A Dyad Launcher v{version} elérhető. A legújabb funkciókért és javításokért frissíts a csomagkezelőddel!"
   },
   "app.update-popup.body.metered": {
     "message": "A Dyad Launcher v{version} már elérhető! Mivel korlátozott adatforgalmú hálózaton vagy, nem töltöttük le automatikusan."
@@ -1442,9 +1160,6 @@
   "app.world.world-item.offline": {
     "message": "Offline"
   },
-  "content.shared-instance.change-version-body": {
-    "message": "A verzió módosítása csak a helyi példányt érinti. A megosztott példány jövőbeli frissítései felülírhatják vagy ismét megváltoztathatják azt."
-  },
   "content.shared-instance.delete-bulk-body": {
     "message": "A kiválasztott projektek egy része a megosztott példány része. Törlésük csak a helyi példányt módosítja, és a megosztott példány jövőbeli frissítései visszaállíthatják vagy ismét módosíthatják őket."
   },
@@ -1469,116 +1184,8 @@
   "content.shared-instance.disable-single-body": {
     "message": "A letiltása csak a helyi példányt módosítja. A megosztott példány jövőbeli frissítései újra engedélyezhetik, visszaállíthatják vagy ismét módosíthatják."
   },
-  "content.shared-instance.unlink-body": {
-    "message": "A leválasztás csak a helyi példányt érinti. A megosztott példány jövőbeli frissítései felülírhatják vagy ismét megváltoztathatják azt."
-  },
   "content.shared-instance.warning-header": {
     "message": "Ez egy megosztott példány része"
-  },
-  "friends.action.add-friend": {
-    "message": "Barát hozzáadása"
-  },
-  "friends.action.view-friend-requests": {
-    "message": "{count} barát {count, plural, other {kérelem}}"
-  },
-  "friends.add-friend.submit": {
-    "message": "Barátkérelem elküldése"
-  },
-  "friends.add-friend.title": {
-    "message": "Barát hozzáadása"
-  },
-  "friends.add-friend.username.description": {
-    "message": "Más is lehet, mint a Minecraft felhasználóneve!"
-  },
-  "friends.add-friend.username.placeholder": {
-    "message": "Barát Modrinth felhasználóneve..."
-  },
-  "friends.add-friend.username.title": {
-    "message": "Mi a barátod Modrinth felhasználóneve?"
-  },
-  "friends.add-friends-to-share": {
-    "message": "<link>Vegyél fel barátokat</link>, hogy lásd mivel játszanak!"
-  },
-  "friends.friend.cancel-request": {
-    "message": "Barátkérelem visszavonása"
-  },
-  "friends.friend.remove-friend": {
-    "message": "Barát eltávolítása"
-  },
-  "friends.friend.request-sent": {
-    "message": "Barátkérelem elküldve"
-  },
-  "friends.friend.view-profile": {
-    "message": "Profil megtekintése"
-  },
-  "friends.heading": {
-    "message": "Barátok"
-  },
-  "friends.heading.active": {
-    "message": "Aktív"
-  },
-  "friends.heading.offline": {
-    "message": "Offline"
-  },
-  "friends.heading.online": {
-    "message": "Online"
-  },
-  "friends.heading.pending": {
-    "message": "Jóváhagyásra vár"
-  },
-  "friends.no-friends-match": {
-    "message": "Nincsen \"{query}\" nevű barátod"
-  },
-  "friends.search-friends-placeholder": {
-    "message": "Keresés a barátaid között..."
-  },
-  "friends.section.heading": {
-    "message": "{title} - {count}"
-  },
-  "friends.sign-in-to-add-friends": {
-    "message": "<link>Lépj be Modrinth fiókodba</link>, hogy felvehess barátokat és lásd mivel játszanak!"
-  },
-  "installation-settings.shared-instance.linked-title": {
-    "message": "Összekapcsolt megosztott példány"
-  },
-  "installation-settings.shared-instance.title": {
-    "message": "Példány megosztásának visszavonása"
-  },
-  "installation-settings.shared-instance.unlink-button": {
-    "message": "Megosztott példány leválasztása"
-  },
-  "installation-settings.shared-instance.unlink-description": {
-    "message": "Leválasztja ezt a helyi példányt a jövőbeli megosztott frissítésekről."
-  },
-  "installation-settings.shared-instance.unlinking-button": {
-    "message": "Leválasztás..."
-  },
-  "installation-settings.shared-instance.unpublish-button": {
-    "message": "Megosztott példány megosztásának visszavonása"
-  },
-  "installation-settings.shared-instance.unpublish-description": {
-    "message": "Eltávolítja ezt a megosztott példányt a Modrinthból, és nem küld többé frissítéseket azoknak, akik használják. A helyi példányodat ez nem érinti."
-  },
-  "installation-settings.shared-instance.unpublishing-button": {
-    "message": "Közzététel visszavonása..."
-  },
-  "installation-settings.unlink-shared-instance.modal.admonition-body": {
-    "message": "Ez kizárólag a helyi példányodra vonatkozik. A telepített tartalmaid ezen az eszközön maradnak, és ez nem érinti a megosztott példányt, illetve az azt használó többi felhasználót."
-  },
-  "installation-settings.unlink-shared-instance.modal.admonition-header": {
-    "message": "Megosztott játékprofil leválasztása"
-  },
-  "installation-settings.unlink-shared-instance.modal.header": {
-    "message": "Megosztott példány leválasztása"
-  },
-  "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "Ezzel a megosztott példány törlődik a Modrinth szervereiről. A Dyad Launcherban az ezt használók többé nem kapnak frissítéseket, de a helyipéldány és annak tartalma továbbra is ezen az eszközön marad."
-  },
-  "installation-settings.unpublish-shared-instance.modal.admonition-header": {
-    "message": "Visszavonod a megosztott példány megosztását"
-  },
-  "installation-settings.unpublish-shared-instance.modal.header": {
-    "message": "Megosztott példány megosztásának visszavonása"
   },
   "instance.action.create-shortcut": {
     "message": "Parancsikon létrehozása"
@@ -1688,9 +1295,6 @@
   "instance.last-played": {
     "message": "Legutóbb játszva"
   },
-  "instance.locked.delete-button": {
-    "message": "Példány törlése"
-  },
   "instance.locked.play-tooltip": {
     "message": "Ez a példány zárolva van"
   },
@@ -1708,45 +1312,6 @@
   },
   "instance.server-modal.resource-pack": {
     "message": "Forráscsomag"
-  },
-  "instance.settings.sharing.active-invites.actions": {
-    "message": "Műveletek"
-  },
-  "instance.settings.sharing.active-invites.code": {
-    "message": "Meghívó link"
-  },
-  "instance.settings.sharing.active-invites.description": {
-    "message": "Bárki, akinek van ilyen meghívó linkje, csatlakozhat, amíg az aktív marad."
-  },
-  "instance.settings.sharing.active-invites.empty": {
-    "message": "Nincsenek aktív meghívások."
-  },
-  "instance.settings.sharing.active-invites.expires": {
-    "message": "Lejár"
-  },
-  "instance.settings.sharing.active-invites.revoke": {
-    "message": "Meghívó törlése"
-  },
-  "instance.settings.sharing.active-invites.revoke-with-code": {
-    "message": "A(z) {code} meghívó törlése"
-  },
-  "instance.settings.sharing.active-invites.title": {
-    "message": "Aktív meghívások"
-  },
-  "instance.settings.sharing.active-invites.uses": {
-    "message": "Használatok"
-  },
-  "instance.settings.sharing.revoke-invite.admonition-body": {
-    "message": "A(z) <monospace>{code}</monospace> meghívó link azonnal érvényét veszti. Azok, akik már csatlakoztak, továbbra is hozzáférhetnek."
-  },
-  "instance.settings.sharing.revoke-invite.admonition-header": {
-    "message": "Ezt a műveletet nem lehet visszavonni"
-  },
-  "instance.settings.sharing.revoke-invite.confirm": {
-    "message": "Meghívó törlése"
-  },
-  "instance.settings.sharing.revoke-invite.header": {
-    "message": "Meghívó törlése"
   },
   "instance.settings.tabs.general": {
     "message": "Általános"
@@ -1904,9 +1469,6 @@
   "instance.settings.tabs.java.java-path-placeholder": {
     "message": "/path/to/java"
   },
-  "instance.settings.tabs.sharing": {
-    "message": "Megosztás"
-  },
   "instance.settings.tabs.window": {
     "message": "Ablak"
   },
@@ -1936,63 +1498,6 @@
   },
   "instance.settings.tabs.window.width.enter": {
     "message": "Szélesség megadása..."
-  },
-  "instance.shared-instance.error.title": {
-    "message": "Valami hiba történt"
-  },
-  "instance.shared-instance.network-error.text": {
-    "message": "Nem sikerült csatlakozni a megosztott példányok API-jához"
-  },
-  "instance.shared-instance.network-error.title": {
-    "message": "Hálózati hiba"
-  },
-  "instance.shared-instance.owner-tooltip": {
-    "message": "Ennek a példánynak a tartalma meg van osztva más felhasználókkal."
-  },
-  "instance.shared-instance.publish-review.added-label": {
-    "message": "Hozzáadva:"
-  },
-  "instance.shared-instance.publish-review.admonition-header": {
-    "message": "Frissítés közzététele a játékosoknak"
-  },
-  "instance.shared-instance.publish-review.config-title-v2": {
-    "message": "Konfigurációs fájlok kiválasztása"
-  },
-  "instance.shared-instance.publish-review.description": {
-    "message": "Ellenőrizd a tartalmi módosításokat, és válaszd ki azokat a konfigurációs fájlokat, amelyeket be szeretnél vonni ebbe a frissítésbe."
-  },
-  "instance.shared-instance.publish-review.header": {
-    "message": "Változtatások áttekintése"
-  },
-  "instance.shared-instance.publish-review.publish-button": {
-    "message": "Frissítés közzététele"
-  },
-  "instance.shared-instance.publish-review.removed-label": {
-    "message": "Eltávolítva:"
-  },
-  "instance.shared-instance.tooltip": {
-    "message": "Ennek a példánynak a tartalmát más kezeli."
-  },
-  "instance.shared-instance.unavailable.access-revoked-text": {
-    "message": "A megosztott példányhoz való hozzáférésedet megvonták. Ez a példány továbbra is elérhető, de már nincs összekapcsolva, és többé nem kap frissítéseket."
-  },
-  "instance.shared-instance.unavailable.deleted-text": {
-    "message": "Az elsődleges példányt törölték. Ez a példány továbbra is elérhető, de már nincs összekapcsolva, és többé nem kap frissítéseket."
-  },
-  "instance.shared-instance.unavailable.locked-text": {
-    "message": "Ezt a megosztott példányt a Tartalommoderációs csapat zárolta. Többé nem kap frissítéseket az elsődleges példánytól, és nem lehet játszani vele."
-  },
-  "instance.shared-instance.unavailable.locked-title": {
-    "message": "Példány zárolva"
-  },
-  "instance.shared-instance.unavailable.manager-fallback": {
-    "message": "a példánykezelő"
-  },
-  "instance.shared-instance.unavailable.text": {
-    "message": "A helyi példányod továbbra is elérhető, de már nincs összekapcsolva, és többé nem kap frissítéseket."
-  },
-  "instance.shared-instance.unavailable.title": {
-    "message": "A megosztott példány már nem elérhető"
   },
   "instance.worlds.a_minecraft_server": {
     "message": "Egy Minecraft szerver"
@@ -2078,42 +1583,6 @@
   "minecraft-required.sign-in": {
     "message": "Bejelentkezés a Microsft-ba"
   },
-  "modal.modrinth-account-required.browser-description": {
-    "message": "Megnyílt egy új lap a bejelentkezéshez. Végezd el ott a bejelentkezést, majd térj vissza az alkalmazásba."
-  },
-  "modal.modrinth-account-required.continue-in-browser-heading": {
-    "message": "Folytatás a böngészőben"
-  },
-  "modal.modrinth-account-required.create-account-button": {
-    "message": "Fiók létrehozása"
-  },
-  "modal.modrinth-account-required.description": {
-    "message": "Ahhoz, hogy ezt a funkciót használhas, be kell jelentkeznie a Modrinth-fiókjába."
-  },
-  "modal.modrinth-account-required.header": {
-    "message": "Fiók szükséges"
-  },
-  "modal.modrinth-account-required.open-browser-again-button": {
-    "message": "Böngésző megnyitása újra"
-  },
-  "modal.modrinth-account-required.sign-in-button": {
-    "message": "Jelentkezz be a Modrinthbe"
-  },
-  "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Jelentkezz be egy Modrinth-fiókba"
-  },
-  "modal.modrinth-account-required.signing-in-header": {
-    "message": "Bejelentkezés"
-  },
-  "modal.modrinth-account-required.support-prompt": {
-    "message": "Problémád van a bejelentkezéssel? <support>Segítség</support>"
-  },
-  "modal.modrinth-account-required.waiting-for-browser": {
-    "message": "Várakozás a böngésző megerősítésére..."
-  },
-  "onboarding-checklist.login-modrinth": {
-    "message": "Jelentkezz be a Modrinthba"
-  },
   "search.filter.locked.instance": {
     "message": "Pédány által megadva"
   },
@@ -2128,9 +1597,6 @@
   },
   "search.filter.locked.server-environment.title": {
     "message": "Szerverpéldányokhoz csak szerveroldali modok adhatók hozzá"
-  },
-  "settings.sidebar.label.account": {
-    "message": "Fiók"
   },
   "settings.sidebar.label.display": {
     "message": "Kijelző"

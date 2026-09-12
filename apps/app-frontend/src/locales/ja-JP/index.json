@@ -92,9 +92,6 @@
   "app.action-bar.install.unknown-instance": {
     "message": "不明なインスタンス"
   },
-  "app.action-bar.install.updating-shared-content": {
-    "message": "シェアされたコンテンツをアップデートしました"
-  },
   "app.action-bar.installs": {
     "message": "インストール数"
   },
@@ -133,21 +130,6 @@
   },
   "app.action-bar.view-logs": {
     "message": "ログを表示"
-  },
-  "app.ads-consent.accept": {
-    "message": "すべて受け入れる"
-  },
-  "app.ads-consent.body": {
-    "message": "Modrinthは広告収益によって運営され、クリエイターへの報酬もその収益から支払われています。当社のパートナーは、広告のパーソナライズや効果測定のために、アプリ内でCookieを保存・利用する場合があります。"
-  },
-  "app.ads-consent.manage": {
-    "message": "設定の管理"
-  },
-  "app.ads-consent.reject": {
-    "message": "すべて拒否する"
-  },
-  "app.ads-consent.title": {
-    "message": "プライバシーと広告がModrinthを支える仕組み"
   },
   "app.appearance-settings.default-landing-page.home": {
     "message": "ホーム"
@@ -347,36 +329,6 @@
   "app.instance.add-server.cancel": {
     "message": "キャンセル"
   },
-  "app.instance.admonitions.shared-instance.added-label": {
-    "message": "追加済"
-  },
-  "app.instance.admonitions.shared-instance.changes-body": {
-    "message": "ローカルインスタンスのバージョンが、共有しているユーザー側のバージョンより進んでいます。"
-  },
-  "app.instance.admonitions.shared-instance.changes-header": {
-    "message": "変更はまだ共有されていません"
-  },
-  "app.instance.admonitions.shared-instance.publish-button": {
-    "message": "アップデートを公開する"
-  },
-  "app.instance.admonitions.shared-instance.publishing-button": {
-    "message": "公開しています…"
-  },
-  "app.instance.admonitions.shared-instance.removed-label": {
-    "message": "削除されました"
-  },
-  "app.instance.admonitions.shared-instance.review-admonition-header": {
-    "message": "アップデートを公開する"
-  },
-  "app.instance.admonitions.shared-instance.review-description": {
-    "message": "このインスタンスを利用しているすべてのユーザーに共有されるコンテンツの変更内容を確認してください。"
-  },
-  "app.instance.admonitions.shared-instance.review-header": {
-    "message": "変更点を確認"
-  },
-  "app.instance.admonitions.shared-instance.reviewing-button": {
-    "message": "審査中…"
-  },
   "app.instance.card.repair": {
     "message": "修復"
   },
@@ -436,117 +388,6 @@
   },
   "app.instance.mods.successfully-uploaded": {
     "message": "アップロードに成功しました"
-  },
-  "app.instance.share.empty.description": {
-    "message": "フレンドとこのインスタンスをシェアしましょう！"
-  },
-  "app.instance.share.empty.heading": {
-    "message": "まだ誰も招待していないようです"
-  },
-  "app.instance.share.empty.invite-friends-button": {
-    "message": "フレンドを招待"
-  },
-  "app.instance.share.invite-modal.heading": {
-    "message": "{name} をシェアする"
-  },
-  "app.instance.share.invite-modal.user-limit-reached": {
-    "message": "このインスタンスは上限の{limit}人に達しました。"
-  },
-  "app.instance.share.locked.empty-description-prefix": {
-    "message": "このページにアクセスするには"
-  },
-  "app.instance.share.locked.empty-description-suffix": {
-    "message": "としてサインインする必要があります。"
-  },
-  "app.instance.share.locked.linked-account-fallback": {
-    "message": "リンクされたアカウント"
-  },
-  "app.instance.share.locked.signed-out-heading": {
-    "message": "サインインしていません"
-  },
-  "app.instance.share.locked.switch-account-button": {
-    "message": "アカウントを切り替える"
-  },
-  "app.instance.share.locked.wrong-account-heading": {
-    "message": "アカウントが違います"
-  },
-  "app.instance.share.members.empty": {
-    "message": "まだ誰も参加していません"
-  },
-  "app.instance.share.members.no-filter-results": {
-    "message": "フィルターに一致するユーザーが見つかりません。"
-  },
-  "app.instance.share.remove-user-modal.effect-access": {
-    "message": "このインスタンスのアップデートは受信できなくなります"
-  },
-  "app.instance.share.remove-user-modal.effect-installed-copy": {
-    "message": "すでにインストール済みのコピーは、そのままデバイスに残ります"
-  },
-  "app.instance.share.remove-user-modal.effect-invite-again": {
-    "message": "後でもう一度招待することもできます"
-  },
-  "app.instance.share.remove-user-modal.effect-last-user": {
-    "message": "彼らがすでにインストールしたコピーは彼らのデバイスに残ります"
-  },
-  "app.instance.share.remove-user-modal.effects-label": {
-    "message": "この変更で何が起きるか？"
-  },
-  "app.instance.share.remove-user-modal.header": {
-    "message": "アクセスを取り消す"
-  },
-  "app.instance.share.remove-user-modal.remove-button": {
-    "message": "アクセスを取り消す"
-  },
-  "app.instance.share.remove-user-modal.user-avatar-alt": {
-    "message": "{username}のアバター"
-  },
-  "app.instance.share.remove-user-modal.warning-body": {
-    "message": "もし{username}のアクセス権を取り消した場合、彼らが再びアップデートを受け取れるようにするには、もう一度招待し直す必要があります。"
-  },
-  "app.instance.share.sign-in.button": {
-    "message": "サインイン"
-  },
-  "app.instance.share.unable-to-connect.description": {
-    "message": "インスタンスの共有は現在ご利用いただけません。しばらくしてからもう一度お試しください"
-  },
-  "app.instance.share.unable-to-connect.heading": {
-    "message": "接続エラー"
-  },
-  "app.instance.share.unlink.body": {
-    "message": "この起動構成を共有するには、このmodpackのリンクを解除する必要があります"
-  },
-  "app.instance.share.unlink.header": {
-    "message": "共有にはリンクを解除する必要があります"
-  },
-  "app.instance.shared-instance-already-installed.body": {
-    "message": "この共有された起動構成はすでに<bold> {instanceName} </bold>としてインストールされています。別のコピーをインストールしてもよろしいですか？"
-  },
-  "app.instance.shared-instance-already-installed.header": {
-    "message": "共有された起動構成はすでにインストールされています"
-  },
-  "app.instance.shared-instance-already-installed.install-anyway": {
-    "message": "インストールを続行"
-  },
-  "app.instance.shared-instance-already-installed.instance": {
-    "message": "起動構成"
-  },
-  "app.instance.shared-instance-wrong-account.fallback-username": {
-    "message": "リンクされたアカウント"
-  },
-  "app.instance.shared-instance-wrong-account.owner-admonition-body-v2": {
-    "message": "インスタンスを管理することができます。サインインするまでアップデートを配信することはできません。"
-  },
-  "app.instance.shared-instance-wrong-account.sign-in-as-label": {
-    "message": "このアカウントでサインインすることで"
-  },
-  "app.instance.shared-instance-wrong-account.signed-out-header": {
-    "message": "Modrinthへのサインインが必要です"
-  },
-  "app.instance.shared-instance-wrong-account.user-admonition-body-v2": {
-    "message": "インスタンスのアップデートを受け取ることができます。"
-  },
-  "app.instance.shared-instance-wrong-account.warning-header": {
-    "message": "Modrinthのアカウントが間違っています"
   },
   "app.instance.worlds.add-server": {
     "message": "サーバーを追加"
@@ -650,21 +491,6 @@
   "app.library.group.move-up": {
     "message": "グループを上に移動"
   },
-  "app.modal.install-to-play.additional-context": {
-    "message": "追加のコンテンツ"
-  },
-  "app.modal.install-to-play.additional-context-placeholder": {
-    "message": "可能であれば、リンクや画像も含めてください"
-  },
-  "app.modal.install-to-play.block-user": {
-    "message": "ユーザーをブロック"
-  },
-  "app.modal.install-to-play.content-you-are-reporting": {
-    "message": "起動構成を報告する"
-  },
-  "app.modal.install-to-play.delete-instance": {
-    "message": "インスタンスを削除する"
-  },
   "app.modal.install-to-play.external-files-dont-install": {
     "message": "インストールしない"
   },
@@ -680,47 +506,14 @@
   "app.modal.install-to-play.invite-warning": {
     "message": "この招待は他のModrinthユーザーによって作成されたものであり、Modrinth公式のものではありません。信頼できる人からの招待のみ承諾してください。"
   },
-  "app.modal.install-to-play.invite-warning-with-creator": {
-    "message": "この招待はModrinthではなく<creator>{username}</creator>によって作成されました。信頼できる人物からの招待のみ受諾してください。"
-  },
   "app.modal.install-to-play.mod-count": {
     "message": "{count, plural, other {#個のMod}}"
-  },
-  "app.modal.install-to-play.report-description": {
-    "message": "このフォームを使用して、<rules-link>ルール</rules-link>または<terms-link>利用規約</terms-link>に違反する可能性のある事例を報告してください。"
-  },
-  "app.modal.install-to-play.report-image-invalid-type": {
-    "message": "対応していない画像形式です"
-  },
-  "app.modal.install-to-play.report-image-too-large": {
-    "message": "ファイルのサイズが 1 MiBの制限を超えています"
-  },
-  "app.modal.install-to-play.report-legal-claims": {
-    "message": "DMCA通知やその他の法的請求については、弊社の<copyright-link>著作権ポリシー</copyright-link>をご覧ください。"
-  },
-  "app.modal.install-to-play.report-reason": {
-    "message": "この起動構成はどの規則に違反していますか？"
-  },
-  "app.modal.install-to-play.report-shared-instance-header": {
-    "message": "共有された起動構成を通報する"
-  },
-  "app.modal.install-to-play.report-submitted": {
-    "message": "通報は送信されました"
-  },
-  "app.modal.install-to-play.report-support-and-bugs": {
-    "message": "サポートに関するお問い合わせは、<support-link>サポートチーム</support-link>までご連絡ください。バグの報告は、<github-link>GitHubのIssue</github-link>を作成してください。"
   },
   "app.modal.install-to-play.reviewed-files": {
     "message": "追加するファイルはModrinthの認証を受けていません"
   },
   "app.modal.install-to-play.shared-instance": {
     "message": "共有インスタンス"
-  },
-  "app.modal.install-to-play.shared-instance-content": {
-    "message": "共有された起動構成の内容"
-  },
-  "app.modal.install-to-play.shared-instance-unknown-files-description": {
-    "message": "この共有された起動構成には、Modrinthで公開されていないファイルが含まれています。信頼できる提供元からのファイルのみをインストールすることを強くお勧めします。"
   },
   "app.modal.install-to-play.unknown-files-description": {
     "message": "このサーバーModパックには、Modrinthに公開されていないファイルが含まれています。信頼できるソースからのファイルのみをインストールすることを強く推奨します。"
@@ -730,9 +523,6 @@
   },
   "app.modal.install-to-play.unrecognized-files": {
     "message": "認識されないファイル"
-  },
-  "app.modal.install-to-play.user-blocked": {
-    "message": "ユーザーをブロックしました"
   },
   "app.modal.install-to-play.view-contents": {
     "message": "コンテンツを見る"
@@ -746,18 +536,6 @@
   "app.modal.update-to-play.server-modpack-unknown-files-description": {
     "message": "このサーバーModパックのアップデートには、Modrinthに公開されていないファイルが含まれています。信頼できるソースからのファイルのみをインストールすることを強く推奨します。"
   },
-  "app.modal.update-to-play.shared-instance-added-label": {
-    "message": "追加済み"
-  },
-  "app.modal.update-to-play.shared-instance-removed-label": {
-    "message": "削除済み"
-  },
-  "app.modal.update-to-play.shared-instance-unknown-files-description": {
-    "message": "この共有された起動構成のアップデートには、Modrinthで公開されていないファイルが含まれています。信頼できる提供元からのファイルのみをインストールすることを強くお勧めします。"
-  },
-  "app.modal.update-to-play.update-required": {
-    "message": "更新が必要です"
-  },
   "app.modal.update-to-play.update-required-description": {
     "message": "{name}をプレイするにはアップデートが必要です。ゲームを起動するには最新バージョンにアップデートしてください。"
   },
@@ -766,24 +544,6 @@
   },
   "app.nav.home": {
     "message": "ホーム"
-  },
-  "app.nav.modrinth-account": {
-    "message": "Modrinthアカウント"
-  },
-  "app.nav.modrinth-hosting": {
-    "message": "Modrinth Hosting"
-  },
-  "app.nav.sign-in-to-modrinth-account": {
-    "message": "Modrinthアカウントにサインイン"
-  },
-  "app.nav.upgrade-to-modrinth-plus": {
-    "message": "Modrinth+にアップグレード"
-  },
-  "app.news.title": {
-    "message": "ニュース"
-  },
-  "app.news.view-all": {
-    "message": "全てのニュースを見る"
   },
   "app.project.install-button.already-installed": {
     "message": "このプロジェクトは既にインストールされています"
@@ -911,20 +671,11 @@
   "app.settings.operating-system.macos": {
     "message": "MacOS"
   },
-  "app.settings.privacy.ads-consent.intro": {
-    "message": "Modrinthは広告収益によって運営され、クリエイターへの報酬もその収益から支払われています。当社のパートナーは、広告のパーソナライズや効果測定のために、アプリ内でCookieを保存・利用する場合があります。この機能は下のボタンから個別に拒否や許可または変更することができます。"
-  },
   "app.settings.privacy.discord-rich-presence.description": {
     "message": "Discordの現在のプレイ中に Dyad Launcher を表示します。これはModによってインスタンスに追加されるRich Presenceには影響しません。適用にはアプリの再起動が必要です。"
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord Rich Presence"
-  },
-  "app.settings.privacy.telemetry.description": {
-    "message": "Modrinthはユーザー体験の向上および最適化のために、匿名化されたアナリティクスと利用データを収集しています。このオプションをオフにすることで無効化（オプトアウト）され、以降データの収集は行われません。"
-  },
-  "app.settings.privacy.telemetry.title": {
-    "message": "テレメトリ"
   },
   "app.settings.resource-management.always-show-copy-details.description": {
     "message": "インストールの保留中または実行中に「詳細をコピー」アクションを表示します。失敗または中断されたインストールでは常に利用可能です。"
@@ -1151,26 +902,8 @@
   "app.skins.toggle-ears-features-on": {
     "message": "オンに切り替え"
   },
-  "app.survey.body": {
-    "message": "Dyad Launcher の使用感についての簡単なアンケートにご協力いただけますか？"
-  },
-  "app.survey.footer": {
-    "message": "このフィードバックはModrinthチームに直接届けられ、今後のアップデートの改善に役立てられます！"
-  },
-  "app.survey.no-thanks": {
-    "message": "結構です"
-  },
-  "app.survey.take-survey": {
-    "message": "アンケートに回答"
-  },
-  "app.survey.title": {
-    "message": "Modrinthユーザーのみなさん、こんにちは！"
-  },
   "app.update-popup.body.download-complete": {
     "message": "Dyad Launcher v{version} のダウンロードが完了しました。今すぐ更新するには再読み込みするか、Dyad Launcherを閉じる際に自動更新されます。"
-  },
-  "app.update-popup.body.linux": {
-    "message": "Dyad Launcher v{version} が利用可能です。最新の機能と修正プログラムを入手するには、パッケージマネージャーを使用して更新してください！"
   },
   "app.update-popup.body.metered": {
     "message": "Dyad Launcher v{version} が利用可能になりました！お使いのネットワークが従量制のため、自動ダウンロードは行っておりません。"
@@ -1214,9 +947,6 @@
   "app.world.world-item.offline": {
     "message": "オフライン"
   },
-  "content.shared-instance.change-version-body": {
-    "message": "バージョンの変更はローカルコピーにのみ影響します。今後共有された起動構成がアップデートされた際に、元の状態に戻ったり、別のバージョンに変更されたりする場合があります。"
-  },
   "content.shared-instance.delete-bulk-body": {
     "message": "選択された一部のプロジェクトは共有された起動構成の一部です。これらを削除してもローカルコピーのみが変更され、今後共有された起動構成がアップデートされた際に、再び復元されたり変更されたりする場合があります。"
   },
@@ -1241,116 +971,8 @@
   "content.shared-instance.disable-single-body": {
     "message": "無効化はローカルコピーにのみ影響します。今後共有された起動構成がアップデートされた際に、再び有効化されたり、元の状態に戻ったり、変更されたりする場合があります。"
   },
-  "content.shared-instance.unlink-body": {
-    "message": "リンク解除はローカルのコピーにのみ適用されます。将来的に共有インスタンスが更新されると、復元や変更が再度行われる可能性があります。"
-  },
   "content.shared-instance.warning-header": {
     "message": "これは共有された起動構成の一部です"
-  },
-  "friends.action.add-friend": {
-    "message": "フレンドを追加"
-  },
-  "friends.action.view-friend-requests": {
-    "message": "{count}件の友達リクエスト"
-  },
-  "friends.add-friend.submit": {
-    "message": "フレンド申請を送信"
-  },
-  "friends.add-friend.title": {
-    "message": "フレンドを追加中"
-  },
-  "friends.add-friend.username.description": {
-    "message": "これはMinecraftユーザー名とは異なる可能性があります！"
-  },
-  "friends.add-friend.username.placeholder": {
-    "message": "Modrinthユーザー名を入力…"
-  },
-  "friends.add-friend.username.title": {
-    "message": "あなたのフレンドのModrinthユーザー名は何ですか？"
-  },
-  "friends.add-friends-to-share": {
-    "message": "<link>友達を追加</link>して、彼らが何をしているか見てみよう！"
-  },
-  "friends.friend.cancel-request": {
-    "message": "申請をキャンセル"
-  },
-  "friends.friend.remove-friend": {
-    "message": "フレンドを削除"
-  },
-  "friends.friend.request-sent": {
-    "message": "フレンド申請が送信されました"
-  },
-  "friends.friend.view-profile": {
-    "message": "プロフィールを表示"
-  },
-  "friends.heading": {
-    "message": "フレンド"
-  },
-  "friends.heading.active": {
-    "message": "活動中"
-  },
-  "friends.heading.offline": {
-    "message": "オフライン"
-  },
-  "friends.heading.online": {
-    "message": "オンライン"
-  },
-  "friends.heading.pending": {
-    "message": "保留中"
-  },
-  "friends.no-friends-match": {
-    "message": "フレンド「{query}」は見つかりませんでした"
-  },
-  "friends.search-friends-placeholder": {
-    "message": "フレンドを検索…"
-  },
-  "friends.section.heading": {
-    "message": "{title} - {count}"
-  },
-  "friends.sign-in-to-add-friends": {
-    "message": "<link>Modrinthアカウントにサインイン</link>して友達を追加し、彼らがプレイしているゲームをチェックしよう！"
-  },
-  "installation-settings.shared-instance.linked-title": {
-    "message": "リンク済の共有された起動構成"
-  },
-  "installation-settings.shared-instance.title": {
-    "message": "起動構成を非公開化"
-  },
-  "installation-settings.shared-instance.unlink-button": {
-    "message": "起動構成の共有を解除"
-  },
-  "installation-settings.shared-instance.unlink-description": {
-    "message": "このローカルインスタンスを今後の共有アップデートから切断します。"
-  },
-  "installation-settings.shared-instance.unlinking-button": {
-    "message": "共有を解除中…"
-  },
-  "installation-settings.shared-instance.unpublish-button": {
-    "message": "共有された軌道構成を非公開にする"
-  },
-  "installation-settings.shared-instance.unpublish-description": {
-    "message": "この共有インスタンスをModrinthから削除し、使用者へのアップデート送信を停止します。ローカルのインスタンスには影響しません。"
-  },
-  "installation-settings.shared-instance.unpublishing-button": {
-    "message": "非公開に設定中..."
-  },
-  "installation-settings.unlink-shared-instance.modal.admonition-body": {
-    "message": "これはローカルのインスタンスにのみ影響します。インストール済みのコンテンツはこのデバイスに残り、共有インスタンスやそれを使用している他のユーザーには影響しません。"
-  },
-  "installation-settings.unlink-shared-instance.modal.admonition-header": {
-    "message": "共有インスタンスのリンク解除"
-  },
-  "installation-settings.unlink-shared-instance.modal.header": {
-    "message": "共有インスタンスのリンクを解除"
-  },
-  "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "Modrinthのサーバーからこの共有インスタンスを削除します。Modrinthアプリでこれを使用しているユーザーへのアップデート配信は停止しますが、ローカルのインスタンスとそのコンテンツはこのデバイスに残ります。"
-  },
-  "installation-settings.unpublish-shared-instance.modal.admonition-header": {
-    "message": "共有インスタンスの非公開化"
-  },
-  "installation-settings.unpublish-shared-instance.modal.header": {
-    "message": "共有インスタンスを非公開にする"
   },
   "instance.action.create-shortcut": {
     "message": "ショートカット作成"
@@ -1553,9 +1175,6 @@
   "instance.icon-editor.symbol.zombie": {
     "message": "ゾンビ"
   },
-  "instance.locked.delete-button": {
-    "message": "インスタンスを削除"
-  },
   "instance.locked.play-tooltip": {
     "message": "このインスタンスはロックされています"
   },
@@ -1573,45 +1192,6 @@
   },
   "instance.server-modal.resource-pack": {
     "message": "リソースパック"
-  },
-  "instance.settings.sharing.active-invites.actions": {
-    "message": "アクション"
-  },
-  "instance.settings.sharing.active-invites.code": {
-    "message": "招待リンク"
-  },
-  "instance.settings.sharing.active-invites.description": {
-    "message": "アクティブな招待リンクをお持ちの方なら誰でも参加できます。"
-  },
-  "instance.settings.sharing.active-invites.empty": {
-    "message": "有効な招待はありません。"
-  },
-  "instance.settings.sharing.active-invites.expires": {
-    "message": "有効期限"
-  },
-  "instance.settings.sharing.active-invites.revoke": {
-    "message": "招待を取り消す"
-  },
-  "instance.settings.sharing.active-invites.revoke-with-code": {
-    "message": "招待コード {code} を取り消す"
-  },
-  "instance.settings.sharing.active-invites.title": {
-    "message": "有効な招待"
-  },
-  "instance.settings.sharing.active-invites.uses": {
-    "message": "ユーザー"
-  },
-  "instance.settings.sharing.revoke-invite.admonition-body": {
-    "message": "招待リンク <monospace>{code}</monospace> は即座に無効化されます。すでに参加しているユーザーのアクセス権はそのまま保持されます。"
-  },
-  "instance.settings.sharing.revoke-invite.admonition-header": {
-    "message": "この操作は取り消せません"
-  },
-  "instance.settings.sharing.revoke-invite.confirm": {
-    "message": "招待を取り消す"
-  },
-  "instance.settings.sharing.revoke-invite.header": {
-    "message": "招待を取り消す"
   },
   "instance.settings.tabs.general": {
     "message": "一般"
@@ -1778,9 +1358,6 @@
   "instance.settings.tabs.java.java-path-placeholder": {
     "message": "/path/to/java"
   },
-  "instance.settings.tabs.sharing": {
-    "message": "共有設定"
-  },
   "instance.settings.tabs.window": {
     "message": "ウィンドウ"
   },
@@ -1810,63 +1387,6 @@
   },
   "instance.settings.tabs.window.width.enter": {
     "message": "幅を入力…"
-  },
-  "instance.shared-instance.error.title": {
-    "message": "問題が発生しました"
-  },
-  "instance.shared-instance.network-error.text": {
-    "message": "共有インスタンス API に接続できません"
-  },
-  "instance.shared-instance.network-error.title": {
-    "message": "ネットワークエラー"
-  },
-  "instance.shared-instance.owner-tooltip": {
-    "message": "このインスタンスの内容は他のユーザーに共有されています。"
-  },
-  "instance.shared-instance.publish-review.added-label": {
-    "message": "追加しました"
-  },
-  "instance.shared-instance.publish-review.admonition-header": {
-    "message": "アップデートを配信する"
-  },
-  "instance.shared-instance.publish-review.config-title-v2": {
-    "message": "設定ファイルを選択"
-  },
-  "instance.shared-instance.publish-review.description": {
-    "message": "変更内容を確認し、この更新に含める設定ファイルを選択してください。"
-  },
-  "instance.shared-instance.publish-review.header": {
-    "message": "変更内容を確認"
-  },
-  "instance.shared-instance.publish-review.publish-button": {
-    "message": "アップデートをプッシュ"
-  },
-  "instance.shared-instance.publish-review.removed-label": {
-    "message": "削除しました"
-  },
-  "instance.shared-instance.tooltip": {
-    "message": "このインスタンスの内容は他のユーザーによって管理されています。"
-  },
-  "instance.shared-instance.unavailable.access-revoked-text": {
-    "message": "共有インスタンスへのアクセス権が取り消されました。このインスタンスは引き続き利用可能ですが、リンクは解除され、今後のアップデートは受信されなくなります。"
-  },
-  "instance.shared-instance.unavailable.deleted-text": {
-    "message": "プライマリインスタンスが削除されました。このインスタンスは引き続き利用可能ですが、リンクは解除され、今後のアップデートは受信されなくなります。"
-  },
-  "instance.shared-instance.unavailable.locked-text": {
-    "message": "この共有インスタンスはコンテンツモデレーションチームによってロックされました。プライマリインスタンスからのアップデートの受信は停止し、プレイすることもできません。"
-  },
-  "instance.shared-instance.unavailable.locked-title": {
-    "message": "インスタンスがロックされています"
-  },
-  "instance.shared-instance.unavailable.manager-fallback": {
-    "message": "インスタンスマネージャー"
-  },
-  "instance.shared-instance.unavailable.text": {
-    "message": "ローカルインスタンスは引き続き利用可能ですが、リンクは解除されており、今後のアップデートは受信されません。"
-  },
-  "instance.shared-instance.unavailable.title": {
-    "message": "共有インスタンスは利用できなくなりました"
   },
   "instance.worlds.a_minecraft_server": {
     "message": "Minecraftサーバー"
@@ -1952,39 +1472,6 @@
   "minecraft-required.sign-in": {
     "message": "Microsoft にサインイン"
   },
-  "modal.modrinth-account-required.browser-description": {
-    "message": "サインイン用のタブが開きました。そちらでサインインを完了してから、アプリに戻ってください。"
-  },
-  "modal.modrinth-account-required.continue-in-browser-heading": {
-    "message": "ブラウザで続行"
-  },
-  "modal.modrinth-account-required.create-account-button": {
-    "message": "アカウントを作成"
-  },
-  "modal.modrinth-account-required.description": {
-    "message": "この機能を利用するには、Modrinthアカウントにログインする必要があります。"
-  },
-  "modal.modrinth-account-required.header": {
-    "message": "アカウントが必要です"
-  },
-  "modal.modrinth-account-required.open-browser-again-button": {
-    "message": "もう一度ブラウザを開く"
-  },
-  "modal.modrinth-account-required.sign-in-button": {
-    "message": "Modrinthへサインイン"
-  },
-  "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Modrinth アカウントにサインインしてください"
-  },
-  "modal.modrinth-account-required.signing-in-header": {
-    "message": "サインイン"
-  },
-  "modal.modrinth-account-required.support-prompt": {
-    "message": "サインインでお困りですか？<support>サポート</support>"
-  },
-  "modal.modrinth-account-required.waiting-for-browser": {
-    "message": "ブラウザからの確認を待っています…"
-  },
   "search.filter.locked.instance": {
     "message": "インスタンスによる条件"
   },
@@ -1999,9 +1486,6 @@
   },
   "search.filter.locked.server-environment.title": {
     "message": "サーバーインスタンスにはクライアント側Modのみ追加可能"
-  },
-  "settings.sidebar.label.account": {
-    "message": "アカウント"
   },
   "settings.sidebar.label.display": {
     "message": "ディスプレイ"

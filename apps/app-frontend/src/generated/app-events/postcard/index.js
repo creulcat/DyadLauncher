@@ -47,30 +47,25 @@ function deserialize_APP_EVENT(d) {
         };
     case 4:
         return {
-            tag: "onboarding_checklist",
-            value: deserialize_ONBOARDING_CHECKLIST(d)
-        };
-    case 5:
-        return {
             tag: "instance_bulk_update_progress",
             value: deserialize_INSTANCE_BULK_UPDATE_PROGRESS_PAYLOAD(d)
         };
-    case 6:
+    case 5:
         return {
             tag: "install_job",
             value: deserialize_INSTALL_JOB_SNAPSHOT(d)
         };
-    case 7:
+    case 6:
         return {
             tag: "command",
             value: deserialize_COMMAND_PAYLOAD(d)
         };
-    case 8:
+    case 7:
         return {
             tag: "warning",
             value: deserialize_WARNING_PAYLOAD(d)
         };
-    case 9:
+    case 8:
         return {
             tag: "log",
             value: deserialize_LOG_PAYLOAD(d)
@@ -379,15 +374,6 @@ function deserialize_INSTANCE_PAYLOAD_TYPE(d) {
 function deserialize_INSTANCE_GROUPS_CHANGED_PAYLOAD(d) {
     return {
         instance_ids: d.deserialize_array(() => d.deserialize_string())
-    };
-}
-
-function deserialize_ONBOARDING_CHECKLIST(d) {
-    return {
-        has_created_instance: d.deserialize_bool(),
-        has_logged_into_minecraft: d.deserialize_bool(),
-        has_logged_into_modrinth: d.deserialize_bool(),
-        show_checklist: d.deserialize_bool()
     };
 }
 
@@ -855,9 +841,6 @@ function deserialize(type, bytes) {
         break;
     case "InstanceGroupsChangedPayload":
         return_value = deserialize_INSTANCE_GROUPS_CHANGED_PAYLOAD(d);
-        break;
-    case "OnboardingChecklist":
-        return_value = deserialize_ONBOARDING_CHECKLIST(d);
         break;
     case "LogEvent":
         return_value = deserialize_LOG_EVENT(d);

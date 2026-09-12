@@ -5804,6 +5804,9 @@
   "settings.display.theme.description": {
     "defaultMessage": "Select your preferred color theme across Modrinth."
   },
+  "settings.display.theme.description-standalone": {
+    "defaultMessage": "Select your preferred color theme."
+  },
   "settings.display.theme.light": {
     "defaultMessage": "Light"
   },

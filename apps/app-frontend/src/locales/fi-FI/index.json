@@ -248,9 +248,6 @@
   "app.instance.mods.successfully-uploaded": {
     "message": "Onnistuneesti ladattu"
   },
-  "app.instance.share.remove-user-modal.effect-installed-copy": {
-    "message": "Kaikki laitteeseen jo asennetut kopiot säilyvät laitteessa"
-  },
   "app.instance.worlds.add-server": {
     "message": "Lisää palvelin"
   },
@@ -500,9 +497,6 @@
   "app.update-popup.body.download-complete": {
     "message": "Dyad Launcher versio {version} on ladattu. Voit käynnistää sovelluksen uudelleen päivittääksesi heti tai antaa päivityksen asentua automaattisesti, kun suljet Dyad Launcherin."
   },
-  "app.update-popup.body.linux": {
-    "message": "Dyad Launcher versio {version} on saatavilla. Käytä paketinhallintasi ja päivitä käyttääksesi uusimpia ominaisuuksia ja korjauksia!"
-  },
   "app.update-popup.body.metered": {
     "message": "Dyad Launcher versio {version} on nyt saatavilla! Koska käytät käytön mukaan laskutettavaa verkkoa, emme ladannut sitä automaattisesti."
   },
@@ -541,69 +535,6 @@
   },
   "app.world.world-item.offline": {
     "message": "Offline-tilassa"
-  },
-  "friends.action.add-friend": {
-    "message": "Lisää ystävä"
-  },
-  "friends.action.view-friend-requests": {
-    "message": "{count} ystävä{count, plural, one {pyyntö} other {pyyntöä}}"
-  },
-  "friends.add-friend.submit": {
-    "message": "Lähetä kaveripyyntö"
-  },
-  "friends.add-friend.title": {
-    "message": "Lisätään kaveria"
-  },
-  "friends.add-friend.username.description": {
-    "message": "Se ei voi olla eri kuin heidän Minecraft-käyttäjänimi!"
-  },
-  "friends.add-friend.username.placeholder": {
-    "message": "Syötä Modrinth-käyttäjätunnus..."
-  },
-  "friends.add-friend.username.title": {
-    "message": "Mikä on ystäväsi Modrinth-käyttäjänimi?"
-  },
-  "friends.add-friends-to-share": {
-    "message": "<link>Lisää kavereita</link> nähdäksesi mitä he pelaavat!"
-  },
-  "friends.friend.cancel-request": {
-    "message": "Peruuta pyyntö"
-  },
-  "friends.friend.remove-friend": {
-    "message": "Poista ystävä"
-  },
-  "friends.friend.request-sent": {
-    "message": "Ystäväpyyntö lähetetty"
-  },
-  "friends.friend.view-profile": {
-    "message": "Näytä profiili"
-  },
-  "friends.heading": {
-    "message": "Ystävät"
-  },
-  "friends.heading.active": {
-    "message": "Aktiiviset"
-  },
-  "friends.heading.offline": {
-    "message": "Offline-tilassa"
-  },
-  "friends.heading.online": {
-    "message": "Online-tilassa"
-  },
-  "friends.heading.pending": {
-    "message": "Odotetaan"
-  },
-  "friends.no-friends-match": {
-    "message": "Ei ystäviä, jotka vastaavat ''{query}''"
-  },
-  "friends.search-friends-placeholder": {
-    "message": "Hae ystäviä..."
-  },
-  "friends.section.heading": {
-    "message": "{title} - {count}"
-  },
-  "friends.sign-in-to-add-friends": {
-    "message": "<link>Kirjaudu Modrinth-tilille</link> lisätäksesi ystäviä ja nähdäksesi mitä he pelaavat!"
   },
   "instance.action.create-shortcut": {
     "message": "Luo pikakuvake"

@@ -9,6 +9,10 @@ export const appearanceSettingsMessages = defineMessages({
 		id: 'settings.display.theme.description',
 		defaultMessage: 'Select your preferred color theme across Modrinth.',
 	},
+	colorThemeDescriptionStandalone: {
+		id: 'settings.display.theme.description-standalone',
+		defaultMessage: 'Select your preferred color theme.',
+	},
 	syncAcrossDevicesTitle: {
 		id: 'settings.display.theme.sync-across-devices',
 		defaultMessage: 'Sync theme across devices',

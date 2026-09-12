@@ -69,7 +69,6 @@ import UpdateToPlayModal from '@/components/ui/modal/UpdateToPlayModal.vue'
 import NavButton from '@/components/ui/NavButton.vue'
 import NewIconEditorNotification from '@/components/ui/new-icon-editor-notification/index.vue'
 import { shouldShowNewIconEditorNotification } from '@/components/ui/new-icon-editor-notification/show-notification'
-import OnboardingChecklist from '@/components/ui/onboarding-checklist/index.vue'
 import QuickInstanceSwitcher from '@/components/ui/QuickInstanceSwitcher.vue'
 import SplashScreen from '@/components/ui/SplashScreen.vue'
 import WindowControls from '@/components/ui/WindowControls.vue'
@@ -78,17 +77,12 @@ import { useAppEvent } from '@/composables/use-app-event'
 import { useAppSettings } from '@/composables/use-app-settings.ts'
 import { useError } from '@/composables/use-error.js'
 import { useInstanceMetadataRefresh } from '@/composables/use-instance-metadata-refresh'
-import { isDarkTheme, useTheme } from '@/composables/use-theme.ts'
+import { useTheme } from '@/composables/use-theme.ts'
 import { config } from '@/config'
 import { check_reachable } from '@/helpers/auth.js'
 import { get_version } from '@/helpers/cache.js'
 import { install_create_modpack_instance, install_get_modpack_preview } from '@/helpers/install'
-import {
-	get as getInstance,
-	get_global_synced_options,
-	run,
-	set_global_synced_option,
-} from '@/helpers/instance'
+import { get as getInstance, get_global_synced_options, run } from '@/helpers/instance'
 import { mergeUrlQuery, parseModrinthLink } from '@/helpers/project-links.ts'
 import { get as getSettings, set as setSettings } from '@/helpers/settings.ts'
 import { get_opening_command, initialize_state } from '@/helpers/state'
@@ -104,7 +98,6 @@ import {
 } from '@/helpers/utils.js'
 import { start_join_server, start_join_singleplayer_world } from '@/helpers/worlds.ts'
 import i18n from '@/i18n.config'
-import { screenshotKeys } from '@/pages/instance/query-options'
 import {
 	appUpdateState,
 	downloadAvailableAppUpdate,
@@ -249,7 +242,6 @@ const {
 	setModpackAlreadyInstalledModal,
 	handleModpackDuplicateCreateAnyway,
 	handleModpackDuplicateGoToInstance,
-	onboardingChecklist,
 } = setupProviders(
 	tauriApiClient,
 	notificationManager,
@@ -258,7 +250,6 @@ const {
 	(iconPath) =>
 		creationGeneratedIcon.value?.path === iconPath ? creationGeneratedIcon.value.config : null,
 )
-const { hasLoggedIntoMinecraft, showChecklist } = onboardingChecklist
 
 async function randomizeCreationIcon() {
 	const generated = await creationIconEditorModal.value?.randomizeAndSave()
@@ -433,9 +424,7 @@ const messages = defineMessages({
 })
 
 async function setupApp() {
-	await onboardingChecklist.initialize()
-
-	if (shouldShowNewIconEditorNotification(showChecklist.value)) {
+	if (shouldShowNewIconEditorNotification()) {
 		addPopupNotification({
 			contentType: 'custom',
 			component: NewIconEditorNotification,
@@ -450,8 +439,6 @@ async function setupApp() {
 		hide_nametag_skins_page,
 		advanced_rendering,
 		toggle_sidebar,
-		sync_theme_across_devices,
-		sync_behavior_across_devices,
 		developer_mode,
 		feature_flags,
 		pending_update_toast_for_version,
@@ -472,8 +459,6 @@ async function setupApp() {
 
 	appTheme.preferred = theme
 	appTheme.advancedRendering = advanced_rendering
-	appTheme.syncAcrossDevices = sync_theme_across_devices
-	appSettings.syncBehaviorAcrossDevices = sync_behavior_across_devices
 	appSettings.hideNametagSkinsPage = hide_nametag_skins_page
 	appSettings.toggleSidebar = toggle_sidebar
 	appSettings.devMode = developer_mode
@@ -744,80 +729,16 @@ watch(
 		userPreferencesSync = userPreferencesSync
 			.then(async () => {
 				const settings = await getSettings()
-				const selectedTheme = preferences.appearance.auto ? 'system' : preferences.appearance.theme
-				if (appTheme.syncAcrossDevices && isDarkTheme(preferences.appearance.theme)) {
-					appTheme.preferredDark = preferences.appearance.theme
-				}
 				const locale = preferences.localization.locale
-				const behavior = preferences.behavior
 				let settingsChanged = false
 
-				if (appTheme.syncAcrossDevices && appTheme.preferred !== selectedTheme) {
-					appTheme.preferred = selectedTheme
-				}
 				if (i18n.global.locale.value !== locale) {
 					i18n.global.locale.value = locale
 				}
 
-				if (appTheme.syncAcrossDevices && settings.theme !== selectedTheme) {
-					settings.theme = selectedTheme
-					settingsChanged = true
-				}
 				if (settings.locale !== locale) {
 					settings.locale = locale
 					settingsChanged = true
-				}
-
-				if (behavior && appSettings.syncBehaviorAcrossDevices) {
-					const behaviorFeatureFlags = {
-						worlds_in_home: behavior.show_jump_in,
-						compact_instance_cards: behavior.compact_instance_cards,
-						show_instance_play_time: behavior.show_play_time,
-						skip_unknown_pack_warning: !behavior.warn_on_unknown_modpacks,
-						skip_non_essential_warnings: behavior.skip_non_essential_warnings,
-					}
-
-					appSettings.toggleSidebar = behavior.hide_right_sidebar
-					appSettings.hideNametagSkinsPage = behavior.hide_nametag
-					Object.assign(appSettings.featureFlags, behaviorFeatureFlags)
-
-					if (settings.hide_on_process_start !== behavior.minimize_app) {
-						settings.hide_on_process_start = behavior.minimize_app
-						settingsChanged = true
-					}
-					if (settings.toggle_sidebar !== behavior.hide_right_sidebar) {
-						settings.toggle_sidebar = behavior.hide_right_sidebar
-						settingsChanged = true
-					}
-					if (settings.hide_nametag_skins_page !== behavior.hide_nametag) {
-						settings.hide_nametag_skins_page = behavior.hide_nametag
-						settingsChanged = true
-					}
-
-					const showAllScreenshots = behavior.show_all_screenshots
-					if (typeof showAllScreenshots === 'boolean') {
-						const globalSyncedOptions =
-							globalSyncedOptionsQuery.data.value ??
-							(await queryClient.fetchQuery({
-								queryKey: ['global-synced-options'],
-								queryFn: get_global_synced_options,
-							}))
-						if (globalSyncedOptions.screenshots !== showAllScreenshots) {
-							const updatedGlobalSyncedOptions = await set_global_synced_option(
-								'screenshots',
-								showAllScreenshots,
-							)
-							queryClient.setQueryData(['global-synced-options'], updatedGlobalSyncedOptions)
-							await queryClient.invalidateQueries({ queryKey: screenshotKeys.all })
-						}
-					}
-
-					for (const [flag, value] of Object.entries(behaviorFeatureFlags)) {
-						if (settings.feature_flags[flag] !== value) {
-							settings.feature_flags[flag] = value
-							settingsChanged = true
-						}
-					}
 				}
 
 				if (settingsChanged) {
@@ -1468,16 +1389,9 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 				class="app-sidebar-scrollable flex-grow shrink relative pb-12"
 				data-overlayscrollbars-initialize
 			>
-				<OnboardingChecklist
-					@create-instance="installationModal?.show()"
-					@login-minecraft="accounts?.login()"
-				/>
 				<div id="sidebar-teleport-target" class="sidebar-teleport-content"></div>
 				<div class="sidebar-default-content" :class="{ 'sidebar-enabled': sidebarVisible }">
-					<div
-						v-show="hasLoggedIntoMinecraft"
-						class="p-4 border-0 border-b-[1px] border-[--brand-gradient-border] border-solid"
-					>
+					<div class="p-4 border-0 border-b-[1px] border-[--brand-gradient-border] border-solid">
 						<h3 class="text-base text-primary font-medium m-0">
 							{{ formatMessage(messages.playingAs) }}
 						</h3>

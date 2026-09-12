@@ -108,7 +108,12 @@ impl Settings {
             advanced_rendering: res.advanced_rendering == 1,
             native_decorations: res.native_decorations == 1,
             toggle_sidebar: res.toggle_sidebar == 1,
-            discord_rpc: res.discord_rpc == 1,
+            // Discord Rich Presence is force-disabled for now, regardless of what's stored:
+            // its toggle is hidden in the app (see AppSettingsModal.vue) because the presence
+            // still shows Modrinth branding, which this fork doesn't want to display. The
+            // stored `res.discord_rpc` value is intentionally ignored rather than migrated
+            // away, so this can be flipped back to `res.discord_rpc == 1` to restore it later.
+            discord_rpc: false,
             developer_mode: res.developer_mode == 1,
             extra_launch_args: res
                 .extra_launch_args

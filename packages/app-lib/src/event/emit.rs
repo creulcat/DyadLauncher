@@ -8,7 +8,6 @@ use crate::event::{
     CommandPayload, EventError, InstanceBulkUpdateProgressPayload,
     InstancePayloadType, LoadingBar, LoadingBarType, ProcessPayloadType,
 };
-use crate::state::OnboardingChecklist;
 use futures::prelude::*;
 #[cfg(feature = "tauri")]
 use tauri::Manager;
@@ -245,18 +244,6 @@ pub async fn emit_instance_groups_changed(
                 instance_ids: instance_ids.to_vec(),
             },
         ))?;
-    }
-    Ok(())
-}
-
-#[allow(unused_variables)]
-pub async fn emit_onboarding_checklist(
-    checklist: OnboardingChecklist,
-) -> crate::Result<()> {
-    #[cfg(feature = "tauri")]
-    {
-        let event_state = crate::EventState::get();
-        event_state.send(AppEvent::OnboardingChecklist(checklist))?;
     }
     Ok(())
 }
