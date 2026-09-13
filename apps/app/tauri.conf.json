@@ -9,7 +9,8 @@
 	"bundle": {
 		"active": true,
 		"category": "Game",
-		"copyright": "",
+		"copyright": "Dyad Launcher",
+		"publisher": "Dyad Launcher",
 		"targets": "all",
 		"externalBin": [],
 		"icon": [
@@ -24,7 +25,7 @@
 				"installerHooks": "./nsis/hooks.nsi"
 			}
 		},
-		"longDescription": "",
+		"longDescription": "Dyad Launcher is a Minecraft mod launcher, forked from the Modrinth desktop app, focused on running multiple concurrent instances and sharing mods, configs, and worlds between them via symlinks.",
 		"macOS": {
 			"entitlements": "App.entitlements",
 			"exceptionDomain": "",
@@ -47,7 +48,7 @@
 				}
 			}
 		},
-		"shortDescription": "",
+		"shortDescription": "Dyad Launcher - Minecraft mod launcher",
 		"linux": {
 			"deb": {
 				"depends": []
