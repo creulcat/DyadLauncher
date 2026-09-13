@@ -144,6 +144,91 @@ design pass later — at minimum: this fork's own signing keypair, an update man
 GitHub Releases (or a compatible static feed), and a user-facing setting to turn it on. Not
 started, no implementation timeline yet.
 
+### 5. Windows installer trust warning (SmartScreen)
+
+**Problem:** the NSIS installer this fork's CI produces for Windows is unsigned, so both the
+browser download warning and Windows SmartScreen's "Windows protected your PC" prompt trigger on
+run, with no verified publisher shown. This isn't fixable via NSIS/installer settings alone — it's
+a missing Authenticode signature.
+
+**Root cause:** `apps/app/tauri-release.conf.json`'s `bundle.windows.signCommand` calls `jsign`
+against **Modrinth's own** DigiCert ONE cloud signer, credentialed by
+`DIGICERT_ONE_SIGNER_*`/`TAURI_SIGNING_PRIVATE_KEY*` secrets that only exist in Modrinth's
+upstream repo. `.github/workflows/theseus-build.yml`'s "Set up Windows code signing" step (around
+line 159) already detects when signing isn't requested and strips `signCommand` before building,
+so normal builds are just unsigned — this fork has never had its own signing credentials to put in
+its place.
+
+**Decided approach:** apply for **SignPath.io's free code-signing program for open-source
+projects** — it should get EV-equivalent trust (immediate SmartScreen clearance, no
+reputation-building wait) at no cost, which fits a public open-source fork. If that application is
+rejected or stalls indefinitely, fall back to evaluating a paid OV or EV certificate, or
+documenting the warning as an accepted tradeoff — but SignPath is the path to actually pursue
+first, not just one option among several.
+
+**Separate fix, not blocked on the above:** `.github/workflows/theseus-build.yml`'s Windows
+signing step currently takes the "sign" branch on any `refs/tags/v*` push and would fail outright
+against this fork's empty DigiCert secrets, instead of degrading to an unsigned build the way
+normal branch builds already do. This should be fixed regardless of which signing path is chosen,
+so a tag/release build never hard-fails just because signing secrets aren't configured yet.
+
+**Independent cheap improvement:** `apps/app/tauri.conf.json`'s `copyright`, `shortDescription`,
+and `longDescription` fields are all empty strings, and no NSIS publisher is set. Filling these in
+won't remove the SmartScreen prompt by itself, but makes the warning dialog identify a real app
+instead of a blank one — and it's metadata a certificate would need attached anyway. Worth doing
+regardless of signing status/timeline.
+
+Not started, no implementation timeline yet — next step is submitting the SignPath application.
+
+### 6. Migrate-from-Modrinth-App import tool
+
+Let a user who's already using the **official Modrinth App** bring their existing instances (and
+selected settings) into Dyad, with real per-item control over what comes over — not an
+all-or-nothing copy.
+
+**Not the same thing as** `packages/app-lib/src/state/legacy_converter.rs` — that's a different,
+unrelated, fully-automatic one-time migration from a defunct pre-rewrite "Theseus" app format
+(`com.modrinth.theseus`), with no user choice involved. It's referenced here only because it shows
+the general shape of "read another app's on-disk state and convert it," not because it's reusable
+for this goal.
+
+**Why this isn't a plain file copy:** instances aren't just folders. Data directories are keyed by
+the Tauri app identifier — the official Modrinth App uses `%APPDATA%\ModrinthApp\` on Windows,
+Dyad uses `%APPDATA%\DyadLauncher\` (`packages/app-lib/src/state/dirs.rs:38`; confirmed via the
+`identifier` field's history in `apps/app/tauri.conf.json`), with the equivalent `dirs::data_dir()`
+convention on macOS/Linux. Each instance also has a row in that app's **SQLite database** (loader,
+Minecraft version, Java args, icon, etc.), not just a folder under `profiles/<name>/` on disk. So
+import has to read the source app's DB and register each instance through Dyad's own
+instance-creation code path — copying the instance folder alone would leave Dyad with an orphaned
+folder it doesn't recognize.
+
+**Decided approach:**
+
+- Auto-detect the official Modrinth App's data directory (`ModrinthApp` under the platform's data
+  dir), with a manual folder picker as a fallback for nonstandard locations or if detection fails.
+- Require the official Modrinth App to be fully closed before importing — detect a locked database
+  file and show a clear "close Modrinth App first" message, rather than trying to support
+  concurrent access to the same SQLite file.
+- **Copy by default**, never modifying or deleting anything in the source install; offer an opt-in
+  "delete from source after import" per instance for users who want to reclaim disk space
+  immediately and are confident in the result.
+- **Per-instance selection**, and within each selected instance, **per-content-category
+  selection** (mods, resource packs, shader packs, config, worlds/saves, screenshots, logs) —
+  reusing the same selection-tree UI pattern as the existing mrpack-export feature
+  (`packages/app-lib/src/api/instance/export_mrpack.rs`) rather than inventing a new one.
+- Also offer importing **global launcher settings**, separate from per-instance content: Java
+  installation paths, default memory/JVM args, and pre-launch/post-exit hooks. (Nothing to import
+  for accounts/telemetry — those don't exist in Dyad per goal 3.)
+- **Entry point, both places:** offered automatically during first-run onboarding when Dyad
+  detects an existing Modrinth App install, and separately available anytime as a manual action in
+  Settings (e.g. an "Import from Modrinth App" page) for re-runs or if declined on first run.
+- A **preview step** before committing: show exactly which instances and settings will be
+  imported, and roughly how much disk space it'll use, before anything is written.
+
+Not started, no implementation timeline yet. Needs a technical design pass on reading the source
+app's SQLite schema safely — it may have drifted from Dyad's fork point over time — before
+implementation starts.
+
 ## Status
 
 Goals 1-3 were agreed direction as of 2026-09-02; goal 4 was added on 2026-09-04. Goal 1
@@ -153,5 +238,13 @@ removal, sign-in/OAuth, cloud shared instances, and hosting/billing — which tu
 necessary during scoping and was a larger, separate pass) landed 2026-09-05. Goal 4's phase 1
 (disabling Modrinth's updater) is implemented as of 2026-09-04 — phase 2 (the opt-in GitHub-Releases
 updater) is a future idea, not yet scoped or started. Goal 2 is not implemented yet.
+
+Goals 5 (unsigned Windows installer/SmartScreen) and 6 (migrate-from-Modrinth-App import tool)
+were added on 2026-09-13 after a scoping discussion with the user. Neither is implemented yet.
+Goal 5's next concrete step is submitting a SignPath.io OSS-signing application; the CI
+tag-signing fallback bug and installer metadata gap are independent smaller fixes noted alongside
+it. Goal 6 needs a technical design pass on reading the official Modrinth App's SQLite schema
+safely before implementation can start.
+
 This document should be updated as scope changes — treat it as the source of truth for what this fork
 is trying to do, ahead of any individual issue or PR.
