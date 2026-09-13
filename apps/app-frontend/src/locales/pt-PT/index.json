@@ -89,9 +89,6 @@
   "app.action-bar.install.unknown-instance": {
     "message": "Instância desconhecida"
   },
-  "app.action-bar.install.updating-shared-content": {
-    "message": "A atualizar conteúdo compartilhado"
-  },
   "app.action-bar.installs": {
     "message": "Instalações"
   },
@@ -127,21 +124,6 @@
   },
   "app.action-bar.view-logs": {
     "message": "Ver logs"
-  },
-  "app.ads-consent.accept": {
-    "message": "Aceitar tudo"
-  },
-  "app.ads-consent.body": {
-    "message": "Os anúncios tornam o Modrinth possível e financiam os pagamentos aos criadores. Os nossos parceiros podem armazenar ou aceder a cookies na aplicação para personalizar anúncios e medir o desempenho."
-  },
-  "app.ads-consent.manage": {
-    "message": "Gerir preferências"
-  },
-  "app.ads-consent.reject": {
-    "message": "Rejeitar tudo"
-  },
-  "app.ads-consent.title": {
-    "message": "A sua privacidade e como os anúncios são financiados pela Modrinth"
   },
   "app.appearance-settings.default-landing-page.home": {
     "message": "Início"
@@ -317,27 +299,6 @@
   "app.install.phase.running_loader_processors": {
     "message": "Executar processadores de carregamento"
   },
-  "app.instance.admonitions.shared-instance.added-label": {
-    "message": "Adicionado"
-  },
-  "app.instance.admonitions.shared-instance.changes-body": {
-    "message": "A tua instância local está mais atualizada do que a dos utilizadores com quem tu a partilhaste."
-  },
-  "app.instance.admonitions.shared-instance.changes-header": {
-    "message": "As tuas alterações ainda não foram partilhadas"
-  },
-  "app.instance.admonitions.shared-instance.publish-button": {
-    "message": "Enviar atualização"
-  },
-  "app.instance.admonitions.shared-instance.publishing-button": {
-    "message": "Enviando..."
-  },
-  "app.instance.admonitions.shared-instance.removed-label": {
-    "message": "Removido"
-  },
-  "app.instance.admonitions.shared-instance.review-admonition-header": {
-    "message": "Enviar atualização"
-  },
   "app.instance.confirm-delete.admonition-body": {
     "message": "Todos os dados da tua instância vão ser permanentemente apagados, incluídos os teus mundos, definições, e todos os conteúdos instalados."
   },
@@ -485,14 +446,8 @@
   "app.modal.update-to-play.removed": {
     "message": "Removido"
   },
-  "app.modal.update-to-play.shared-instance-added-label": {
-    "message": "Adicionado"
-  },
   "app.nav.home": {
     "message": "Início"
-  },
-  "app.news.title": {
-    "message": "Novidades"
   },
   "app.project.install-button.already-installed": {
     "message": "Este projeto já está instalado."
@@ -523,9 +478,6 @@
   },
   "app.settings.operating-system.macos": {
     "message": "macOS"
-  },
-  "app.settings.privacy.ads-consent.intro": {
-    "message": "Os anúncios tornam o Modrinth possível e financiam os pagamentos aos criadores. Os nossos parceiros podem armazenar ou aceder a cookies na aplicação para personalizar anúncios e medir o desempenho."
   },
   "app.settings.tabs.appearance": {
     "message": "Aparência"
@@ -596,9 +548,6 @@
   "app.update-popup.body.download-complete": {
     "message": "Dyad Launcher v{version} acabou de ser transferida. Recarrega para atualizar agora, ou automaticamente quando fechares a Dyad Launcher."
   },
-  "app.update-popup.body.linux": {
-    "message": "Dyad Launcher v{version} está disponível. Usa o teu gestor de pacotes para atualizar e receber as correções e recursos mais recentes!"
-  },
   "app.update-popup.body.metered": {
     "message": "Dyad Launcher v{version} está disponível! Como estás numa rede com tráfego limitado, não a transferimos automaticamente."
   },
@@ -634,69 +583,6 @@
   },
   "app.world.world-item.offline": {
     "message": "Offline"
-  },
-  "friends.action.add-friend": {
-    "message": "Adicionar um amigo"
-  },
-  "friends.action.view-friend-requests": {
-    "message": "{count} {count, plural,one {pedido} other {pedidos}} de amizade"
-  },
-  "friends.add-friend.submit": {
-    "message": "Enviar pedido de amizade"
-  },
-  "friends.add-friend.title": {
-    "message": "Adicionar um amigo"
-  },
-  "friends.add-friend.username.description": {
-    "message": "Pode ser diferente do nome no Minecraft!"
-  },
-  "friends.add-friend.username.placeholder": {
-    "message": "Insere o nome do utilizador no Modrinth..."
-  },
-  "friends.add-friend.username.title": {
-    "message": "Qual é o nome de utilizador do teu amigo no Modrinth?"
-  },
-  "friends.add-friends-to-share": {
-    "message": "<link>Adiciona amigos</link> para ver o que estão a jogar!"
-  },
-  "friends.friend.cancel-request": {
-    "message": "Cancelar pedido"
-  },
-  "friends.friend.remove-friend": {
-    "message": "Remover amigo"
-  },
-  "friends.friend.request-sent": {
-    "message": "Pedido de amizade enviado"
-  },
-  "friends.friend.view-profile": {
-    "message": "Ver perfil"
-  },
-  "friends.heading": {
-    "message": "Amigos"
-  },
-  "friends.heading.active": {
-    "message": "Ativo"
-  },
-  "friends.heading.offline": {
-    "message": "Offline"
-  },
-  "friends.heading.online": {
-    "message": "Online"
-  },
-  "friends.heading.pending": {
-    "message": "Pendente"
-  },
-  "friends.no-friends-match": {
-    "message": "Nenhum amigo corresponde a \"{query}\""
-  },
-  "friends.search-friends-placeholder": {
-    "message": "Procurar amigos..."
-  },
-  "friends.section.heading": {
-    "message": "{title} - {count}"
-  },
-  "friends.sign-in-to-add-friends": {
-    "message": "<link>Inicia a sessão com uma conta Modrinth</link> para adicionar amigos e ver o que estão a jogar!"
   },
   "instance.add-server.add-and-play": {
     "message": "Adicionar e jogar"
@@ -751,12 +637,6 @@
   },
   "instance.server-modal.resource-pack": {
     "message": "Pacote de recursos"
-  },
-  "instance.settings.sharing.active-invites.actions": {
-    "message": "Ações"
-  },
-  "instance.settings.sharing.active-invites.uses": {
-    "message": "Usos"
   },
   "instance.settings.tabs.general": {
     "message": "Geral"
@@ -911,9 +791,6 @@
   "instance.settings.tabs.window.width.enter": {
     "message": "Inserir largura..."
   },
-  "instance.shared-instance.publish-review.added-label": {
-    "message": "Adicionado"
-  },
   "instance.worlds.a_minecraft_server": {
     "message": "Um Servidor de Minecraft"
   },
@@ -956,12 +833,6 @@
   "instance.worlds.world_in_use": {
     "message": "Mundo está em uso"
   },
-  "modal.modrinth-account-required.browser-description": {
-    "message": "Uma nova aba abriu para iniciar sessão. Completa o início de sessão lá, depois volta para a app."
-  },
-  "modal.modrinth-account-required.header": {
-    "message": "Conta necessária"
-  },
   "search.filter.locked.instance": {
     "message": "Fornecido pela instância"
   },
@@ -976,8 +847,5 @@
   },
   "search.filter.locked.server-environment.title": {
     "message": "Apenas mods no cliente podem ser adicionados à instância de servidor"
-  },
-  "settings.sidebar.label.account": {
-    "message": "Conta"
   }
 }

@@ -10,7 +10,6 @@
 				<span v-if="message">{{ message }}</span>
 			</div>
 			<div class="gradient-bg" data-tauri-drag-region></div>
-			<div class="cube-bg"></div>
 			<div class="base-bg"></div>
 		</div>
 	</Transition>
@@ -88,12 +87,6 @@ useAppEvent('loading', (e) => {
 	position: fixed;
 	inset: 0;
 	z-index: 10000;
-
-	--splash-cube-image: url('@/assets/loading/cube.png');
-
-	&.light-mode {
-		--splash-cube-image: url('@/assets/loading/cube-light.webp');
-	}
 }
 
 .splash-fade-leave-active {
@@ -147,34 +140,8 @@ useAppEvent('loading', (e) => {
 	position: absolute;
 	height: 100vh;
 	width: 100vw;
-	background:
-		linear-gradient(180deg, var(--splash-tint-top) 0%, var(--splash-tint-bottom) 97.29%),
-		linear-gradient(0deg, var(--splash-overlay), var(--splash-overlay));
+	background: linear-gradient(180deg, var(--splash-tint-top) 0%, var(--splash-tint-bottom) 97.29%);
 	z-index: 9997;
-}
-
-.cube-bg {
-	position: absolute;
-
-	left: 50%;
-	top: 50%;
-	transform: translate(-50%, -50%);
-
-	width: 180vw;
-	height: 180vh;
-	background-color: var(--color-bg);
-
-	z-index: 9996;
-
-	&::after {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background: var(--splash-cube-image) center no-repeat;
-		background-size: contain;
-		opacity: var(--splash-cube-opacity);
-		mix-blend-mode: var(--splash-cube-blend);
-	}
 }
 
 .base-bg {

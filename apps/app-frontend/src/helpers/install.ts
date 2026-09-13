@@ -7,7 +7,6 @@ import type { InstallJobStatus } from '@/generated/app-events/InstallJobStatus'
 import type { InstallPhaseId } from '@/generated/app-events/InstallPhaseId'
 import type { InstallProgress } from '@/generated/app-events/InstallProgress'
 import type { InstallProgressSecondary } from '@/generated/app-events/InstallProgressSecondary'
-import type { SharedInstanceUnavailableReason } from '@/generated/app-events/SharedInstanceUnavailableReason'
 import type { AppEvents } from '@/providers/app-events'
 
 import type { InstanceIconConfig, InstanceLink, InstanceLoader } from './types'
@@ -20,7 +19,6 @@ export type {
 	InstallPhaseId,
 	InstallProgress,
 	InstallProgressSecondary,
-	SharedInstanceUnavailableReason,
 }
 
 export interface PackLocationVersionId {
@@ -66,86 +64,8 @@ export interface InstallPostInstallEdit {
 	link?: InstanceLink | null
 }
 
-export interface SharedInstanceInstallPreview {
-	sharedInstanceId: string
-	version: number
-	name: string
-	iconUrl?: string | null
-	gameVersion: string
-	loader: InstanceLoader
-	modCount: number
-	externalFileCount: number
-	modpackVersionId?: string | null
-	contentVersionIds: string[]
-	externalFiles: SharedInstanceExternalFilePreview[]
-}
-
-export interface SharedInstanceInviteInstallPreview {
-	sharedInstanceId: string
-	managerId?: string | null
-	serverManagerName?: string | null
-	serverManagerIconUrl?: string | null
-	instanceIconUrl?: string | null
-	preview: SharedInstanceInstallPreview
-}
-
-export interface SharedInstanceExternalFilePreview {
-	fileName: string
-	fileType: string
-}
-
-export interface SharedInstanceUpdatePreview {
-	sharedInstanceId: string
-	currentVersion?: number | null
-	latestVersion: number
-	updateAvailable: boolean
-	diffs: SharedInstanceUpdateDiff[]
-}
-
-export interface SharedInstanceUpdateDiff {
-	type:
-		| 'added'
-		| 'removed'
-		| 'updated'
-		| 'modpack_linked'
-		| 'modpack_updated'
-		| 'modpack_unlinked'
-		| 'game_version_updated'
-		| 'loader_updated'
-		| 'config_files_updated'
-	projectId?: string | null
-	projectName?: string | null
-	fileName?: string | null
-	currentVersionName?: string | null
-	newVersionName?: string | null
-	configFileCount?: number | null
-	disabled?: boolean
-}
-
-export const SHARED_INSTANCE_UNAVAILABLE_ERROR_CODE = 'shared_instance_unavailable'
-export const SHARED_INSTANCES_API_ERROR_CODE = 'shared_instances_api_error'
-
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null
-}
-
-export function isSharedInstanceUnavailableError(error: unknown) {
-	return getSharedInstanceUnavailableReason(error) !== null
-}
-
-export function isSharedInstancesApiError(error: unknown) {
-	return isRecord(error) && error.code === SHARED_INSTANCES_API_ERROR_CODE
-}
-
-export function getSharedInstanceUnavailableReason(
-	error: unknown,
-): SharedInstanceUnavailableReason | null {
-	if (!isRecord(error) || error.code !== SHARED_INSTANCE_UNAVAILABLE_ERROR_CODE) return null
-	return error.reason === 'deleted' ||
-		error.reason === 'access_revoked' ||
-		error.reason === 'quarantined'
-		? error.reason
-		: null
 }
 
 export function getErrorMessage(error: unknown): string {
@@ -172,58 +92,6 @@ export async function install_create_modpack_instance(
 	return await invoke<InstallJobSnapshot>('plugin:install|install_create_modpack_instance', {
 		location,
 		postInstallEdit,
-	})
-}
-
-export async function install_get_shared_instance_preview(sharedInstanceId: string, name: string) {
-	return await invoke<SharedInstanceInstallPreview>(
-		'plugin:install|install_get_shared_instance_preview',
-		{
-			sharedInstanceId,
-			name,
-		},
-	)
-}
-
-export async function install_accept_shared_instance_invite(inviteId: string) {
-	return await invoke<SharedInstanceInviteInstallPreview>(
-		'plugin:install|install_accept_shared_instance_invite',
-		{
-			inviteId,
-		},
-	)
-}
-
-export async function install_get_shared_instance_update_preview(instanceId: string) {
-	return await invoke<SharedInstanceUpdatePreview | null>(
-		'plugin:install|install_get_shared_instance_update_preview',
-		{
-			instanceId,
-		},
-	)
-}
-
-export async function install_shared_instance(
-	sharedInstanceId: string,
-	name: string,
-	managerId?: string | null,
-	serverManagerName?: string | null,
-	serverManagerIconUrl?: string | null,
-	instanceIconUrl?: string | null,
-) {
-	return await invoke<InstallJobSnapshot>('plugin:install|install_shared_instance', {
-		sharedInstanceId,
-		name,
-		managerId,
-		serverManagerName,
-		serverManagerIconUrl,
-		instanceIconUrl,
-	})
-}
-
-export async function install_update_shared_instance(instanceId: string) {
-	return await invoke<InstallJobSnapshot>('plugin:install|install_update_shared_instance', {
-		instanceId,
 	})
 }
 

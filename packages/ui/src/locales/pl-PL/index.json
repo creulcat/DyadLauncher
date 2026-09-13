@@ -5483,6 +5483,9 @@
   "settings.display.theme.description": {
     "defaultMessage": "Wybierz preferowany motyw kolorystyczny dla Dyad Launcher."
   },
+  "settings.display.theme.description-standalone": {
+    "defaultMessage": "Wybierz preferowany motyw kolorystyczny."
+  },
   "settings.display.theme.light": {
     "defaultMessage": "Jasny"
   },

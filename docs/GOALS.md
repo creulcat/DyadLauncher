@@ -50,7 +50,7 @@ Let instances share resources with each other by configuring symlinks, covering:
 - Worlds/saves — with the same caveat as above: only safe when the linked instances aren't
   running concurrently against the same world.
 
-### 3. Debloating the desktop app
+### 3. Debloating the desktop app — done
 
 Remove:
 
@@ -58,7 +58,59 @@ Remove:
 - Account/login promos & ads
 - News/Discover/social panels
 
-Explicitly **keep** Discord Rich Presence, but revisit/tweak its behavior (specifics TBD).
+Explicitly **keep** Discord Rich Presence, but revisit/tweak its behavior (specifics TBD). Explicitly
+**keep** anonymous content browsing/searching/downloading against Modrinth's API (no login required) —
+that's the actual point of the launcher, not bloat.
+
+**Part 1 — done (telemetry, ads, promos, news/friends UI):**
+
+- Removed PostHog analytics (`helpers/analytics.ts` and all `trackEvent(...)` call sites) and Sentry
+  crash/performance reporting (`main.js`), including their dependencies and CSP entries. Removed the
+  Rust-side `analytics/playtime` and `analytics/minecraft-server-play` POSTs in
+  `packages/app-lib/src/api/instance/run.rs` (local playtime bookkeeping is preserved, it's just no
+  longer reported to Modrinth). Removed the `telemetry`/`personalized_ads` settings columns via a new
+  migration and their Privacy-settings UI.
+- Removed the entire native ads system: `apps/app/src/api/ads.rs`, the macOS/Windows occlusion-tracking
+  files, the IAB consent-management-platform scripts (`ads-consent/`), the `ads` Tauri
+  plugin/capability, and the frontend ad-slot plumbing (`helpers/ads.js`, `PromotionWrapper.vue`).
+- Removed promotional/upsell surfaces: the "Upgrade to Modrinth+" links (nav sidebar and account menu),
+  the Pride fundraiser banner, the Tally survey popups, and the Modrinth Servers Intercom support-chat
+  widget — pruning their CSP entries too.
+- Removed the News feed panel and the Friends/presence panel + "Add a friend" menu entry from the
+  sidebar. The underlying Friends source files (`components/ui/friends/`, `composables/use-friends.ts`,
+  `helpers/friends.ts`) are intentionally still present — they're still used internally by the
+  Modrinth-account-based "shared instances" cloud feature, and will be deleted together with that
+  feature in Part 2 below.
+
+**Part 2 — done (Modrinth account removal):** based on user direction during scoping, this goal
+turned out to require removing the Modrinth account system entirely (sign-in/OAuth, not the
+separate Microsoft/Minecraft account needed to launch the game), since keeping it would still
+suggest a live connection between Dyad and Modrinth.
+
+**Implemented as of 2026-09-05:** removed entirely —
+
+- Sign-in/OAuth: `mr_auth` (frontend and `packages/app-lib`), the hydra/oauth flow
+  (`api/oauth_utils/`), and `ModrinthAccountRequiredModal.vue`.
+- The cloud "shared instances" feature — a different feature from goal 2's symlink sharing, since it
+  only worked via Modrinth accounts: invites, publish/unlink, sync, and install/update flows
+  (`pages/instance/share/`, `components/settings-modal/sharing-settings.vue`,
+  `packages/app-lib/src/api/instance/shared/`, `install/shared_instance.rs`), along with the
+  friends/presence system it depended on (`use-friends.ts`, `components/ui/friends/`,
+  `state/friends.rs`, `api/friends.rs`).
+- Modrinth Servers hosting/billing: the Stripe purchase flow, server management pages, and the
+  hosting content-install wizard (`HostingUpdateRequired.vue` and related).
+- Other account-gated settings/UI (`ProfileSettings.vue`, `SocialSettings.vue`), the now-dead
+  onboarding checklist step tied to these features, and the `modrinth_users` session table (dropped
+  via migration `20260905120000_remove-modrinth-account.sql`).
+- ts-rs/postcard TS bindings were regenerated to match the trimmed Rust event/command enums.
+
+Foundational data-model fields that would cascade into large parts of core instance management
+(shared_instance attachment, content-set sync provider, a couple of client base-url configs) were
+kept in place but are now permanently unpopulated, since nothing can construct them anymore —
+removing them outright was judged not worth the churn.
+
+Anonymous content browsing, search, and downloads against Modrinth's API were explicitly **not**
+affected by Part 2 — they don't require an account and kept working exactly as before.
 
 ### 4. Auto-update mechanism
 
@@ -95,8 +147,11 @@ started, no implementation timeline yet.
 ## Status
 
 Goals 1-3 were agreed direction as of 2026-09-02; goal 4 was added on 2026-09-04. Goal 1
-(concurrent multi-account launches) is implemented as of 2026-09-04. Goal 4's phase 1
+(concurrent multi-account launches) is implemented as of 2026-09-04. Goal 3 is fully implemented:
+part 1 (telemetry, ads, promos, news/friends UI) landed 2026-09-04, and part 2 (Modrinth account
+removal, sign-in/OAuth, cloud shared instances, and hosting/billing — which turned out to be
+necessary during scoping and was a larger, separate pass) landed 2026-09-05. Goal 4's phase 1
 (disabling Modrinth's updater) is implemented as of 2026-09-04 — phase 2 (the opt-in GitHub-Releases
-updater) is a future idea, not yet scoped or started. Goals 2-3 are not implemented yet. This
-document should be updated as scope changes — treat it as the source of truth for what this fork is
-trying to do, ahead of any individual issue or PR.
+updater) is a future idea, not yet scoped or started. Goal 2 is not implemented yet.
+This document should be updated as scope changes — treat it as the source of truth for what this fork
+is trying to do, ahead of any individual issue or PR.

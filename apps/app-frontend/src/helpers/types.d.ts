@@ -228,10 +228,8 @@ type AppSettings = {
 	sync_theme_across_devices: boolean
 	sync_behavior_across_devices: boolean
 
-	telemetry: boolean
 	discord_rpc: boolean
 	developer_mode: boolean
-	personalized_ads: boolean
 
 	extra_launch_args: string[]
 	custom_env_vars: [string, string][]

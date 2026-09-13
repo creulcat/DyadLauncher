@@ -51,7 +51,6 @@ const {
 	currentDeleteInstances,
 	clearLibraryInstanceSelection,
 	deleteInstance,
-	handleInstanceIconSaved,
 	selectedLibraryInstances,
 	setSelectedLibraryInstances,
 	toggleLibraryInstanceSelection,
@@ -369,7 +368,6 @@ watch(selectedLibraryInstances, (selectedInstances) => {
 		:ref="setIconEditorModal"
 		:instance-id="currentIconEditorInstance?.id"
 		:config="currentIconEditorInstance?.icon_config"
-		@saved="handleInstanceIconSaved"
 	/>
 	<ContextMenu :ref="setInstanceOptions" :label="formatMessage(messages.instanceActionsLabel)">
 		<template #remove_from_favorites="{ option }">

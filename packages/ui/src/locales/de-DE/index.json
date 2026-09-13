@@ -5666,6 +5666,9 @@
   "settings.display.theme.description": {
     "defaultMessage": "Wähle dein bevorzugtes Farbschema für Modrinth aus."
   },
+  "settings.display.theme.description-standalone": {
+    "defaultMessage": "Wähle dein bevorzugtes Farbschema aus."
+  },
   "settings.display.theme.light": {
     "defaultMessage": "Hell"
   },

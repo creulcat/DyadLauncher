@@ -5666,6 +5666,9 @@
   "settings.display.theme.description": {
     "defaultMessage": "選擇你偏好的 Modrinth 色彩主題。"
   },
+  "settings.display.theme.description-standalone": {
+    "defaultMessage": "選擇你偏好的色彩主題。"
+  },
   "settings.display.theme.light": {
     "defaultMessage": "淺色"
   },

@@ -11,7 +11,6 @@ import RecentWorldsList from '@/components/ui/world/RecentWorldsList.vue'
 import { useAppSettings } from '@/composables/use-app-settings.ts'
 import { instanceListQueryOptions } from '@/pages/instance/query-options'
 import { useRootBreadcrumb } from '@/providers/breadcrumbs'
-import { injectOnboardingChecklist } from '@/providers/onboarding-checklist'
 
 defineOptions({
 	name: 'LibraryPage',
@@ -19,7 +18,6 @@ defineOptions({
 
 const { formatMessage } = useVIntl()
 const { handleError } = injectNotificationManager()
-const { hasCreatedInstance, isReady } = injectOnboardingChecklist()
 const showCreationModal = inject<() => void>('showCreationModal')
 const pageOptions = ref<InstanceType<typeof ContextMenu>>()
 const appSettings = useAppSettings()
@@ -50,9 +48,9 @@ onActivated(homeBreadcrumb.reset)
 
 const instancesQuery = useQuery(instanceListQueryOptions())
 const instances = computed(() => instancesQuery.data.value ?? [])
-if (hasCreatedInstance.value) {
-	await instancesQuery.suspense().catch(handleError)
-}
+await instancesQuery.suspense().catch(handleError)
+
+const hasCreatedInstance = computed(() => instances.value.length > 0)
 
 const recentInstances = computed(() =>
 	instances.value
@@ -82,9 +80,9 @@ function openPageContextMenu(event: MouseEvent) {
 </script>
 
 <template>
-	<WelcomeScreen v-if="isReady && !hasCreatedInstance" />
+	<WelcomeScreen v-if="!hasCreatedInstance" />
 	<div
-		v-else-if="isReady"
+		v-else
 		data-library-page-background
 		class="flex flex-col gap-3 p-6"
 		@contextmenu="openPageContextMenu"

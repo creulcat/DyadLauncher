@@ -10,8 +10,8 @@ use crate::state::{
     CacheValue, CachedEntry, CachedFile, CachedFileHash, CachedFileUpdate,
     Credentials, DefaultPage, DependencyType, DeviceToken, DeviceTokenKey,
     DeviceTokenPair, FileType, Hooks, InstanceInstallStage,
-    LauncherFeatureVersion, MemorySettings, ModrinthCredentials,
-    ReleaseChannel, TeamMember, Theme, VersionFile, WindowSize,
+    LauncherFeatureVersion, MemorySettings, ReleaseChannel, TeamMember, Theme,
+    VersionFile, WindowSize,
 };
 use crate::util::fetch::{IoSemaphore, read_json};
 use chrono::{DateTime, Utc};
@@ -61,7 +61,6 @@ where
         settings.collapsed_navigation = legacy_settings.collapsed_navigation;
         settings.advanced_rendering = legacy_settings.advanced_rendering;
         settings.native_decorations = legacy_settings.native_decorations;
-        settings.telemetry = !legacy_settings.opt_out_analytics;
         settings.discord_rpc = !legacy_settings.disable_discord_rpc;
         settings.developer_mode = legacy_settings.developer_mode;
         settings.extra_launch_args = legacy_settings.custom_java_args;
@@ -92,24 +91,6 @@ where
             {
                 java_version.upsert(exec).await?;
             }
-        }
-
-        let modrinth_auth_path =
-            old_launcher_root.join("caches/metadata/auth.json");
-        if let Ok(creds) = read_json::<LegacyModrinthCredentials>(
-            &modrinth_auth_path,
-            &io_semaphore,
-        )
-        .await
-        {
-            ModrinthCredentials {
-                session: creds.session,
-                expires: creds.expires_at,
-                user_id: creds.user.id,
-                active: true,
-            }
-            .upsert(exec)
-            .await?;
         }
 
         let minecraft_auth_path =
@@ -689,8 +670,6 @@ struct LegacySettings {
     #[serde(default)]
     pub developer_mode: bool,
     #[serde(default)]
-    pub opt_out_analytics: bool,
-    #[serde(default)]
     pub advanced_rendering: bool,
     #[serde(default = "default_settings_dir")]
     pub loaded_config_dir: Option<PathBuf>,
@@ -749,13 +728,6 @@ struct LegacyModrinthUser {
     pub bio: Option<String>,
     pub created: DateTime<Utc>,
     pub role: String,
-}
-
-#[derive(Deserialize, Clone, Debug)]
-struct LegacyModrinthCredentials {
-    pub session: String,
-    pub expires_at: DateTime<Utc>,
-    pub user: LegacyModrinthUser,
 }
 
 #[derive(Deserialize, Debug)]

@@ -5609,6 +5609,9 @@
   "settings.display.theme.description": {
     "defaultMessage": "Scegli il tema che Dyad Launcher userà."
   },
+  "settings.display.theme.description-standalone": {
+    "defaultMessage": "Scegli il tuo tema colore preferito."
+  },
   "settings.display.theme.light": {
     "defaultMessage": "Chiaro"
   },

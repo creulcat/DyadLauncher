@@ -5576,6 +5576,9 @@
   "settings.display.theme.description": {
     "defaultMessage": "Выберите тему для Modrinth."
   },
+  "settings.display.theme.description-standalone": {
+    "defaultMessage": "Выберите тему оформления."
+  },
   "settings.display.theme.light": {
     "defaultMessage": "Светлая"
   },

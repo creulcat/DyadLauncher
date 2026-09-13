@@ -5666,6 +5666,9 @@
   "settings.display.theme.description": {
     "defaultMessage": "Selecciona tu tema de color preferido en Modrinth."
   },
+  "settings.display.theme.description-standalone": {
+    "defaultMessage": "Selecciona tu tema de color preferido."
+  },
   "settings.display.theme.light": {
     "defaultMessage": "Claro"
   },

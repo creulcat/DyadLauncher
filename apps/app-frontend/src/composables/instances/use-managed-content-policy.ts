@@ -3,25 +3,12 @@ import { computed, type Ref } from 'vue'
 
 import type { GameInstance } from '@/helpers/types'
 
-const managedSourceKinds = new Set(['shared_instance', 'modrinth_modpack', 'imported_modpack'])
-
 export function useManagedContentPolicy(instance: Ref<GameInstance>) {
 	const { formatMessage } = useVIntl()
-	const isManagedModpack = computed(() => instance.value.shared_instance?.role === 'member')
 	const isQuarantined = computed(() => instance.value.quarantined)
-	const canUnpublish = computed(() => instance.value.shared_instance?.role === 'owner')
-	const canUnlink = computed(() => instance.value.shared_instance?.role === 'member')
-	const managedModpackWarning = computed(() => ({
-		admonitionHeader: formatMessage(messages.warningHeader),
-		changeVersionBody: formatMessage(messages.changeVersionBody),
-		unlinkBody: formatMessage(messages.unlinkBody),
-	}))
 
-	function isManagedContent(item: ContentItem) {
-		return (
-			isQuarantined.value ||
-			(isManagedModpack.value && !!item.source_kind && managedSourceKinds.has(item.source_kind))
-		)
+	function isManagedContent(_item: ContentItem) {
+		return isQuarantined.value
 	}
 
 	function canMutateContent(item: ContentItem) {
@@ -63,11 +50,7 @@ export function useManagedContentPolicy(instance: Ref<GameInstance>) {
 	}
 
 	return {
-		isManagedModpack,
 		isQuarantined,
-		canUnpublish,
-		canUnlink,
-		managedModpackWarning,
 		isManagedContent,
 		canMutateContent,
 		canUpdateContent,
@@ -80,16 +63,6 @@ const messages = defineMessages({
 	warningHeader: {
 		id: 'content.shared-instance.warning-header',
 		defaultMessage: 'This is part of the shared instance',
-	},
-	changeVersionBody: {
-		id: 'content.shared-instance.change-version-body',
-		defaultMessage:
-			'Changing the version only changes your local copy. Future shared instance updates may restore or change it again.',
-	},
-	unlinkBody: {
-		id: 'content.shared-instance.unlink-body',
-		defaultMessage:
-			'Unlinking only changes your local copy. Future shared instance updates may restore or change it again.',
 	},
 	deleteSingleBody: {
 		id: 'content.shared-instance.delete-single-body',
