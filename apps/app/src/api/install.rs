@@ -6,6 +6,7 @@ use theseus::data::ModLoader;
 use theseus::install::{
     InstallJobSnapshot, InstallModpackPreview, InstallPostInstallEdit,
 };
+use theseus::migrate_modrinth_app::execute::ImportSelection;
 use theseus::pack::import::ImportLauncherType;
 use theseus::pack::install_from::CreatePackLocation;
 use uuid::Uuid;
@@ -17,6 +18,7 @@ pub fn init<R: tauri::Runtime>() -> tauri::plugin::TauriPlugin<R> {
             install_create_instance,
             install_create_modpack_instance,
             install_import_instance,
+            install_import_modrinth_app_instance,
             install_duplicate_instance,
             install_existing_instance,
             install_pack_to_existing_instance,
@@ -113,6 +115,40 @@ pub async fn install_import_instance(
         launcher_type,
         base_path,
         instance_folder,
+    )
+    .await?)
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstallImportModrinthAppRequest {
+    pub source_instance_dir: PathBuf,
+    pub name: String,
+    pub game_version: String,
+    pub loader: ModLoader,
+    pub loader_version: Option<String>,
+    pub icon_path: Option<PathBuf>,
+    pub selection: ImportSelection,
+    #[serde(default)]
+    pub delete_source_after_import: bool,
+}
+
+/// Goal 6 (see `docs/goal-6-import-design.md`): imports one instance from an
+/// official Modrinth App install, given a selection already resolved from a
+/// `theseus::migrate_modrinth_app::build_preview` preview.
+#[tauri::command]
+pub async fn install_import_modrinth_app_instance(
+    request: InstallImportModrinthAppRequest,
+) -> Result<InstallJobSnapshot> {
+    Ok(theseus::install::import_modrinth_app_instance(
+        request.source_instance_dir,
+        request.name,
+        request.game_version,
+        request.loader,
+        request.loader_version,
+        request.icon_path,
+        request.selection,
+        request.delete_source_after_import,
     )
     .await?)
 }

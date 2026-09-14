@@ -229,6 +229,36 @@ Not started, no implementation timeline yet. Needs a technical design pass on re
 app's SQLite schema safely — it may have drifted from Dyad's fork point over time — before
 implementation starts.
 
+**Phase 0 (schema discovery/strategy) — done as of 2026-09-13:** see
+[goal-6-import-design.md](goal-6-import-design.md) for the full write-up. Headline finding: the
+tables this feature actually needs (`instances`, `instance_content_sets`,
+`instance_launch_overrides`, `instance_icon_configs`, `java_versions`) are currently identical
+between Dyad and current upstream `modrinth/code`; `settings` differs only by columns outside our
+import allowlist. Reader strategy decided: named-column `SELECT`s only (never `SELECT *` /
+bulk-copy), `PRAGMA table_info` presence checks with named errors on an unrecognized schema, and
+`minecraft_users` (account credentials) explicitly never read. Planned as incremental PRs: Phase 1
+(read-only detection/preview, no writes) is next.
+
+**Phase 1 (read-only detection/preview) — done as of 2026-09-13:** implemented in
+`packages/app-lib/src/api/migrate_modrinth_app/{mod,source_db}.rs`. Validated against a real
+official Modrinth App install (not just fixtures), which surfaced and fixed two real bugs (wrong
+instance-folder resolution when `custom_dir` is set; `saves/` sizing that took 80+ seconds against
+a real 330k-file world, now a per-world listing with deferred sizing instead) and replaced a
+fundamentally broken lock-detection approach (a `BEGIN IMMEDIATE` DB probe, which SQLite's WAL
+mode made a false negative even with the app confirmed running) with a process-list check. Full
+writeup in [goal-6-import-design.md](goal-6-import-design.md).
+
+**Phase 2 (actual instance creation and content copying) — done as of 2026-09-13:** implemented as
+a new `InstallRequest::ImportModrinthApp` variant in Dyad's existing install-job engine
+(`packages/app-lib/src/install/`), reusing its progress reporting, crash recovery, and
+rollback-on-failure rather than building bespoke versions. Copies only the user-selected
+categories/worlds (not "copy everything" like the legacy multi-launcher importer), with an opt-in
+per-instance "delete from source after import" that only ever removes what was actually copied.
+Settings/Java-path import is a separate, simple settings edit. Tauri commands are wired up but
+nothing in the frontend calls them yet - see [goal-6-import-design.md](goal-6-import-design.md)
+for the full writeup, remaining known gaps, and what's left for Phase 3 (frontend) and Phase 4
+(bindings/tests/docs).
+
 ## Status
 
 Goals 1-3 were agreed direction as of 2026-09-02; goal 4 was added on 2026-09-04. Goal 1
@@ -240,11 +270,15 @@ necessary during scoping and was a larger, separate pass) landed 2026-09-05. Goa
 updater) is a future idea, not yet scoped or started. Goal 2 is not implemented yet.
 
 Goals 5 (unsigned Windows installer/SmartScreen) and 6 (migrate-from-Modrinth-App import tool)
-were added on 2026-09-13 after a scoping discussion with the user. Neither is implemented yet.
-Goal 5's next concrete step is submitting a SignPath.io OSS-signing application; the CI
-tag-signing fallback bug and installer metadata gap are independent smaller fixes noted alongside
-it. Goal 6 needs a technical design pass on reading the official Modrinth App's SQLite schema
-safely before implementation can start.
+were added on 2026-09-13 after a scoping discussion with the user. Goal 5 is not implemented yet;
+its next concrete step is submitting a SignPath.io OSS-signing application, with the CI
+tag-signing fallback bug and installer metadata gap as independent smaller fixes noted alongside
+it. Goal 6's backend is implemented as of 2026-09-13 — Phase 0 (design), Phase 1 (read-only
+detection/preview, validated against a real install) and Phase 2 (actual instance creation and
+content copying, built on the existing install-job engine) are all done; see
+[goal-6-import-design.md](goal-6-import-design.md) for the full writeup. Phase 3 (frontend UI) and
+Phase 4 (ts-rs/postcard bindings, further tests, docs) have not been started — nothing in the
+frontend can trigger an import yet even though the backend commands exist.
 
 This document should be updated as scope changes — treat it as the source of truth for what this fork
 is trying to do, ahead of any individual issue or PR.

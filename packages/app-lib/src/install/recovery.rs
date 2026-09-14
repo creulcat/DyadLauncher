@@ -180,6 +180,14 @@ fn display_from_request(state: &InstallJobState) -> Option<InstallJobDisplay> {
             title: instance_folder.clone(),
             icon: None,
         }),
+        InstallRequest::ImportModrinthApp {
+            name, icon_path, ..
+        } => Some(InstallJobDisplay {
+            title: name.clone(),
+            icon: icon_path
+                .as_ref()
+                .map(|path| path.to_string_lossy().to_string()),
+        }),
         InstallRequest::DuplicateInstance { .. }
         | InstallRequest::InstallExistingInstance { .. }
         | InstallRequest::InstallPackToExistingInstance { .. } => {

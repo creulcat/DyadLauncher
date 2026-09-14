@@ -1,3 +1,4 @@
+use crate::api::migrate_modrinth_app::execute::ImportSelection;
 use crate::api::pack::import::ImportLauncherType;
 use crate::api::pack::install_from::{CreatePackInstance, CreatePackLocation};
 use crate::state::{
@@ -176,6 +177,22 @@ pub enum InstallRequest {
         base_path: PathBuf,
         instance_folder: String,
     },
+    /// Goal 6 (see `docs/goal-6-import-design.md`): imports one instance
+    /// from an official Modrinth App install, given a selection the caller
+    /// already resolved from a Phase 1 `ImportPreview`. Unlike
+    /// `ImportInstance`, the name/game version/loader are already known
+    /// exactly (read from the source database during the preview step), so
+    /// there's no placeholder-then-correct step needed.
+    ImportModrinthApp {
+        source_instance_dir: PathBuf,
+        name: String,
+        game_version: String,
+        loader: ModLoader,
+        loader_version: Option<String>,
+        icon_path: Option<PathBuf>,
+        selection: ImportSelection,
+        delete_source_after_import: bool,
+    },
     DuplicateInstance {
         source_instance_id: String,
     },
@@ -211,6 +228,7 @@ impl InstallRequest {
                 InstallJobKind::CreateModpackInstance
             }
             Self::ImportInstance { .. } => InstallJobKind::ImportInstance,
+            Self::ImportModrinthApp { .. } => InstallJobKind::ImportModrinthApp,
             Self::DuplicateInstance { .. } => InstallJobKind::DuplicateInstance,
             Self::InstallExistingInstance { .. } => {
                 InstallJobKind::InstallExistingInstance
@@ -256,6 +274,7 @@ pub enum InstallJobKind {
     CreateInstance,
     CreateModpackInstance,
     ImportInstance,
+    ImportModrinthApp,
     DuplicateInstance,
     InstallExistingInstance,
     InstallPackToExistingInstance,
@@ -267,6 +286,7 @@ impl InstallJobKind {
             Self::CreateInstance => "create_instance",
             Self::CreateModpackInstance => "create_modpack_instance",
             Self::ImportInstance => "import_instance",
+            Self::ImportModrinthApp => "import_modrinth_app",
             Self::DuplicateInstance => "duplicate_instance",
             Self::InstallExistingInstance => "install_existing_instance",
             Self::InstallPackToExistingInstance => {
@@ -279,6 +299,7 @@ impl InstallJobKind {
         match value {
             "create_modpack_instance" => Self::CreateModpackInstance,
             "import_instance" => Self::ImportInstance,
+            "import_modrinth_app" => Self::ImportModrinthApp,
             "duplicate_instance" => Self::DuplicateInstance,
             "install_existing_instance" => Self::InstallExistingInstance,
             "install_pack_to_existing_instance" => {

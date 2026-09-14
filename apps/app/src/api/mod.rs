@@ -9,6 +9,7 @@ pub mod instance;
 pub mod jre;
 pub mod logs;
 pub mod metadata;
+pub mod migrate_modrinth_app;
 pub mod minecraft_skins;
 pub mod process;
 pub mod reports;
