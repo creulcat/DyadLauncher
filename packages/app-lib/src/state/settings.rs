@@ -42,6 +42,10 @@ pub struct Settings {
     pub skipped_update: Option<String>,
     pub pending_update_toast_for_version: Option<String>,
     pub auto_download_updates: Option<bool>,
+    /// Opt-in (off by default) toggle for checking for app updates at all. Independent of
+    /// whether the `updater` Cargo feature is compiled in -- this is the user-facing consent
+    /// gate on top of that build-time switch.
+    pub check_for_updates: bool,
 
     pub version: usize,
 }
@@ -90,6 +94,7 @@ impl Settings {
                 custom_dir, prev_custom_dir, migrated, json(feature_flags) feature_flags, toggle_sidebar,
                 skipped_update, pending_update_toast_for_version, auto_download_updates,
                 sync_theme_across_devices, sync_behavior_across_devices,
+                check_for_updates,
                 version
             FROM settings
             "
@@ -153,6 +158,7 @@ impl Settings {
             auto_download_updates: res.auto_download_updates.map(|x| x == 1),
             sync_theme_across_devices: res.sync_theme_across_devices == 1,
             sync_behavior_across_devices: res.sync_behavior_across_devices == 1,
+            check_for_updates: res.check_for_updates == 1,
             version: res.version as usize,
         })
     }
@@ -214,7 +220,9 @@ impl Settings {
                 sync_theme_across_devices = $30,
                 sync_behavior_across_devices = $31,
 
-                version = $32
+                check_for_updates = $32,
+
+                version = $33
             ",
             max_concurrent_writes,
             max_concurrent_downloads,
@@ -247,6 +255,7 @@ impl Settings {
             self.auto_download_updates,
             self.sync_theme_across_devices,
             self.sync_behavior_across_devices,
+            self.check_for_updates,
             version,
         )
         .execute(exec)

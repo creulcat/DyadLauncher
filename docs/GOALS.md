@@ -123,10 +123,10 @@ update feed (`https://launcher-files.modrinth.com/updates.json`) and Modrinth's 
 feature/capability or the `plugins.updater` block, so this fork's release builds never compile in
 or point at Modrinth's update endpoint/pubkey — they behave the same as a plain local build in this
 respect. `.github/workflows/theseus-build.yml`'s Windows step was updated to stop requesting the
-now-unconfigured `updater` bundle target. `.github/workflows/theseus-release.yml` (which uploads
-signed update manifests to Modrinth's own S3 bucket) was left untouched — it already can't run
-meaningfully here (no Modrinth secrets in this fork's repo) and rebranding/reworking the fork's own
-release-publishing pipeline is separate, unscoped follow-up work.
+now-unconfigured `updater` bundle target. `.github/workflows/theseus-release.yml` (which uploaded
+signed update manifests to Modrinth's own S3 bucket) was left untouched at the time — rebranding/
+reworking the fork's own release-publishing pipeline was called out as separate, unscoped
+follow-up work. (That follow-up landed as part of phase 2, below.)
 
 A second, independent check also had to be removed: `apps/app-frontend/src/App.vue` had a
 `checkLinuxUpdates()` fallback that did a raw `fetch('https://launcher-files.modrinth.com/updates.json')`
@@ -138,11 +138,55 @@ endpoint any more.
 - Known tradeoff: without any updater active, users of the fork get no in-app notice of new fork
   releases and must check manually (e.g. GitHub releases) until phase 2 lands.
 
-**Phase 2 — future, not yet scoped:** Build a fork-owned auto-updater that is **opt-in** (off by
-default) and backed by **GitHub Releases** instead of Modrinth's infrastructure. This needs its own
-design pass later — at minimum: this fork's own signing keypair, an update manifest generated from
-GitHub Releases (or a compatible static feed), and a user-facing setting to turn it on. Not
-started, no implementation timeline yet.
+**Phase 2 — done:** Built a fork-owned auto-updater that is **opt-in** (off by default, per-user
+setting under Behavior settings → Updates) and backed by **GitHub Releases** instead of Modrinth's
+infrastructure.
+
+**Implemented as of 2026-09-14:**
+
+- Generated a fork-owned Ed25519 update-signing keypair (unrelated to goal 5's Authenticode/
+  SmartScreen signing — this one covers update-payload integrity, not binary trust). The public
+  key is committed in `apps/app/tauri-release.conf.json`'s new `plugins.updater` block; the
+  private key and its password live only in this repo's `TAURI_PRIVATE_KEY`/`TAURI_KEY_PASSWORD`
+  Actions secrets, which `.github/workflows/theseus-build.yml` already passed to every `tauri
+  build` invocation (inherited from upstream, previously unused since this fork had no key of its
+  own to put there).
+- Re-enabled the `updater` Cargo feature (via `tauri-release.conf.json`'s `build.features`) and
+  the `updater` capability, and pointed the update feed at
+  `https://github.com/creulcat/DyadLauncher/releases/latest/download/updates.json` — GitHub always
+  resolves that alias to whichever release is newest, so publishing a release *is* going live for
+  the updater; there's no separate publish step.
+- New off-by-default `check_for_updates` setting (`packages/app-lib/src/state/settings.rs`,
+  migration `20260914120000_add-check-for-updates-setting.sql`), surfaced as a toggle in
+  `BehaviorSettings.vue`. It gates `App.vue`'s `checkUpdates()` on top of the existing build-time
+  `areUpdatesEnabled()` check, so update checks stay off until a user explicitly turns them on.
+  Known tradeoff: toggling it on takes effect on the next launch, not immediately, since the
+  check-scheduling loop is only started once at startup.
+- Fixed the hardcoded "Modrinth App" branding in the update-download popup copy in `App.vue` (and
+  regenerated `apps/app-frontend/src/locales/en-US/index.json` via the project's own
+  `intl:extract` script), which had never been updated after the product was renamed.
+
+**Prerequisite fix, discovered while scoping this phase:** `.github/workflows/theseus-build.yml`
+and `.github/workflows/theseus-release.yml` ran on `namespace-profile-*` runners — Modrinth's own
+paid Namespace Cloud pool, not available to this fork — so neither workflow could actually run
+here at all; jobs would sit queued indefinitely. Both were rewritten onto standard GitHub-hosted
+runners (`macos-latest`/`windows-latest`/`ubuntu-22.04`), dropping the Namespace-specific caching
+steps in favor of each action's own built-in caching. `theseus-release.yml` was further reworked
+to drop its Modrinth-S3 upload (no secrets for it in this fork) in favor of publishing
+`updates.json` and the signed bundles as GitHub Release assets directly — since GitHub replaces
+whitespace in uploaded asset filenames with `.`, every bundle is staged into a flat,
+space-free-named `release-assets/` directory first so the uploaded name matches the name embedded
+in the manifest exactly. Both workflows also had a dormant bug from the same rename — hardcoded
+"Modrinth App" bundle filename patterns that never matched the actual "Dyad Launcher"-named build
+output — fixed alongside the runner migration. `manual-build.yml`, a stopgap manual-trigger-only
+workflow added to have *something* that reliably built the app on standard runners, is now
+redundant and was deleted. Twelve other workflows scoped to the web frontend/`labrinth`
+backend/Modrinth-account-specific infra (Crowdin i18n sync, `labrinth` Docker builds, the
+`daedalus` metadata service, the ArgoCD `/deploy` slash command, etc.) were deleted as out of
+scope for a desktop-app-only fork per this document's own framing.
+
+No beta/prerelease channel distinction was added — every pushed tag is published as a full
+release and becomes "latest" for the update feed, by deliberate choice.
 
 ### 5. Windows installer trust warning (SmartScreen)
 
@@ -235,9 +279,12 @@ Goals 1-3 were agreed direction as of 2026-09-02; goal 4 was added on 2026-09-04
 (concurrent multi-account launches) is implemented as of 2026-09-04. Goal 3 is fully implemented:
 part 1 (telemetry, ads, promos, news/friends UI) landed 2026-09-04, and part 2 (Modrinth account
 removal, sign-in/OAuth, cloud shared instances, and hosting/billing — which turned out to be
-necessary during scoping and was a larger, separate pass) landed 2026-09-05. Goal 4's phase 1
-(disabling Modrinth's updater) is implemented as of 2026-09-04 — phase 2 (the opt-in GitHub-Releases
-updater) is a future idea, not yet scoped or started. Goal 2 is not implemented yet.
+necessary during scoping and was a larger, separate pass) landed 2026-09-05. Goal 4 is fully
+implemented: phase 1 (disabling Modrinth's updater) landed 2026-09-04, and phase 2 (the opt-in,
+GitHub-Releases-backed updater) landed 2026-09-14, alongside a rework of `theseus-build.yml`/
+`theseus-release.yml` onto standard GitHub-hosted runners (discovered to be non-functional on
+Namespace Cloud runners this fork doesn't have) and a pruning of workflows scoped to the web
+frontend/`labrinth` backend that this fork doesn't develop. Goal 2 is not implemented yet.
 
 Goals 5 (unsigned Windows installer/SmartScreen) and 6 (migrate-from-Modrinth-App import tool)
 were added on 2026-09-13 after a scoping discussion with the user. Neither is implemented yet.

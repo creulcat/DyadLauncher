@@ -1,7 +1,7 @@
-name: Modrinth App release
+name: Dyad Launcher release
 on:
   workflow_run:
-    workflows: ['Modrinth App build']
+    workflows: ['Dyad Launcher build']
     types: [completed]
 
 concurrency:
@@ -10,18 +10,17 @@ concurrency:
 
 jobs:
   release:
-    name: Release Modrinth App
+    name: Release Dyad Launcher
     if: >-
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'push' &&
       startsWith(github.event.workflow_run.head_branch, 'v')
-    runs-on: namespace-profile-medium-amd64
+    runs-on: ubuntu-latest
     env:
       VERSION_TAG: ${{ github.event.workflow_run.head_branch }}
       LINUX_X64_BUNDLE_ARTIFACT_NAME: App bundle (x86_64-unknown-linux-gnu)
       WINDOWS_X64_BUNDLE_ARTIFACT_NAME: App bundle (x86_64-pc-windows-msvc)
       MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME: App bundle (universal-apple-darwin)
-      LAUNCHER_FILES_BUCKET_BASE_URL: https://launcher-files.modrinth.com
 
     steps:
       - name: Check out code
@@ -46,7 +45,7 @@ jobs:
           fi
           echo "Verified ${VERSION_TAG} is a tag pointing at ${HEAD_SHA}"
 
-      - name: Download Modrinth App artifacts
+      - name: Download Dyad Launcher artifacts
         uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 # v21
         with:
           workflow: theseus-build.yml
@@ -63,85 +62,91 @@ jobs:
           LAST_GITHUB_RELEASE_PUBLISHED_AT=$(gh api "repos/${{ github.repository }}/releases/latest" --jq '.published_at // ""' 2>/dev/null || true)
           LAST_GITHUB_RELEASE_PUBLISHED_AT="$LAST_GITHUB_RELEASE_PUBLISHED_AT" npx --yes tsx scripts/build-theseus-release-notes.ts
 
+      # GitHub Release assets are served from a stable, predictable URL
+      # (github.com/<repo>/releases/download/<tag>/<asset name>), but GitHub replaces runs of
+      # whitespace in an uploaded asset's filename with a single "." when it stores the asset --
+      # so an uploaded "Dyad Launcher_1.2.3_x64-setup.exe" is actually served back as
+      # "Dyad.Launcher_1.2.3_x64-setup.exe". Rather than guess at that transform, copy every
+      # bundle we're about to publish into a flat, space-free staging directory first, so the
+      # name we upload is byte-for-byte the name we embed in the update manifest.
+      - name: Stage release assets
+        run: |
+          set -euo pipefail
+          VERSION="${VERSION_TAG#v}"
+          mkdir -p release-assets
+
+          cp "${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}/universal-apple-darwin/release/bundle/macos/Dyad Launcher.app.tar.gz" \
+            "release-assets/DyadLauncher_${VERSION}_universal.app.tar.gz"
+          cp "${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}/universal-apple-darwin/release/bundle/macos/Dyad Launcher.app.tar.gz.sig" \
+            "release-assets/DyadLauncher_${VERSION}_universal.app.tar.gz.sig"
+          cp "${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}/universal-apple-darwin/release/bundle/dmg/Dyad Launcher_${VERSION}_universal.dmg" \
+            "release-assets/DyadLauncher_${VERSION}_universal.dmg"
+
+          cp "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/appimage/Dyad Launcher_${VERSION}_amd64.AppImage" \
+            "release-assets/DyadLauncher_${VERSION}_amd64.AppImage"
+          cp "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/appimage/Dyad Launcher_${VERSION}_amd64.AppImage.tar.gz" \
+            "release-assets/DyadLauncher_${VERSION}_amd64.AppImage.tar.gz"
+          cp "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/appimage/Dyad Launcher_${VERSION}_amd64.AppImage.tar.gz.sig" \
+            "release-assets/DyadLauncher_${VERSION}_amd64.AppImage.tar.gz.sig"
+          cp "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/deb/Dyad Launcher_${VERSION}_amd64.deb" \
+            "release-assets/DyadLauncher_${VERSION}_amd64.deb"
+          cp "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/rpm/Dyad Launcher-${VERSION}-1.x86_64.rpm" \
+            "release-assets/DyadLauncher-${VERSION}-1.x86_64.rpm"
+
+          cp "${WINDOWS_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/nsis/Dyad Launcher_${VERSION}_x64-setup.exe" \
+            "release-assets/DyadLauncher_${VERSION}_x64-setup.exe"
+          cp "${WINDOWS_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/nsis/Dyad Launcher_${VERSION}_x64-setup.nsis.zip" \
+            "release-assets/DyadLauncher_${VERSION}_x64-setup.nsis.zip"
+          cp "${WINDOWS_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/nsis/Dyad Launcher_${VERSION}_x64-setup.nsis.zip.sig" \
+            "release-assets/DyadLauncher_${VERSION}_x64-setup.nsis.zip.sig"
+
+          ls -la release-assets/
+
       - name: Generate version manifest
+        env:
+          RELEASE_BASE_URL: https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION_TAG }}
         run: |
           # Reference: https://tauri.app/plugin/updater/#server-support
           jq -nc \
             --arg versionTag "${VERSION_TAG#v}" \
             --rawfile releaseNotes release-notes.md \
-            --rawfile macOsAarch64UpdateArtifactSignature "${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}/universal-apple-darwin/release/bundle/macos/Modrinth App.app.tar.gz.sig" \
-            --rawfile macOsX64UpdateArtifactSignature "${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}/universal-apple-darwin/release/bundle/macos/Modrinth App.app.tar.gz.sig" \
-            --rawfile linuxX64UpdateArtifactSignature "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/appimage/Modrinth App_${VERSION_TAG#v}_amd64.AppImage.tar.gz.sig" \
-            --rawfile windowsX64UpdateArtifactSignature "${WINDOWS_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/nsis/Modrinth App_${VERSION_TAG#v}_x64-setup.nsis.zip.sig" \
+            --rawfile macOsUpdateArtifactSignature "release-assets/DyadLauncher_${VERSION_TAG#v}_universal.app.tar.gz.sig" \
+            --rawfile linuxX64UpdateArtifactSignature "release-assets/DyadLauncher_${VERSION_TAG#v}_amd64.AppImage.tar.gz.sig" \
+            --rawfile windowsX64UpdateArtifactSignature "release-assets/DyadLauncher_${VERSION_TAG#v}_x64-setup.nsis.zip.sig" \
           '{
             "version": $versionTag,
             "notes": $releaseNotes,
             "pub_date": now | todateiso8601,
             "platforms": {
               "darwin-aarch64": {
-                "signature": $macOsAarch64UpdateArtifactSignature,
-                "url": @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/macos/\("Modrinth App.app.tar.gz")",
-                "install_urls": [@uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/macos/\("Modrinth App_" + $versionTag + "_universal.dmg")"]
+                "signature": $macOsUpdateArtifactSignature,
+                "url": "${{ env.RELEASE_BASE_URL }}/DyadLauncher_\($versionTag)_universal.app.tar.gz",
+                "install_urls": ["${{ env.RELEASE_BASE_URL }}/DyadLauncher_\($versionTag)_universal.dmg"]
               },
               "darwin-x86_64": {
-                "signature": $macOsX64UpdateArtifactSignature,
-                "url": @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/macos/\("Modrinth App.app.tar.gz")",
-                "install_urls": [@uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/macos/\("Modrinth App_" + $versionTag + "_universal.dmg")"]
+                "signature": $macOsUpdateArtifactSignature,
+                "url": "${{ env.RELEASE_BASE_URL }}/DyadLauncher_\($versionTag)_universal.app.tar.gz",
+                "install_urls": ["${{ env.RELEASE_BASE_URL }}/DyadLauncher_\($versionTag)_universal.dmg"]
               },
               "linux-x86_64": {
                 "signature": $linuxX64UpdateArtifactSignature,
-                "url": @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/linux/\("Modrinth App_" + $versionTag + "_amd64.AppImage.tar.gz")",
+                "url": "${{ env.RELEASE_BASE_URL }}/DyadLauncher_\($versionTag)_amd64.AppImage.tar.gz",
                 "install_urls": [
-                  @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/linux/\("Modrinth App_" + $versionTag + "_amd64.deb")",
-                  @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/linux/\("Modrinth App_" + $versionTag + "_amd64.AppImage")",
-                  @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/linux/\("Modrinth App-" + $versionTag + "-1.x86_64.rpm")"
+                  "${{ env.RELEASE_BASE_URL }}/DyadLauncher_\($versionTag)_amd64.deb",
+                  "${{ env.RELEASE_BASE_URL }}/DyadLauncher_\($versionTag)_amd64.AppImage",
+                  "${{ env.RELEASE_BASE_URL }}/DyadLauncher-\($versionTag)-1.x86_64.rpm"
                 ]
               },
               "windows-x86_64": {
                 "signature": $windowsX64UpdateArtifactSignature,
-                "url": @uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/windows/\("Modrinth App_" + $versionTag + "_x64-setup.nsis.zip")",
-                "install_urls": [@uri "${{ env.LAUNCHER_FILES_BUCKET_BASE_URL }}/versions/\($versionTag)/windows/\("Modrinth App_" + $versionTag + "_x64-setup.exe")"]
+                "url": "${{ env.RELEASE_BASE_URL }}/DyadLauncher_\($versionTag)_x64-setup.nsis.zip",
+                "install_urls": ["${{ env.RELEASE_BASE_URL }}/DyadLauncher_\($versionTag)_x64-setup.exe"]
               }
             }
-          }' > updates.json
+          }' > release-assets/updates.json
 
           echo "Generated manifest for version ${VERSION_TAG}:"
-          cat updates.json
-
-      - name: Upload release artifacts
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.LAUNCHER_FILES_BUCKET_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.LAUNCHER_FILES_BUCKET_SECRET_ACCESS_KEY }}
-          AWS_BUCKET: ${{ secrets.LAUNCHER_FILES_BUCKET_NAME }}
-          AWS_REGION: ${{ secrets.LAUNCHER_FILES_BUCKET_REGION }}
-          AWS_ENDPOINT_URL: ${{ secrets.LAUNCHER_FILES_BUCKET_ENDPOINT_URL }}
-          AWS_PAGER: ''
-          # Work around incompatible checksum behavior with some S3-like object storage providers,
-          # such as Cloudflare R2. See:
-          # - https://developers.cloudflare.com/r2/examples/aws/aws-cli/
-          # - https://developers.cloudflare.com/r2/examples/aws/aws-sdk-java/
-          AWS_REQUEST_CHECKSUM_CALCULATION: when_required
-          AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
-        run: |
-          for macosBundleType in 'macos' 'dmg'; do
-            aws s3 cp --recursive \
-              "${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}/universal-apple-darwin/release/bundle/${macosBundleType}" \
-              "s3://${AWS_BUCKET}/versions/${VERSION_TAG#v}/macos"
-          done
-
-          for linuxBundleType in 'appimage' 'deb' 'rpm'; do
-            aws s3 cp --recursive \
-              "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/${linuxBundleType}" \
-              "s3://${AWS_BUCKET}/versions/${VERSION_TAG#v}/linux"
-          done
-
-          for windowsBundleType in 'nsis'; do
-            aws s3 cp --recursive \
-              "${WINDOWS_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/${windowsBundleType}" \
-              "s3://${AWS_BUCKET}/versions/${VERSION_TAG#v}/windows"
-          done
-
-          aws s3 cp updates.json "s3://${AWS_BUCKET}"
+          cat release-assets/updates.json
 
       - name: Create GitHub release
         env:
@@ -150,10 +155,16 @@ jobs:
           VERSION="${VERSION_TAG#v}"
 
           gh release create "$VERSION_TAG" \
-            --title "Modrinth App ${VERSION}" \
+            --title "Dyad Launcher ${VERSION}" \
             --notes-file release-notes.md \
-            "${WINDOWS_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/nsis/Modrinth App_${VERSION}_x64-setup.exe" \
-            "${MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME}/universal-apple-darwin/release/bundle/dmg/Modrinth App_${VERSION}_universal.dmg" \
-            "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/appimage/Modrinth App_${VERSION}_amd64.AppImage" \
-            "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/deb/Modrinth App_${VERSION}_amd64.deb" \
-            "${LINUX_X64_BUNDLE_ARTIFACT_NAME}/release/bundle/rpm/Modrinth App-${VERSION}-1.x86_64.rpm"
+            release-assets/updates.json \
+            "release-assets/DyadLauncher_${VERSION}_x64-setup.exe" \
+            "release-assets/DyadLauncher_${VERSION}_universal.dmg" \
+            "release-assets/DyadLauncher_${VERSION}_amd64.AppImage" \
+            "release-assets/DyadLauncher_${VERSION}_amd64.deb" \
+            "release-assets/DyadLauncher-${VERSION}-1.x86_64.rpm"
+
+      # The updater feed configured in tauri-release.conf.json points at
+      # .../releases/latest/download/updates.json, which GitHub always resolves to whichever
+      # release is newest. That means publishing this release *is* going live for the updater --
+      # there is no separate publish step.

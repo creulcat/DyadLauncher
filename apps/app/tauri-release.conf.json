@@ -1,4 +1,7 @@
 {
+	"build": {
+		"features": ["updater"]
+	},
 	"bundle": {
 		"windows": {
 			"signCommand": {
@@ -21,7 +24,15 @@
 	},
 	"app": {
 		"security": {
-			"capabilities": ["core", "plugins"]
+			"capabilities": ["core", "plugins", "updater"]
+		}
+	},
+	"plugins": {
+		"updater": {
+			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEFEQjIzRDQyNTU4NDIxOTMKUldTVElZUlZRajJ5cllJdW50d1RKM0JXbEhWWERObUZKMWNVbngyWExqWjgyKzIveWRCK2xWZSsK",
+			"endpoints": [
+				"https://github.com/creulcat/DyadLauncher/releases/latest/download/updates.json"
+			]
 		}
 	}
 }

@@ -191,6 +191,12 @@
   "app.auth-servers.unreachable.header": {
     "message": "Cannot reach authentication servers"
   },
+  "app.behavior-settings.check-for-updates.description": {
+    "message": "Periodically check GitHub for new Dyad Launcher releases, and offer to download and install them. Off by default."
+  },
+  "app.behavior-settings.check-for-updates.title": {
+    "message": "Check for updates"
+  },
   "app.behavior-settings.confirmations.title": {
     "message": "Confirmations"
   },
@@ -205,6 +211,9 @@
   },
   "app.behavior-settings.startup-and-navigation.title": {
     "message": "Startup and navigation"
+  },
+  "app.behavior-settings.updates.title": {
+    "message": "Updates"
   },
   "app.browse.add-servers-to-instance": {
     "message": "Adding server to instance"
@@ -1656,10 +1665,10 @@
     "message": "Toggle on"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} has finished downloading. Reload to update now, or automatically when you close Modrinth App."
+    "message": "Dyad Launcher v{version} has finished downloading. Reload to update now, or automatically when you close Dyad Launcher."
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} is available now! Since you're on a metered network, we didn't automatically download it."
+    "message": "Dyad Launcher v{version} is available now! Since you're on a metered network, we didn't automatically download it."
   },
   "app.update-popup.changelog": {
     "message": "Changelog"
