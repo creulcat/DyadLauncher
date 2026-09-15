@@ -254,10 +254,19 @@ a new `InstallRequest::ImportModrinthApp` variant in Dyad's existing install-job
 rollback-on-failure rather than building bespoke versions. Copies only the user-selected
 categories/worlds (not "copy everything" like the legacy multi-launcher importer), with an opt-in
 per-instance "delete from source after import" that only ever removes what was actually copied.
-Settings/Java-path import is a separate, simple settings edit. Tauri commands are wired up but
-nothing in the frontend calls them yet - see [goal-6-import-design.md](goal-6-import-design.md)
-for the full writeup, remaining known gaps, and what's left for Phase 3 (frontend) and Phase 4
-(bindings/tests/docs).
+Settings/Java-path import is a separate, simple settings edit.
+
+**Phase 3 (frontend UI) — done as of 2026-09-15:** a dedicated import modal
+(detect/preview/per-instance/per-category/per-world selection, live per-job progress with
+cancel/cancel-all), a Settings-page entry, and a welcome-screen entry. Fixed two real bugs only
+caught once this actually ran through the Tauri IPC layer for the first time (missing capability
+grants for the `migrate_modrinth_app` plugin and the new install command; the plugin's identifier
+was also invalid, since Tauri disallows underscores). Also fixed `last_played`/playtime not being
+carried over to imported instances - previously read but never applied (`last_played`), or not read
+at all (playtime). See [goal-6-import-design.md](goal-6-import-design.md) for the full writeup.
+
+Phase 4 (ts-rs/postcard bindings, further tests, docs) is not started - not a blocker, since
+command param/return types in this codebase are hand-written TS regardless of that pass.
 
 ## Status
 
@@ -273,12 +282,14 @@ Goals 5 (unsigned Windows installer/SmartScreen) and 6 (migrate-from-Modrinth-Ap
 were added on 2026-09-13 after a scoping discussion with the user. Goal 5 is not implemented yet;
 its next concrete step is submitting a SignPath.io OSS-signing application, with the CI
 tag-signing fallback bug and installer metadata gap as independent smaller fixes noted alongside
-it. Goal 6's backend is implemented as of 2026-09-13 — Phase 0 (design), Phase 1 (read-only
-detection/preview, validated against a real install) and Phase 2 (actual instance creation and
-content copying, built on the existing install-job engine) are all done; see
-[goal-6-import-design.md](goal-6-import-design.md) for the full writeup. Phase 3 (frontend UI) and
-Phase 4 (ts-rs/postcard bindings, further tests, docs) have not been started — nothing in the
-frontend can trigger an import yet even though the backend commands exist.
+it. Goal 6 is implemented end-to-end as of 2026-09-15 — Phase 0 (design), Phase 1 (read-only
+detection/preview), Phase 2 (actual instance creation and content copying), and Phase 3 (frontend
+UI) are all done and validated against a real official Modrinth App install on two machines
+(Windows and Linux); see [goal-6-import-design.md](goal-6-import-design.md) for the full writeup.
+Phase 4 (ts-rs/postcard bindings, further tests, docs) has not been started, but isn't a blocker —
+command param/return types in this codebase are hand-written TS regardless of that pass. Remaining
+known gaps: per-instance launch overrides aren't carried over, and empty directories inside a
+copied content category aren't recreated.
 
 This document should be updated as scope changes — treat it as the source of truth for what this fork
 is trying to do, ahead of any individual issue or PR.

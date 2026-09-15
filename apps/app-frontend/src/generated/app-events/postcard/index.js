@@ -449,13 +449,17 @@ function deserialize_INSTALL_JOB_KIND(d) {
         };
     case 3:
         return {
-            tag: "duplicate_instance"
+            tag: "import_modrinth_app"
         };
     case 4:
         return {
-            tag: "install_existing_instance"
+            tag: "duplicate_instance"
         };
     case 5:
+        return {
+            tag: "install_existing_instance"
+        };
+    case 6:
         return {
             tag: "install_pack_to_existing_instance"
         };

@@ -27,6 +27,8 @@ const REQUIRED_TABLES_AND_COLUMNS: &[(&str, &[&str])] = &[
             "created",
             "modified",
             "last_played",
+            "submitted_time_played",
+            "recent_time_played",
             "applied_content_set_id",
         ],
     ),
@@ -109,6 +111,8 @@ pub(super) struct RawInstance {
     pub created: i64,
     pub modified: i64,
     pub last_played: Option<i64>,
+    pub submitted_time_played: i64,
+    pub recent_time_played: i64,
     pub game_version: Option<String>,
     pub loader: Option<String>,
     pub loader_version: Option<String>,
@@ -121,6 +125,7 @@ pub(super) async fn fetch_instances(
         "
         SELECT
             i.id, i.path, i.name, i.icon_path, i.created, i.modified, i.last_played,
+            i.submitted_time_played, i.recent_time_played,
             cs.game_version AS game_version, cs.loader AS loader,
             cs.loader_version AS loader_version
         FROM instances i
@@ -140,6 +145,8 @@ pub(super) async fn fetch_instances(
             created: row.get("created"),
             modified: row.get("modified"),
             last_played: row.get("last_played"),
+            submitted_time_played: row.get("submitted_time_played"),
+            recent_time_played: row.get("recent_time_played"),
             game_version: row.get("game_version"),
             loader_version: row.get("loader_version"),
             loader: row.get("loader"),
@@ -313,6 +320,8 @@ mod tests {
                 created INTEGER NOT NULL,
                 modified INTEGER NOT NULL,
                 last_played INTEGER,
+                submitted_time_played INTEGER NOT NULL DEFAULT 0,
+                recent_time_played INTEGER NOT NULL DEFAULT 0,
                 applied_content_set_id TEXT
             );
             ",
@@ -482,5 +491,32 @@ mod tests {
         let b = instances.iter().find(|i| i.id == "b").unwrap();
         assert_eq!(b.game_version.as_deref(), Some("1.20.1"));
         assert_eq!(b.loader.as_deref(), Some("fabric"));
+    }
+
+    #[tokio::test]
+    async fn fetch_instances_reads_playtime_columns() {
+        let pool = fixture_db(
+            "
+            INSERT INTO instances
+                (id, path, name, icon_path, created, modified, last_played,
+                 submitted_time_played, recent_time_played, applied_content_set_id)
+            VALUES
+                ('a', 'a', 'Instance A', NULL, 0, 0, 12345, 3600, 120, NULL),
+                ('b', 'b', 'Instance B', NULL, 0, 0, NULL, 0, 0, NULL);
+            ",
+        )
+        .await;
+
+        let instances = fetch_instances(&pool).await.unwrap();
+
+        let a = instances.iter().find(|i| i.id == "a").unwrap();
+        assert_eq!(a.last_played, Some(12345));
+        assert_eq!(a.submitted_time_played, 3600);
+        assert_eq!(a.recent_time_played, 120);
+
+        let b = instances.iter().find(|i| i.id == "b").unwrap();
+        assert_eq!(b.last_played, None);
+        assert_eq!(b.submitted_time_played, 0);
+        assert_eq!(b.recent_time_played, 0);
     }
 }

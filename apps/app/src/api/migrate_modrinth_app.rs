@@ -8,7 +8,7 @@ use theseus::migrate_modrinth_app::{
 };
 
 pub fn init<R: tauri::Runtime>() -> tauri::plugin::TauriPlugin<R> {
-    tauri::plugin::Builder::new("migrate_modrinth_app")
+    tauri::plugin::Builder::new("migrate-modrinth-app")
         .invoke_handler(tauri::generate_handler![
             detect_modrinth_app_install,
             is_modrinth_app_running,

@@ -199,6 +199,32 @@ pub struct ImportWorldCandidate {
     pub modified: Option<i64>,
 }
 
+/// A whole category folder (e.g. `mods/`) or a whole top-level world folder
+/// (`saves/<world>`) that is itself a symlink or Windows junction, detected
+/// so the user can choose what should happen to it instead of it being
+/// silently flattened into a full copy of whatever it points at. Only
+/// directory-shaped links at these two spots are detected - a symlink
+/// nested deeper inside an otherwise-real folder tree, or one pointing at a
+/// single file, is left to be copied as real content like today, since
+/// handling those would mean rewriting the whole-folder copy into a
+/// per-file model.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ImportSymlinkCandidate {
+    /// Matches a `roots()` entry in `execute::ImportSelection` - either a
+    /// bare category folder name (e.g. `"mods"`) or `"saves/<world>"`.
+    pub relative_path: String,
+    pub category: ContentCategory,
+    /// Absolute path this link ultimately resolves to.
+    pub target: PathBuf,
+    /// `false` means `target` lies inside the official Modrinth App's own
+    /// managed directories (its settings dir or config dir) - recreating the
+    /// link here would leave the imported instance depending on the source
+    /// install staying in place, so callers should treat "recreate" as
+    /// "copy the real content instead" for this one.
+    pub target_outside_source_app: bool,
+}
+
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ImportInstanceCandidate {
@@ -223,10 +249,22 @@ pub struct ImportInstanceCandidate {
     pub created: i64,
     pub modified: i64,
     pub last_played: Option<i64>,
-    /// Only categories that actually have files are included.
+    /// Total seconds played on the source instance - its
+    /// `submitted_time_played + recent_time_played` collapsed into one
+    /// figure, since the split only matters for the source app's own
+    /// reporting cadence, not to Dyad.
+    pub total_time_played: u64,
+    /// Only categories that actually have files are included. A category
+    /// that's itself a symlink/junction is never listed here - see
+    /// `symlinks` instead.
     pub categories: Vec<ImportContentCategory>,
-    /// Per-world breakdown backing the `Saves` category, when present.
+    /// Per-world breakdown backing the `Saves` category, when present. A
+    /// world that's itself a symlink/junction is still listed here (for its
+    /// name/modified date) as well as in `symlinks`.
     pub worlds: Vec<ImportWorldCandidate>,
+    /// Whole category folders or world folders that are themselves a
+    /// symlink/junction - see `ImportSymlinkCandidate`.
+    pub symlinks: Vec<ImportSymlinkCandidate>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -301,6 +339,18 @@ async fn build_preview_from_pool(
         .unwrap_or_else(|| source.settings_dir.clone());
     let base_instances_dir = config_dir.join("profiles");
 
+    // Anywhere under these is considered "owned by the source app" for
+    // symlink-safety purposes - see `ImportSymlinkCandidate::target_outside_source_app`.
+    let mut source_roots = Vec::new();
+    if let Ok(canon) = tokio::fs::canonicalize(&config_dir).await {
+        source_roots.push(canon);
+    }
+    if let Ok(canon) = tokio::fs::canonicalize(&source.settings_dir).await
+        && !source_roots.contains(&canon)
+    {
+        source_roots.push(canon);
+    }
+
     let raw_instances = source_db::fetch_instances(pool).await?;
     let mut instances = Vec::with_capacity(raw_instances.len());
     for raw in raw_instances {
@@ -312,7 +362,8 @@ async fn build_preview_from_pool(
             _ => None,
         };
 
-        let (categories, worlds) = scan_content_categories(&instance_dir).await;
+        let (categories, worlds, symlinks) =
+            scan_content_categories(&instance_dir, &source_roots).await;
 
         instances.push(ImportInstanceCandidate {
             source_id: raw.id,
@@ -328,8 +379,12 @@ async fn build_preview_from_pool(
             created: raw.created,
             modified: raw.modified,
             last_played: raw.last_played,
+            total_time_played: (raw.submitted_time_played.max(0)
+                + raw.recent_time_played.max(0))
+                as u64,
             categories,
             worlds,
+            symlinks,
         });
     }
 
@@ -369,33 +424,48 @@ const CATEGORY_METADATA_CONCURRENCY: usize = 32;
 
 async fn scan_content_categories(
     instance_dir: &Path,
-) -> (Vec<ImportContentCategory>, Vec<ImportWorldCandidate>) {
+    source_roots: &[PathBuf],
+) -> (Vec<ImportContentCategory>, Vec<ImportWorldCandidate>, Vec<ImportSymlinkCandidate>) {
+    let mut categories = Vec::new();
+    let mut symlinks = Vec::new();
+
     let scans = ContentCategory::ALL
         .into_iter()
         .filter(|category| *category != ContentCategory::Saves)
         .map(|category| {
             let folder = instance_dir.join(category.folder_name());
-            async move { (category, scan_one_category(&folder).await) }
+            async move {
+                let symlink = detect_symlink(
+                    &folder,
+                    category,
+                    category.folder_name().to_string(),
+                    source_roots,
+                )
+                .await;
+                if symlink.is_some() {
+                    return (category, None, symlink);
+                }
+                (category, scan_one_category(&folder).await, None)
+            }
         });
 
-    let mut categories: Vec<ImportContentCategory> = future::join_all(scans)
-        .await
-        .into_iter()
-        .filter_map(|(category, sizing)| {
-            let (file_count, total_size) = sizing?;
-            Some(ImportContentCategory {
+    for (category, sizing, symlink) in future::join_all(scans).await {
+        if let Some(symlink) = symlink {
+            symlinks.push(symlink);
+            continue;
+        }
+        if let Some((file_count, total_size)) = sizing {
+            categories.push(ImportContentCategory {
                 category,
                 file_count,
                 total_size: Some(total_size),
                 default_selected: category.default_selected(),
-            })
-        })
-        .collect();
+            });
+        }
+    }
 
-    let worlds = scan_saves_category(
-        &instance_dir.join(ContentCategory::Saves.folder_name()),
-    )
-    .await;
+    let saves_dir = instance_dir.join(ContentCategory::Saves.folder_name());
+    let worlds = scan_saves_category(&saves_dir).await;
     if !worlds.is_empty() {
         categories.push(ImportContentCategory {
             category: ContentCategory::Saves,
@@ -404,8 +474,77 @@ async fn scan_content_categories(
             default_selected: ContentCategory::Saves.default_selected(),
         });
     }
+    for world in &worlds {
+        if let Some(symlink) = detect_symlink(
+            &saves_dir.join(&world.folder_name),
+            ContentCategory::Saves,
+            format!("saves/{}", world.folder_name),
+            source_roots,
+        )
+        .await
+        {
+            symlinks.push(symlink);
+        }
+    }
 
-    (categories, worlds)
+    (categories, worlds, symlinks)
+}
+
+/// Checks whether `path` is itself a symlink/junction resolving to a
+/// directory - the only shape this reader special-cases (see
+/// `ImportSymlinkCandidate`'s doc comment for why file-level and
+/// deeper-nested links are left alone). Returns `None` for anything else,
+/// including a broken link (nothing sensible to offer for it).
+async fn detect_symlink(
+    path: &Path,
+    category: ContentCategory,
+    relative_path: String,
+    source_roots: &[PathBuf],
+) -> Option<ImportSymlinkCandidate> {
+    let metadata = tokio::fs::symlink_metadata(path).await.ok()?;
+    if !metadata.file_type().is_symlink() {
+        return None;
+    }
+
+    let target = tokio::fs::canonicalize(path).await.ok()?;
+    if !target.is_dir() {
+        return None;
+    }
+
+    let target_outside_source_app =
+        !source_roots.iter().any(|root| path_is_within(&target, root));
+
+    Some(ImportSymlinkCandidate {
+        relative_path,
+        category,
+        target,
+        target_outside_source_app,
+    })
+}
+
+/// Component-wise, case-insensitive-on-Windows check for whether `path` lies
+/// under `root`. Both should already be canonicalized. Component-wise
+/// (rather than a naive string prefix) so `/foo/bar2` never matches root
+/// `/foo/bar`.
+fn path_is_within(path: &Path, root: &Path) -> bool {
+    let mut path_components = path.components();
+    for root_component in root.components() {
+        let Some(path_component) = path_components.next() else {
+            return false;
+        };
+        let matches = if cfg!(windows) {
+            path_component
+                .as_os_str()
+                .to_string_lossy()
+                .eq_ignore_ascii_case(&root_component.as_os_str().to_string_lossy())
+        } else {
+            path_component == root_component
+        };
+        if !matches {
+            return false;
+        }
+    }
+    true
 }
 
 /// Returns `None` for an empty or nonexistent category folder (nothing to
@@ -468,4 +607,181 @@ async fn scan_saves_category(saves_dir: &Path) -> Vec<ImportWorldCandidate> {
     }
 
     worlds
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn path_is_within_matches_a_real_prefix() {
+        assert!(path_is_within(
+            Path::new("/home/user/App/profiles/X"),
+            Path::new("/home/user/App"),
+        ));
+    }
+
+    #[test]
+    fn path_is_within_rejects_a_sibling_with_a_shared_string_prefix() {
+        // A naive string-prefix check would wrongly match "/home/user/App2"
+        // against root "/home/user/App" - component-wise comparison must not.
+        assert!(!path_is_within(
+            Path::new("/home/user/App2/profiles/X"),
+            Path::new("/home/user/App"),
+        ));
+    }
+
+    #[test]
+    fn path_is_within_rejects_an_unrelated_path() {
+        assert!(!path_is_within(
+            Path::new("/mnt/d/Worlds/MyWorld"),
+            Path::new("/home/user/App"),
+        ));
+    }
+
+    #[cfg(unix)]
+    mod unix_symlinks {
+        use super::*;
+
+        #[tokio::test]
+        async fn detect_symlink_ignores_a_real_directory() {
+            let dir = tempfile::tempdir().unwrap();
+            let real = dir.path().join("mods");
+            tokio::fs::create_dir(&real).await.unwrap();
+
+            let result = detect_symlink(
+                &real,
+                ContentCategory::Mods,
+                "mods".to_string(),
+                &[],
+            )
+            .await;
+            assert!(result.is_none());
+        }
+
+        #[tokio::test]
+        async fn detect_symlink_ignores_a_symlinked_file() {
+            let dir = tempfile::tempdir().unwrap();
+            let real_file = dir.path().join("real.txt");
+            tokio::fs::write(&real_file, "hi").await.unwrap();
+            let link = dir.path().join("linked.txt");
+            std::os::unix::fs::symlink(&real_file, &link).unwrap();
+
+            let result = detect_symlink(
+                &link,
+                ContentCategory::Config,
+                "config".to_string(),
+                &[],
+            )
+            .await;
+            assert!(result.is_none());
+        }
+
+        #[tokio::test]
+        async fn detect_symlink_ignores_a_broken_link() {
+            let dir = tempfile::tempdir().unwrap();
+            let link = dir.path().join("broken");
+            std::os::unix::fs::symlink(dir.path().join("nonexistent"), &link)
+                .unwrap();
+
+            let result = detect_symlink(
+                &link,
+                ContentCategory::Mods,
+                "mods".to_string(),
+                &[],
+            )
+            .await;
+            assert!(result.is_none());
+        }
+
+        #[tokio::test]
+        async fn detect_symlink_flags_a_target_outside_the_source_app() {
+            let source_app = tempfile::tempdir().unwrap();
+            let external = tempfile::tempdir().unwrap();
+            let real_dir = external.path().join("SharedMods");
+            tokio::fs::create_dir(&real_dir).await.unwrap();
+
+            let instance_dir = source_app.path().join("profiles/Instance");
+            tokio::fs::create_dir_all(&instance_dir).await.unwrap();
+            let link = instance_dir.join("mods");
+            std::os::unix::fs::symlink(&real_dir, &link).unwrap();
+
+            let source_roots =
+                [tokio::fs::canonicalize(source_app.path()).await.unwrap()];
+            let result = detect_symlink(
+                &link,
+                ContentCategory::Mods,
+                "mods".to_string(),
+                &source_roots,
+            )
+            .await
+            .expect("a directory symlink should be detected");
+
+            assert!(result.target_outside_source_app);
+            assert_eq!(
+                result.target,
+                tokio::fs::canonicalize(&real_dir).await.unwrap()
+            );
+        }
+
+        #[tokio::test]
+        async fn detect_symlink_flags_a_target_inside_the_source_app() {
+            let source_app = tempfile::tempdir().unwrap();
+            let shared_dir = source_app.path().join("profiles/Other/mods");
+            tokio::fs::create_dir_all(&shared_dir).await.unwrap();
+
+            let instance_dir = source_app.path().join("profiles/Instance");
+            tokio::fs::create_dir_all(&instance_dir).await.unwrap();
+            let link = instance_dir.join("mods");
+            std::os::unix::fs::symlink(&shared_dir, &link).unwrap();
+
+            let source_roots =
+                [tokio::fs::canonicalize(source_app.path()).await.unwrap()];
+            let result = detect_symlink(
+                &link,
+                ContentCategory::Mods,
+                "mods".to_string(),
+                &source_roots,
+            )
+            .await
+            .expect("a directory symlink should be detected");
+
+            assert!(!result.target_outside_source_app);
+        }
+
+        #[tokio::test]
+        async fn scan_content_categories_excludes_a_symlinked_category_from_categories()
+         {
+            let dir = tempfile::tempdir().unwrap();
+            let instance_dir = dir.path().join("Instance");
+            tokio::fs::create_dir_all(&instance_dir).await.unwrap();
+
+            // A real, normally-scanned category.
+            let config_dir = instance_dir.join("config");
+            tokio::fs::create_dir(&config_dir).await.unwrap();
+            tokio::fs::write(config_dir.join("a.txt"), "a").await.unwrap();
+
+            // A whole-category symlink.
+            let external = tempfile::tempdir().unwrap();
+            let real_mods = external.path().join("SharedMods");
+            tokio::fs::create_dir(&real_mods).await.unwrap();
+            std::os::unix::fs::symlink(&real_mods, instance_dir.join("mods"))
+                .unwrap();
+
+            let (categories, _worlds, symlinks) =
+                scan_content_categories(&instance_dir, &[]).await;
+
+            assert!(
+                categories.iter().all(|c| c.category != ContentCategory::Mods),
+                "a symlinked category must not appear in categories: {categories:?}"
+            );
+            assert!(
+                categories.iter().any(|c| c.category == ContentCategory::Config),
+                "a real category must still be scanned normally: {categories:?}"
+            );
+            assert_eq!(symlinks.len(), 1);
+            assert_eq!(symlinks[0].relative_path, "mods");
+            assert!(symlinks[0].target_outside_source_app);
+        }
+    }
 }

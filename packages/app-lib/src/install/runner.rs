@@ -18,10 +18,11 @@ use crate::event::emit::emit_instance;
 use crate::state::instances::adapters::sqlite::content_rows;
 use crate::state::instances::commands::resolve_icon_path;
 use crate::state::{
-    ContentSourceKind, InstanceIconConfig, InstanceInstallStage, InstanceLink,
-    ModLoader, State,
+    ContentSourceKind, EditInstance, InstanceIconConfig, InstanceInstallStage,
+    InstanceLink, ModLoader, State,
 };
 use crate::util::fetch::DownloadReason;
+use chrono::{TimeZone, Utc};
 use std::collections::HashSet;
 use std::path::PathBuf;
 use uuid::Uuid;
@@ -81,6 +82,8 @@ pub async fn import_modrinth_app_instance(
     icon_path: Option<PathBuf>,
     selection: crate::api::migrate_modrinth_app::execute::ImportSelection,
     delete_source_after_import: bool,
+    last_played: Option<i64>,
+    total_time_played: u64,
 ) -> crate::Result<InstallJobSnapshot> {
     start(InstallRequest::ImportModrinthApp {
         source_instance_dir,
@@ -91,6 +94,8 @@ pub async fn import_modrinth_app_instance(
         icon_path,
         selection,
         delete_source_after_import,
+        last_played,
+        total_time_played,
     })
     .await
 }
@@ -537,6 +542,8 @@ async fn prepare_initial_instance(
             loader,
             loader_version,
             icon_path,
+            last_played,
+            total_time_played,
             ..
         } => {
             // Unlike ImportInstance, we already know the real
@@ -557,6 +564,26 @@ async fn prepare_initial_instance(
                 InstanceLink::Unmanaged,
             )
             .await?;
+            // `create` always starts a fresh instance at last_played: None,
+            // 0 playtime - carry the source's values over so an imported
+            // instance doesn't look never-played. `submitted_time_played`
+            // and `recent_time_played` only differ by the source app's own
+            // reporting cadence, which means nothing here, so they're
+            // collapsed into one total on `submitted_time_played`.
+            if last_played.is_some() || total_time_played > 0 {
+                crate::api::instance::edit(
+                    &metadata.instance.id,
+                    EditInstance {
+                        last_played: Some(
+                            last_played
+                                .and_then(|secs| Utc.timestamp_opt(secs, 0).single()),
+                        ),
+                        submitted_time_played: Some(total_time_played),
+                        ..Default::default()
+                    },
+                )
+                .await?;
+            }
             set_display(
                 job_state,
                 metadata.instance.name,
@@ -918,6 +945,8 @@ async fn run_request(
             icon_path: _,
             selection,
             delete_source_after_import,
+            last_played: _,
+            total_time_played: _,
         } => {
             let Some(instance_id) = current_instance_id(job_state) else {
                 return Err(crate::ErrorKind::InputError(

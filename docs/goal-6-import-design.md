@@ -280,12 +280,119 @@ Windows) and, new this round, an actual end-to-end run of Phase 2's write path -
    deliberate decision (recreate empty dirs too, or explicitly accept the gap) rather than leaving
    it as an unnoticed side effect the next time someone touches this code.
 
+## Phase 3: frontend UI (2026-09-15)
+
+Built the full import flow in `apps/app-frontend`: a dedicated `MigrateModrinthAppModal.vue`
+(detect → "please close it" gate → per-instance/per-category/per-world selection → global
+settings/Java-path selection → confirm, with live per-job progress and cancel/cancel-all wired to
+the existing `install_job_cancel` command), a Settings-page entry, and a welcome-screen entry shown
+when an install is auto-detected. Command param/return types are hand-written TS (matching the
+pattern every other command wrapper in this codebase already uses - only backend→frontend *events*
+are ts-rs-generated here, not command types), not blocked on Phase 4's bindings pass.
+
+**Two real bugs found the moment this was actually exercised through the Tauri IPC layer for the
+first time** (everything before this was tested by calling the Rust functions directly, never
+through the GUI):
+
+1. **Missing Tauri capability grants.** This app allowlists every plugin command through
+   `apps/app/build.rs` (`InlinedPlugin::new().commands(&[...])`) plus a matching entry in
+   `apps/app/capabilities/plugins.json`. The `migrate_modrinth_app` plugin was never added to
+   either from the original Phase 1/2 work, and the new `install_import_modrinth_app_instance`
+   command was never added to the existing `install` plugin's list. Every call from the frontend
+   was being silently denied by Tauri's runtime ACL - detection and import both appeared to just
+   do nothing.
+2. **The plugin was registered under an invalid identifier.** `migrate_modrinth_app.rs` registered
+   itself as `"migrate_modrinth_app"` (underscore) - Tauri plugin identifiers only allow lowercase
+   ASCII and hyphens, the same reason `minecraft_skins.rs` registers as `"minecraft-skins"`. This
+   was wrong from the moment Phase 1 landed but nothing had referenced it as a formal identifier
+   until the capability fix above, which is what surfaced it (a JSON-parse panic in `build.rs`).
+   Renamed to `"migrate-modrinth-app"` everywhere (Rust registration, `build.rs`, capabilities,
+   frontend `invoke()` calls).
+
+Also added `$DATA/ModrinthApp/caches/icons/*` to `tauri.conf.json`'s asset-protocol scope, since
+the source app's icon cache was outside the webview's allowed scope for the preview's instance-icon
+thumbnails.
+
+**Last-played and playtime weren't being carried over - not a deliberate cut, just an incomplete
+wire-up.** `last_played` was already read from the source and present in `ImportInstanceCandidate`,
+but Phase 2's `prepare_initial_instance` never applied it to the newly created instance (which
+`instance::create` always starts at `last_played: None`). Playtime
+(`submitted_time_played`/`recent_time_played`) wasn't even in the Phase 0 read allowlist. Fixed:
+both columns are now read (`source_db::fetch_instances`), collapsed into one
+`total_time_played: u64` on the preview candidate (the source's own split between the two only
+matters for its own reporting cadence, not to Dyad), and `InstallRequest::ImportModrinthApp` now
+carries `last_played`/`total_time_played` through to a follow-up `instance::edit` call right after
+creation.
+
+## Symlink/junction handling (2026-09-16)
+
+Prompted by a user question: what happens to a symlink or Windows junction inside a category
+folder? Before this, nothing special - `get_all_subfiles`'s `is_dir()` check follows symlinks
+transparently, so a linked directory was silently walked into and its real content fully copied,
+on every platform. For a junction pointing at a large shared folder (or a world symlinked onto a
+different drive), that meant an expensive, redundant full copy instead of a lightweight link.
+
+**Scope decision:** only two shapes are detected - a whole category folder itself being a
+symlink/junction (e.g. `mods/`), or a whole top-level `saves/<world>` folder being one. A symlink
+nested deeper inside an otherwise-real folder tree, or one pointing at a single file, is left to be
+copied as real content exactly like before; handling arbitrary nesting would mean rewriting the
+whole-folder copy into a per-file model, for comparatively rare real-world cases.
+
+**Per-symlink choice, not a blanket setting:** `ImportInstanceCandidate.symlinks` (new preview
+field) lists each detected symlink with its category, resolved absolute target, and whether that
+target lies outside the official Modrinth App's own managed directories
+(`targetOutsideSourceApp`). The user picks one of three actions per symlink, always all three
+offered:
+
+- **Copy** - today's behavior, copy the real content.
+- **Recreate** - relink instead of copying, but only genuinely happens when the target is outside
+  the source app's tree; the *frontend* resolves this before sending the request (using the
+  preview's `targetOutsideSourceApp`), translating "Recreate" into "Copy" for a target that's
+  inside. This keeps `execute.rs` from ever needing to re-read the source database (its existing
+  architectural rule - see the module doc comment), matching how the rest of Phase 2 already trusts
+  preview-derived values (name, game version, loader, ...) without re-verifying them.
+- **Ignore** - skip it entirely.
+
+Default for every detected symlink: **Recreate**.
+
+**A real reconciliation gap found while tracing a concrete scenario through the design before
+implementing** (a symlinked world pointing at a different drive on Windows): worlds already have
+their own plain "include this world" checkbox, entirely separate from the new per-symlink choice.
+Without fixing this, a symlinked world's checkbox and its 3-way selector could contradict each
+other. Fixed by having the 3-way selector *replace* the checkbox for any world (or whole category)
+that's a detected symlink, rather than existing alongside it - "Ignore" is now how you exclude it.
+
+**Recreation itself:**
+- Linux/macOS: a plain Unix symlink (`std::os::unix::fs::symlink`).
+- Windows: an actual NTFS **junction**, not a Windows symlink - a junction needs no elevation or
+  Developer Mode (a real Windows symlink does), and is almost certainly what created the link being
+  imported in the first place (`mklink /J`). `std` has no junction support at all, so this pulls in
+  the small `junction` crate (Windows-only dependency) rather than hand-rolling the
+  `DeviceIoControl`/`FSCTL_SET_REPARSE_POINT` call. Verified the crate's exact `create(target,
+  junction)` signature against its docs before using it, since this branch can't be compile-checked
+  on this (Linux) machine.
+- If recreation fails for any reason (permissions, an exotic filesystem, the item turning out not
+  to actually be a directory symlink by execution time), that one item falls back to a plain copy
+  rather than failing the whole import.
+- Deleting a symlinked source folder afterward (the existing "delete from source after import"
+  option) was already safe with no changes needed: `remove_dir_all` on a path that's itself a
+  symlink/junction only removes the link entry on both platforms, never the real target content -
+  checked directly rather than assumed, since a symlinked-world scenario made it worth confirming.
+
+New tests: `mod.rs` covers `path_is_within`'s component-wise (not naive string-prefix) matching and
+`detect_symlink`'s handling of a real directory, a symlinked file, a broken link, and both
+inside/outside targets (Unix-gated, using real symlinks in temp dirs - the Windows junction path
+can only be compile-checked here). `execute.rs` covers a `Recreate` action actually creating a real
+symlink and resolving to the right target, an `Ignore`d root being excluded from the copy manifest,
+and a stale `Recreate` selection against a plain real directory falling back to a normal copy.
+
 **Not yet done:**
-- Tauri command wiring is in place (`install_import_modrinth_app_instance`,
-  `apply_modrinth_app_settings`) but there's no frontend calling them yet - that's Phase 3.
 - ts-rs/postcard bindings haven't been regenerated for the new types
   (`InstallRequest::ImportModrinthApp`, `ImportSelection`, `SettingsImportSelection`, etc.) -
-  planned for Phase 4 alongside the rest of the bindings pass.
+  planned for Phase 4 alongside the rest of the bindings pass. Not a blocker for Phase 3, since
+  command param/return types in this codebase are hand-written TS regardless.
 - The `instance_launch_overrides` JSON field question flagged back in Phase 1's "still open" list
   remains unaddressed - imported instances get Dyad's default launch overrides, nothing from the
   source's per-instance overrides is carried over yet.
+- Empty directories inside a copied category still aren't recreated (see finding 4 above) -
+  unaddressed.

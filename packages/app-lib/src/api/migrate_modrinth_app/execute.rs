@@ -11,7 +11,32 @@ use crate::install::{InstallPhaseDetails, InstallPhaseId, InstallProgress};
 use crate::state::{JavaVersion, WindowSize};
 use crate::util::fetch::{self, IoSemaphore};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
+
+/// What to do with one detected symlink/junction (see
+/// `ImportSymlinkCandidate`), as chosen by the user.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SymlinkAction {
+    /// Copy the real content the link points at - today's behavior.
+    Copy,
+    /// Recreate the link itself at the destination instead of copying.
+    /// Whether this is actually safe to pick - i.e. whether the link's
+    /// target lies outside the source app's own managed directories, see
+    /// `ImportSymlinkCandidate::target_outside_source_app` - is decided once
+    /// from the Phase 1 preview by whoever builds this selection (the
+    /// frontend), not re-checked here: this module never re-reads the
+    /// source database (see the module doc comment), and the rest of Phase
+    /// 2 already trusts preview-derived values the same way (name,
+    /// game version, loader, ...). If the link has stopped being a
+    /// recreatable directory symlink by the time this runs, or platform
+    /// link creation fails, execution falls back to a plain copy of its
+    /// real content instead of failing the import.
+    Recreate,
+    /// Don't copy or link this item at all.
+    Ignore,
+}
 
 /// What to copy for one instance, as chosen by the user from a Phase 1
 /// `ImportPreview`. Persisted as part of an install job's request (see
@@ -27,11 +52,17 @@ pub struct ImportSelection {
     /// Names of world folders under `saves/` to copy, matching
     /// `ImportWorldCandidate::folder_name` values from the preview.
     pub worlds: Vec<String>,
+    /// Per-`ImportSymlinkCandidate::relative_path` action for any detected
+    /// symlink/junction included via `categories`/`worlds` above. An entry
+    /// missing here (or a plain category/world with no matching symlink at
+    /// all) behaves as `Copy`.
+    #[serde(default)]
+    pub symlink_actions: HashMap<String, SymlinkAction>,
 }
 
 impl ImportSelection {
-    /// Every source-relative path that should be copied whole: one per
-    /// selected category folder, plus one `saves/<world>` per selected
+    /// Every source-relative path that should be copied or linked whole: one
+    /// per selected category folder, plus one `saves/<world>` per selected
     /// world. `Saves` itself is deliberately excluded from the plain
     /// category list - only specific selected worlds under it are copied.
     fn roots(&self) -> Vec<PathBuf> {
@@ -51,18 +82,50 @@ impl ImportSelection {
     }
 }
 
+/// Turns a `roots()` entry back into the same `"category"` /
+/// `"saves/<world>"` string form `ImportSymlinkCandidate::relative_path`
+/// uses, by joining path components with `/` regardless of platform (rather
+/// than relying on `Path`'s `Display`, which uses `\` on Windows).
+fn root_key(root: &Path) -> String {
+    root.components()
+        .map(|component| component.as_os_str().to_string_lossy().into_owned())
+        .collect::<Vec<_>>()
+        .join("/")
+}
+
 /// Lists every source file that a given selection resolves to, across all
-/// its selected category/world roots. Pulled out of `copy_selected_content`
-/// so this - the part with actual selection logic and Phase 1's
-/// nonexistent-folder pitfall - can be unit-tested against real temp
-/// directories without needing a running app `State`.
+/// its selected category/world roots, and - as a side effect - recreates
+/// any root whose action is `SymlinkAction::Recreate` as a real
+/// symlink/junction at the destination (falling back to including it in the
+/// returned file list, i.e. a plain copy, if it turns out not to be a
+/// recreatable directory symlink after all, or the recreation call fails
+/// for any reason). Pulled out of `copy_selected_content` so this - the
+/// part with actual selection logic and Phase 1's nonexistent-folder
+/// pitfall - can be unit-tested against real temp directories without
+/// needing a running app `State`.
 async fn resolve_copy_manifest(
     source_instance_dir: &Path,
+    dest_instance_dir: &Path,
     selection: &ImportSelection,
 ) -> Vec<PathBuf> {
     let mut files = Vec::new();
     for root in selection.roots() {
         let src_root = source_instance_dir.join(&root);
+
+        match selection.symlink_actions.get(&root_key(&root)) {
+            Some(SymlinkAction::Ignore) => continue,
+            Some(SymlinkAction::Recreate) => {
+                let dest_root = dest_instance_dir.join(&root);
+                if recreate_symlink(&src_root, &dest_root).await {
+                    continue;
+                }
+                // Not actually a safe/recreatable link (or recreation
+                // failed) - fall through and copy its real content instead,
+                // same as `SymlinkAction::Copy`/no entry at all.
+            }
+            Some(SymlinkAction::Copy) | None => {}
+        }
+
         // Mirrors the fix from Phase 1's real-install testing:
         // `get_all_subfiles` treats a nonexistent path as a single
         // (unstattable) "file" rather than "no files", so a stale
@@ -80,6 +143,62 @@ async fn resolve_copy_manifest(
         files.extend(subfiles);
     }
     files
+}
+
+/// Attempts to recreate `src_path` (expected to be a symlink/junction to a
+/// directory) as a real symlink/junction at `dest_path`, pointing at the
+/// same ultimate target. Returns `false` - meaning "the caller should copy
+/// real content instead" - if `src_path` isn't a directory symlink at all,
+/// its target can't be resolved, or platform link creation fails for any
+/// reason (permissions, an exotic filesystem, etc.); this deliberately never
+/// hard-fails the whole import over a link that can't be recreated.
+async fn recreate_symlink(src_path: &Path, dest_path: &Path) -> bool {
+    let Ok(metadata) = tokio::fs::symlink_metadata(src_path).await else {
+        return false;
+    };
+    if !metadata.file_type().is_symlink() {
+        return false;
+    }
+    let Ok(target) = tokio::fs::canonicalize(src_path).await else {
+        return false;
+    };
+    if !target.is_dir() {
+        return false;
+    }
+
+    if let Some(parent) = dest_path.parent()
+        && crate::util::io::create_dir_all(parent).await.is_err()
+    {
+        return false;
+    }
+
+    create_platform_symlink(&target, dest_path).await
+}
+
+#[cfg(unix)]
+async fn create_platform_symlink(target: &Path, dest_path: &Path) -> bool {
+    let target = target.to_path_buf();
+    let dest_path = dest_path.to_path_buf();
+    tokio::task::spawn_blocking(move || {
+        std::os::unix::fs::symlink(&target, &dest_path)
+    })
+    .await
+    .is_ok_and(|result| result.is_ok())
+}
+
+/// Windows has no directory-symlink equivalent in `std` that doesn't need
+/// elevation or Developer Mode - `std::os::windows::fs::symlink_dir` does,
+/// but an NTFS junction (what `mklink /J` creates, and almost certainly what
+/// produced the link being imported) never does. `std` has no junction
+/// support at all, hence the small `junction` crate here instead of hand
+/// -rolling the `DeviceIoControl`/`FSCTL_SET_REPARSE_POINT` call.
+#[cfg(windows)]
+async fn create_platform_symlink(target: &Path, dest_path: &Path) -> bool {
+    let target = target.to_path_buf();
+    let dest_path = dest_path.to_path_buf();
+    tokio::task::spawn_blocking(move || junction::create(&target, &dest_path))
+        .await
+        .is_ok_and(|result| result.is_ok())
 }
 
 /// Copies exactly the selected categories/worlds from `source_instance_dir`
@@ -101,7 +220,9 @@ pub async fn copy_selected_content(
 ) -> crate::Result<()> {
     let dest_instance_dir =
         crate::api::instance::get_full_path(instance_id).await?;
-    let files = resolve_copy_manifest(source_instance_dir, selection).await;
+    let files =
+        resolve_copy_manifest(source_instance_dir, &dest_instance_dir, selection)
+            .await;
 
     let total = files.len() as u64;
     if total == 0 {
@@ -290,9 +411,11 @@ mod tests {
         let selection = ImportSelection {
             categories: vec![ContentCategory::Mods, ContentCategory::Config],
             worlds: Vec::new(),
+            ..Default::default()
         };
 
-        let files = resolve_copy_manifest(dir.path(), &selection).await;
+        let dest = tempfile::tempdir().expect("failed to create temp dir");
+        let files = resolve_copy_manifest(dir.path(), dest.path(), &selection).await;
         let relative = relative_paths(dir.path(), &files);
 
         assert_eq!(
@@ -314,9 +437,11 @@ mod tests {
         let selection = ImportSelection {
             categories: vec![ContentCategory::Saves],
             worlds: vec!["World1".to_string()],
+            ..Default::default()
         };
 
-        let files = resolve_copy_manifest(dir.path(), &selection).await;
+        let dest = tempfile::tempdir().expect("failed to create temp dir");
+        let files = resolve_copy_manifest(dir.path(), dest.path(), &selection).await;
         let relative = relative_paths(dir.path(), &files);
 
         assert_eq!(
@@ -337,9 +462,11 @@ mod tests {
                 ContentCategory::ShaderPacks,
             ],
             worlds: Vec::new(),
+            ..Default::default()
         };
 
-        let files = resolve_copy_manifest(dir.path(), &selection).await;
+        let dest = tempfile::tempdir().expect("failed to create temp dir");
+        let files = resolve_copy_manifest(dir.path(), dest.path(), &selection).await;
         let relative = relative_paths(dir.path(), &files);
 
         assert_eq!(
@@ -356,6 +483,7 @@ mod tests {
         let selection = ImportSelection {
             categories: vec![ContentCategory::Mods],
             worlds: vec!["World1".to_string()],
+            ..Default::default()
         };
 
         delete_selected_source_content(dir.path(), &selection)
@@ -368,5 +496,100 @@ mod tests {
         assert!(dir.path().join("config/c.txt").exists());
         assert!(dir.path().join("resourcepacks/d.zip").exists());
         assert!(dir.path().join("saves/World2/level.dat").exists());
+    }
+
+    #[tokio::test]
+    async fn manifest_ignores_a_root_whose_symlink_action_is_ignore() {
+        let dir = fixture_instance_dir().await;
+        let dest = tempfile::tempdir().expect("failed to create temp dir");
+        let selection = ImportSelection {
+            categories: vec![ContentCategory::Mods, ContentCategory::Config],
+            worlds: Vec::new(),
+            symlink_actions: HashMap::from([(
+                "mods".to_string(),
+                SymlinkAction::Ignore,
+            )]),
+        };
+
+        let files =
+            resolve_copy_manifest(dir.path(), dest.path(), &selection).await;
+        let relative = relative_paths(dir.path(), &files);
+
+        assert_eq!(relative, HashSet::from(["config/c.txt".to_string()]));
+    }
+
+    #[cfg(unix)]
+    mod unix_symlinks {
+        use super::*;
+
+        #[tokio::test]
+        async fn recreate_creates_a_real_symlink_for_a_directory_symlink_root() {
+            let source = tempfile::tempdir().expect("failed to create temp dir");
+            let dest = tempfile::tempdir().expect("failed to create temp dir");
+            let external =
+                tempfile::tempdir().expect("failed to create temp dir");
+
+            let real_mods = external.path().join("SharedMods");
+            tokio::fs::create_dir(&real_mods).await.unwrap();
+            tokio::fs::write(real_mods.join("shared.jar"), "shared")
+                .await
+                .unwrap();
+            std::os::unix::fs::symlink(&real_mods, source.path().join("mods"))
+                .unwrap();
+
+            let selection = ImportSelection {
+                categories: vec![ContentCategory::Mods],
+                worlds: Vec::new(),
+                symlink_actions: HashMap::from([(
+                    "mods".to_string(),
+                    SymlinkAction::Recreate,
+                )]),
+            };
+
+            let files =
+                resolve_copy_manifest(source.path(), dest.path(), &selection)
+                    .await;
+
+            // Nothing should have been queued for a plain copy - the whole
+            // root was handled by recreating the link instead.
+            assert!(files.is_empty());
+
+            let dest_link = dest.path().join("mods");
+            let link_metadata =
+                tokio::fs::symlink_metadata(&dest_link).await.unwrap();
+            assert!(link_metadata.file_type().is_symlink());
+            assert_eq!(
+                tokio::fs::canonicalize(&dest_link).await.unwrap(),
+                tokio::fs::canonicalize(&real_mods).await.unwrap(),
+            );
+        }
+
+        #[tokio::test]
+        async fn recreate_falls_back_to_copy_when_the_root_is_not_a_symlink() {
+            let dir = fixture_instance_dir().await;
+            let dest = tempfile::tempdir().expect("failed to create temp dir");
+            let selection = ImportSelection {
+                categories: vec![ContentCategory::Mods],
+                worlds: Vec::new(),
+                symlink_actions: HashMap::from([(
+                    "mods".to_string(),
+                    SymlinkAction::Recreate,
+                )]),
+            };
+
+            // `mods` in the fixture is a plain real directory, not a
+            // symlink - a stale `Recreate` selection for it must fall back
+            // to copying its real content rather than silently dropping it.
+            let files =
+                resolve_copy_manifest(dir.path(), dest.path(), &selection)
+                    .await;
+            let relative = relative_paths(dir.path(), &files);
+
+            assert_eq!(
+                relative,
+                HashSet::from(["mods/a.jar".to_string(), "mods/b.jar".to_string()])
+            );
+            assert!(!dest.path().join("mods").exists());
+        }
     }
 }

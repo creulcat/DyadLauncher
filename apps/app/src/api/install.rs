@@ -131,6 +131,10 @@ pub struct InstallImportModrinthAppRequest {
     pub selection: ImportSelection,
     #[serde(default)]
     pub delete_source_after_import: bool,
+    #[serde(default)]
+    pub last_played: Option<i64>,
+    #[serde(default)]
+    pub total_time_played: u64,
 }
 
 /// Goal 6 (see `docs/goal-6-import-design.md`): imports one instance from an
@@ -149,6 +153,8 @@ pub async fn install_import_modrinth_app_instance(
         request.icon_path,
         request.selection,
         request.delete_source_after_import,
+        request.last_played,
+        request.total_time_played,
     )
     .await?)
 }

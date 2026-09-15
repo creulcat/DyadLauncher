@@ -192,6 +192,16 @@ pub enum InstallRequest {
         icon_path: Option<PathBuf>,
         selection: ImportSelection,
         delete_source_after_import: bool,
+        /// Unix timestamp of the source instance's last-played time, if any -
+        /// carried over onto the new instance so it doesn't look never-played.
+        #[serde(default)]
+        last_played: Option<i64>,
+        /// Total seconds played on the source instance (its
+        /// `submitted_time_played + recent_time_played`, collapsed into one
+        /// figure since the split only matters for the source app's own
+        /// reporting cadence, not to Dyad).
+        #[serde(default)]
+        total_time_played: u64,
     },
     DuplicateInstance {
         source_instance_id: String,

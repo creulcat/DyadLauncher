@@ -2,6 +2,7 @@
 import {
 	CoffeeIcon,
 	GaugeIcon,
+	ImportIcon,
 	LanguagesIcon,
 	ModrinthIcon,
 	PaintbrushIcon,
@@ -31,6 +32,7 @@ import FeatureFlagSettings from '@/components/ui/settings/display/FeatureFlagSet
 import LanguageSettings from '@/components/ui/settings/display/LanguageSettings.vue'
 import InstancesSyncedSettings from '@/components/ui/settings/instances/InstancesSyncedSettings.vue'
 import JavaSettings from '@/components/ui/settings/instances/JavaSettings.vue'
+import MigrateModrinthAppSettings from '@/components/ui/settings/instances/MigrateModrinthAppSettings.vue'
 import ResourceManagementSettings from '@/components/ui/settings/instances/ResourceManagementSettings.vue'
 import { useAppSettings } from '@/composables/use-app-settings.ts'
 import { get, set } from '@/helpers/settings.ts'
@@ -138,6 +140,15 @@ const tabs = [
 		category: tabCategories.instances,
 		icon: GaugeIcon,
 		content: ResourceManagementSettings,
+	},
+	{
+		name: defineMessage({
+			id: 'app.settings.tabs.migrate-modrinth-app',
+			defaultMessage: 'Import from Modrinth App',
+		}),
+		category: tabCategories.instances,
+		icon: ImportIcon,
+		content: MigrateModrinthAppSettings,
 	},
 ]
 
