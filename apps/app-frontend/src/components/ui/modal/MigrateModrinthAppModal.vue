@@ -112,6 +112,11 @@ const messages = defineMessages({
 		id: 'app.migrate-modrinth-app.worlds-label',
 		defaultMessage: 'Worlds',
 	},
+	launchOverrides: {
+		id: 'app.migrate-modrinth-app.launch-overrides',
+		defaultMessage:
+			"Also import this instance's launch overrides (JVM args, memory, hooks, Java path)",
+	},
 	settingsTitle: {
 		id: 'app.migrate-modrinth-app.settings-title',
 		defaultMessage: 'Global settings',
@@ -215,6 +220,8 @@ const categorySelections = reactive<Record<string, Partial<Record<ContentCategor
 const worldSelections = reactive<Record<string, Record<string, boolean>>>({})
 /** Keyed by `[instance.sourceId][symlink.relativePath]`. */
 const symlinkSelections = reactive<Record<string, Record<string, SymlinkAction>>>({})
+/** Whether to carry over an instance's own launch overrides - only meaningful when it has any. */
+const launchOverridesSelections = reactive<Record<string, boolean>>({})
 const settingsSelection = reactive<SettingsImportSelection>({
 	extraLaunchArgs: false,
 	customEnvVars: false,
@@ -252,6 +259,8 @@ function resetState() {
 	for (const key of Object.keys(categorySelections)) Reflect.deleteProperty(categorySelections, key)
 	for (const key of Object.keys(worldSelections)) Reflect.deleteProperty(worldSelections, key)
 	for (const key of Object.keys(symlinkSelections)) Reflect.deleteProperty(symlinkSelections, key)
+	for (const key of Object.keys(launchOverridesSelections))
+		Reflect.deleteProperty(launchOverridesSelections, key)
 	for (const key of Object.keys(activeJobs)) Reflect.deleteProperty(activeJobs, key)
 	settingsSelection.extraLaunchArgs = false
 	settingsSelection.customEnvVars = false
@@ -329,6 +338,8 @@ function initSelections(result: ImportPreview) {
 			symlinks[symlink.relativePath] = 'recreate'
 		}
 		symlinkSelections[instance.sourceId] = symlinks
+
+		launchOverridesSelections[instance.sourceId] = instance.launchOverrides != null
 	}
 
 	settingsSelection.extraLaunchArgs = !!result.settings.extraLaunchArgs
@@ -496,6 +507,9 @@ async function confirmImport() {
 				deleteSourceAfterImport: false,
 				lastPlayed: instance.lastPlayed,
 				totalTimePlayed: instance.totalTimePlayed,
+				launchOverrides: launchOverridesSelections[instance.sourceId]
+					? instance.launchOverrides
+					: null,
 			})
 			activeJobs[snapshot.job_id] = { instanceName: instance.name, snapshot }
 		} catch (error) {
@@ -657,6 +671,11 @@ async function confirmImport() {
 						</div>
 						<Collapsible :collapsed="!expandedInstances[instance.sourceId]">
 							<div class="flex flex-col gap-2 p-3">
+								<Checkbox
+									v-if="instance.launchOverrides"
+									v-model="launchOverridesSelections[instance.sourceId]"
+									:label="formatMessage(messages.launchOverrides)"
+								/>
 								<div
 									v-for="category in instance.categories"
 									:key="category.category"

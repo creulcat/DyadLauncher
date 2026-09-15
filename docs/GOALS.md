@@ -286,10 +286,16 @@ it. Goal 6 is implemented end-to-end as of 2026-09-15 — Phase 0 (design), Phas
 detection/preview), Phase 2 (actual instance creation and content copying), and Phase 3 (frontend
 UI) are all done and validated against a real official Modrinth App install on two machines
 (Windows and Linux); see [goal-6-import-design.md](goal-6-import-design.md) for the full writeup.
-Phase 4 (ts-rs/postcard bindings, further tests, docs) has not been started, but isn't a blocker —
-command param/return types in this codebase are hand-written TS regardless of that pass. Remaining
-known gaps: per-instance launch overrides aren't carried over, and empty directories inside a
-copied content category aren't recreated.
+Phase 4 (ts-rs/postcard bindings) turned out to already be complete on inspection — this codebase's
+binding generation only ever covers backend→frontend event types, never command types, so goal 6's
+types were never going to be in it; the one bound type it does touch (`InstallJobKind`) already
+picked up its new variant automatically. Symlink/junction handling was added on 2026-09-16 (detects
+a whole symlinked category or world folder, offers copy/recreate/ignore per one, recreates as a
+real NTFS junction on Windows). The two remaining known gaps as of 2026-09-15 — per-instance launch
+overrides not carried over, and empty directories inside a copied category not recreated — were
+both fixed on 2026-09-16; see [goal-6-import-design.md](goal-6-import-design.md) for the full
+writeup. No known gaps remain for goal 6 beyond real-world Windows validation (the junction-creation
+path and the Phase 3 UI have only run on Linux so far).
 
 This document should be updated as scope changes — treat it as the source of truth for what this fork
 is trying to do, ahead of any individual issue or PR.

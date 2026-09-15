@@ -265,6 +265,47 @@ pub struct ImportInstanceCandidate {
     /// Whole category folders or world folders that are themselves a
     /// symlink/junction - see `ImportSymlinkCandidate`.
     pub symlinks: Vec<ImportSymlinkCandidate>,
+    /// This instance's own launch overrides (JVM args, memory, hooks, a
+    /// specific Java path, ...) read from the source, if any were set and
+    /// the JSON could be read. `None` if the source has no row for this
+    /// instance at all, or nothing in it parsed to anything meaningful.
+    pub launch_overrides: Option<ImportLaunchOverridesCandidate>,
+}
+
+/// A source instance's own `instance_launch_overrides` row, read
+/// defensively field-by-field from its JSON blob rather than deserialized
+/// directly into a fixed shape - see the compatibility strategy in
+/// docs/goal-6-import-design.md. Every field independently optional, same
+/// shape as `ImportSettingsCandidate` plus a specific Java path (global
+/// settings import instead offers a *list* of detected installs to pick
+/// from - see `ImportJavaVersionCandidate` - since a per-instance override
+/// names exactly one).
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ImportLaunchOverridesCandidate {
+    pub java_path: Option<String>,
+    pub extra_launch_args: Option<Vec<String>>,
+    pub custom_env_vars: Option<Vec<(String, String)>>,
+    pub memory_maximum_mb: Option<u32>,
+    pub force_fullscreen: Option<bool>,
+    pub game_resolution: Option<(u16, u16)>,
+    pub hook_pre_launch: Option<String>,
+    pub hook_wrapper: Option<String>,
+    pub hook_post_exit: Option<String>,
+}
+
+impl ImportLaunchOverridesCandidate {
+    fn is_empty(&self) -> bool {
+        self.java_path.is_none()
+            && self.extra_launch_args.is_none()
+            && self.custom_env_vars.is_none()
+            && self.memory_maximum_mb.is_none()
+            && self.force_fullscreen.is_none()
+            && self.game_resolution.is_none()
+            && self.hook_pre_launch.is_none()
+            && self.hook_wrapper.is_none()
+            && self.hook_post_exit.is_none()
+    }
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -364,6 +405,10 @@ async fn build_preview_from_pool(
 
         let (categories, worlds, symlinks) =
             scan_content_categories(&instance_dir, &source_roots).await;
+        let launch_overrides =
+            source_db::fetch_launch_overrides(pool, &raw.id)
+                .await
+                .filter(|overrides| !overrides.is_empty());
 
         instances.push(ImportInstanceCandidate {
             source_id: raw.id,
@@ -385,6 +430,7 @@ async fn build_preview_from_pool(
             categories,
             worlds,
             symlinks,
+            launch_overrides,
         });
     }
 

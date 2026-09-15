@@ -5,10 +5,13 @@
 //! this module never touches the source SQLite database again.
 
 use super::{
-    ContentCategory, ImportJavaVersionCandidate, ImportSettingsCandidate,
+    ContentCategory, ImportJavaVersionCandidate, ImportLaunchOverridesCandidate,
+    ImportSettingsCandidate,
 };
 use crate::install::{InstallPhaseDetails, InstallPhaseId, InstallProgress};
-use crate::state::{JavaVersion, WindowSize};
+use crate::state::{
+    Hooks, InstanceLaunchOverridesPatch, JavaVersion, MemorySettings, WindowSize,
+};
 use crate::util::fetch::{self, IoSemaphore};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -135,8 +138,13 @@ async fn resolve_copy_manifest(
             continue;
         }
 
+        // `include_empty_dirs: true` so an empty directory (e.g. a mod's
+        // `worldedit/` or `craftingtweaks/grids/` folder it hasn't written
+        // into yet) is copied as a directory instead of silently vanishing -
+        // `copy_selected_content`'s loop below creates a bare directory for
+        // any entry that turns out to already be one rather than a file.
         let Ok(subfiles) =
-            crate::api::pack::import::get_all_subfiles(&src_root, false).await
+            crate::api::pack::import::get_all_subfiles(&src_root, true).await
         else {
             continue;
         };
@@ -234,7 +242,14 @@ pub async fn copy_selected_content(
             continue;
         };
         let dst_file = dest_instance_dir.join(relative);
-        fetch::copy(&src_file, &dst_file, io_semaphore).await?;
+        // `get_all_subfiles(.., true)` includes empty directories alongside
+        // real files (see the call site above) - recreate those as bare
+        // directories instead of trying to copy them as file content.
+        if src_file.is_dir() {
+            crate::util::io::create_dir_all(&dst_file).await?;
+        } else {
+            fetch::copy(&src_file, &dst_file, io_semaphore).await?;
+        }
 
         reporter
             .update(
@@ -359,6 +374,40 @@ pub async fn apply_settings(
     }
 
     Ok(())
+}
+
+/// Turns a source instance's launch-overrides candidate into a Dyad
+/// `InstanceLaunchOverridesPatch` that only touches fields the source
+/// actually had set - anything not present in `candidate` is left as
+/// whatever a freshly created instance already has (Dyad's own defaults),
+/// same "only touch what we found" spirit as `apply_settings` above.
+/// `visible_tabs`/`allow_concurrent_launches` are Dyad-specific and have no
+/// source equivalent, so they're never touched here.
+pub fn launch_overrides_patch(
+    candidate: &ImportLaunchOverridesCandidate,
+) -> InstanceLaunchOverridesPatch {
+    InstanceLaunchOverridesPatch {
+        java_path: candidate.java_path.clone().map(Some),
+        extra_launch_args: candidate.extra_launch_args.clone().map(Some),
+        custom_env_vars: candidate.custom_env_vars.clone().map(Some),
+        memory: candidate
+            .memory_maximum_mb
+            .map(|maximum| Some(MemorySettings { maximum })),
+        force_fullscreen: candidate.force_fullscreen.map(Some),
+        game_resolution: candidate
+            .game_resolution
+            .map(|(x, y)| Some(WindowSize(x, y))),
+        hooks: (candidate.hook_pre_launch.is_some()
+            || candidate.hook_wrapper.is_some()
+            || candidate.hook_post_exit.is_some())
+        .then(|| Hooks {
+            pre_launch: candidate.hook_pre_launch.clone(),
+            wrapper: candidate.hook_wrapper.clone(),
+            post_exit: candidate.hook_post_exit.clone(),
+        }),
+        visible_tabs: None,
+        allow_concurrent_launches: None,
+    }
 }
 
 #[cfg(test)]
@@ -516,6 +565,84 @@ mod tests {
         let relative = relative_paths(dir.path(), &files);
 
         assert_eq!(relative, HashSet::from(["config/c.txt".to_string()]));
+    }
+
+    #[tokio::test]
+    async fn manifest_includes_an_empty_directory_inside_a_selected_category() {
+        let dir = fixture_instance_dir().await;
+        // Mirrors mods that ship an empty cache/data folder they haven't
+        // written into yet (e.g. WorldEdit's `worldedit/`,
+        // CraftingTweaks' `craftingtweaks/grids/`) - these were silently
+        // dropped before, since only real files were ever collected.
+        tokio::fs::create_dir_all(dir.path().join("config/empty_plugin_dir"))
+            .await
+            .unwrap();
+
+        let dest = tempfile::tempdir().expect("failed to create temp dir");
+        let selection = ImportSelection {
+            categories: vec![ContentCategory::Config],
+            worlds: Vec::new(),
+            ..Default::default()
+        };
+
+        let files =
+            resolve_copy_manifest(dir.path(), dest.path(), &selection).await;
+        let relative = relative_paths(dir.path(), &files);
+
+        assert_eq!(
+            relative,
+            HashSet::from([
+                "config/c.txt".to_string(),
+                "config/empty_plugin_dir".to_string(),
+            ])
+        );
+    }
+
+    #[test]
+    fn launch_overrides_patch_only_sets_fields_present_in_the_candidate() {
+        let candidate = ImportLaunchOverridesCandidate {
+            java_path: Some("/usr/bin/java".to_string()),
+            extra_launch_args: Some(vec!["-Xmx4G".to_string()]),
+            memory_maximum_mb: Some(4096),
+            // Everything else left at its `Default` (`None`) - a stand-in
+            // for a source that only had some fields set.
+            ..Default::default()
+        };
+
+        let patch = launch_overrides_patch(&candidate);
+
+        assert_eq!(patch.java_path, Some(Some("/usr/bin/java".to_string())));
+        assert_eq!(
+            patch.extra_launch_args,
+            Some(Some(vec!["-Xmx4G".to_string()]))
+        );
+        assert_eq!(
+            patch.memory.flatten().map(|memory| memory.maximum),
+            Some(4096)
+        );
+        // Untouched fields must stay `None` ("don't touch this on edit"),
+        // never `Some(None)` ("clear it").
+        assert_eq!(patch.custom_env_vars, None);
+        assert_eq!(patch.force_fullscreen, None);
+        assert!(patch.game_resolution.is_none());
+        assert!(patch.hooks.is_none());
+        assert!(patch.visible_tabs.is_none());
+        assert!(patch.allow_concurrent_launches.is_none());
+    }
+
+    #[test]
+    fn launch_overrides_patch_builds_hooks_only_if_any_hook_is_set() {
+        let candidate = ImportLaunchOverridesCandidate {
+            hook_wrapper: Some("echo wrapped".to_string()),
+            ..Default::default()
+        };
+
+        let patch = launch_overrides_patch(&candidate);
+
+        let hooks = patch.hooks.expect("a set hook should produce Some(Hooks)");
+        assert_eq!(hooks.pre_launch, None);
+        assert_eq!(hooks.wrapper.as_deref(), Some("echo wrapped"));
+        assert_eq!(hooks.post_exit, None);
     }
 
     #[cfg(unix)]

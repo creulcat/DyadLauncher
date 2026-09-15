@@ -84,6 +84,9 @@ pub async fn import_modrinth_app_instance(
     delete_source_after_import: bool,
     last_played: Option<i64>,
     total_time_played: u64,
+    launch_overrides: Option<
+        crate::api::migrate_modrinth_app::ImportLaunchOverridesCandidate,
+    >,
 ) -> crate::Result<InstallJobSnapshot> {
     start(InstallRequest::ImportModrinthApp {
         source_instance_dir,
@@ -96,6 +99,7 @@ pub async fn import_modrinth_app_instance(
         delete_source_after_import,
         last_played,
         total_time_played,
+        launch_overrides,
     })
     .await
 }
@@ -544,6 +548,7 @@ async fn prepare_initial_instance(
             icon_path,
             last_played,
             total_time_played,
+            launch_overrides,
             ..
         } => {
             // Unlike ImportInstance, we already know the real
@@ -570,7 +575,8 @@ async fn prepare_initial_instance(
             // and `recent_time_played` only differ by the source app's own
             // reporting cadence, which means nothing here, so they're
             // collapsed into one total on `submitted_time_played`.
-            if last_played.is_some() || total_time_played > 0 {
+            if last_played.is_some() || total_time_played > 0 || launch_overrides.is_some()
+            {
                 crate::api::instance::edit(
                     &metadata.instance.id,
                     EditInstance {
@@ -579,6 +585,9 @@ async fn prepare_initial_instance(
                                 .and_then(|secs| Utc.timestamp_opt(secs, 0).single()),
                         ),
                         submitted_time_played: Some(total_time_played),
+                        launch_overrides: launch_overrides
+                            .as_ref()
+                            .map(crate::api::migrate_modrinth_app::execute::launch_overrides_patch),
                         ..Default::default()
                     },
                 )
@@ -947,6 +956,7 @@ async fn run_request(
             delete_source_after_import,
             last_played: _,
             total_time_played: _,
+            launch_overrides: _,
         } => {
             let Some(instance_id) = current_instance_id(job_state) else {
                 return Err(crate::ErrorKind::InputError(

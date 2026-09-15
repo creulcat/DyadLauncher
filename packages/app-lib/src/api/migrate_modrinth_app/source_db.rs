@@ -294,6 +294,87 @@ pub(super) async fn fetch_settings_candidate(
     Ok((candidate, notes))
 }
 
+/// Reads one instance's `instance_launch_overrides.overrides` JSON blob and
+/// extracts fields from it defensively, one key at a time, rather than
+/// deserializing directly into a fixed shape - see the compatibility
+/// strategy in docs/goal-6-import-design.md. Returns `None` for anything
+/// that stops this from producing a candidate at all: no matching row (a
+/// completely normal state - most instances have no overrides), a missing
+/// `instance_launch_overrides` table (an old source schema), or JSON that
+/// doesn't even parse as an object. A row that parses fine but so happens to
+/// have zero fields set still comes back as `Some` with every field `None` -
+/// callers filter that down to "nothing to offer" themselves.
+pub(super) async fn fetch_launch_overrides(
+    pool: &Pool<Sqlite>,
+    instance_id: &str,
+) -> Option<super::ImportLaunchOverridesCandidate> {
+    let row = sqlx::query(
+        "SELECT json(overrides) AS overrides FROM instance_launch_overrides WHERE instance_id = ?1",
+    )
+    .bind(instance_id)
+    .fetch_optional(pool)
+    .await
+    .ok()??;
+
+    let raw: String = row.try_get("overrides").ok()?;
+    let value: serde_json::Value = serde_json::from_str(&raw).ok()?;
+    let object = value.as_object()?;
+
+    let get_str = |key: &str| {
+        object.get(key).and_then(|v| v.as_str()).map(str::to_string)
+    };
+    let hooks = object.get("hooks").and_then(|v| v.as_object());
+    let get_hook = |key: &str| {
+        hooks
+            .and_then(|hooks| hooks.get(key))
+            .and_then(|v| v.as_str())
+            .filter(|s| !s.is_empty())
+            .map(str::to_string)
+    };
+
+    Some(super::ImportLaunchOverridesCandidate {
+        java_path: get_str("java_path"),
+        extra_launch_args: object.get("extra_launch_args").and_then(|v| {
+            v.as_array().map(|arr| {
+                arr.iter()
+                    .filter_map(|item| item.as_str().map(str::to_string))
+                    .collect()
+            })
+        }),
+        custom_env_vars: object.get("custom_env_vars").and_then(|v| {
+            v.as_array().map(|arr| {
+                arr.iter()
+                    .filter_map(|pair| {
+                        let pair = pair.as_array()?;
+                        Some((
+                            pair.first()?.as_str()?.to_string(),
+                            pair.get(1)?.as_str()?.to_string(),
+                        ))
+                    })
+                    .collect()
+            })
+        }),
+        memory_maximum_mb: object
+            .get("memory")
+            .and_then(|v| v.as_object())
+            .and_then(|memory| memory.get("maximum"))
+            .and_then(|v| v.as_u64())
+            .map(|v| v as u32),
+        force_fullscreen: object
+            .get("force_fullscreen")
+            .and_then(|v| v.as_bool()),
+        game_resolution: object.get("game_resolution").and_then(|v| {
+            let array = v.as_array()?;
+            let x = array.first()?.as_u64()? as u16;
+            let y = array.get(1)?.as_u64()? as u16;
+            Some((x, y))
+        }),
+        hook_pre_launch: get_hook("pre_launch"),
+        hook_wrapper: get_hook("wrapper"),
+        hook_post_exit: get_hook("post_exit"),
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -373,6 +454,19 @@ mod tests {
                 custom_dir TEXT
             );
             INSERT INTO settings DEFAULT VALUES;
+            ",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        sqlx::query(
+            "
+            CREATE TABLE instance_launch_overrides (
+                instance_id TEXT NOT NULL,
+                overrides JSONB NOT NULL,
+                PRIMARY KEY (instance_id)
+            );
             ",
         )
         .execute(&pool)
@@ -518,5 +612,65 @@ mod tests {
         assert_eq!(b.last_played, None);
         assert_eq!(b.submitted_time_played, 0);
         assert_eq!(b.recent_time_played, 0);
+    }
+
+    #[tokio::test]
+    async fn fetch_launch_overrides_reads_every_field() {
+        let pool = fixture_db(
+            r#"
+            INSERT INTO instance_launch_overrides (instance_id, overrides) VALUES (
+                'a',
+                '{
+                    "java_path": "/usr/lib/jvm/java-21/bin/java",
+                    "extra_launch_args": ["-Xmx4G", "-XX:+UseG1GC"],
+                    "custom_env_vars": [["FOO", "bar"]],
+                    "memory": {"maximum": 4096},
+                    "force_fullscreen": true,
+                    "game_resolution": [1920, 1080],
+                    "hooks": {"pre_launch": "echo hi", "wrapper": "", "post_exit": null},
+                    "visible_tabs": {},
+                    "allow_concurrent_launches": false
+                }'
+            );
+            "#,
+        )
+        .await;
+
+        let overrides = fetch_launch_overrides(&pool, "a")
+            .await
+            .expect("a row with content should produce a candidate");
+
+        assert_eq!(
+            overrides.java_path.as_deref(),
+            Some("/usr/lib/jvm/java-21/bin/java")
+        );
+        assert_eq!(
+            overrides.extra_launch_args,
+            Some(vec!["-Xmx4G".to_string(), "-XX:+UseG1GC".to_string()])
+        );
+        assert_eq!(
+            overrides.custom_env_vars,
+            Some(vec![("FOO".to_string(), "bar".to_string())])
+        );
+        assert_eq!(overrides.memory_maximum_mb, Some(4096));
+        assert_eq!(overrides.force_fullscreen, Some(true));
+        assert_eq!(overrides.game_resolution, Some((1920, 1080)));
+        assert_eq!(overrides.hook_pre_launch.as_deref(), Some("echo hi"));
+        // Empty string and JSON null should both come back as `None`.
+        assert_eq!(overrides.hook_wrapper, None);
+        assert_eq!(overrides.hook_post_exit, None);
+    }
+
+    #[tokio::test]
+    async fn fetch_launch_overrides_returns_none_for_no_matching_row() {
+        let pool = fixture_db("").await;
+        assert!(fetch_launch_overrides(&pool, "nonexistent").await.is_none());
+    }
+
+    #[tokio::test]
+    async fn fetch_launch_overrides_returns_none_for_a_missing_table() {
+        let pool =
+            fixture_db("DROP TABLE instance_launch_overrides;").await;
+        assert!(fetch_launch_overrides(&pool, "a").await.is_none());
     }
 }

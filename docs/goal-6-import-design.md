@@ -386,13 +386,38 @@ can only be compile-checked here). `execute.rs` covers a `Recreate` action actua
 symlink and resolving to the right target, an `Ignore`d root being excluded from the copy manifest,
 and a stale `Recreate` selection against a plain real directory falling back to a normal copy.
 
-**Not yet done:**
-- ts-rs/postcard bindings haven't been regenerated for the new types
-  (`InstallRequest::ImportModrinthApp`, `ImportSelection`, `SettingsImportSelection`, etc.) -
-  planned for Phase 4 alongside the rest of the bindings pass. Not a blocker for Phase 3, since
-  command param/return types in this codebase are hand-written TS regardless.
-- The `instance_launch_overrides` JSON field question flagged back in Phase 1's "still open" list
-  remains unaddressed - imported instances get Dyad's default launch overrides, nothing from the
-  source's per-instance overrides is carried over yet.
-- Empty directories inside a copied category still aren't recreated (see finding 4 above) -
-  unaddressed.
+## Three follow-ups closed out (2026-09-16)
+
+**Empty directories.** `resolve_copy_manifest` now calls `get_all_subfiles(&src_root, true)`
+instead of `false` - the shared helper already supported listing empty directories, this module
+just wasn't asking for it. `copy_selected_content`'s loop now branches on `src_file.is_dir()` and
+recreates a bare directory instead of trying to copy it as file content. New regression test:
+`manifest_includes_an_empty_directory_inside_a_selected_category`.
+
+**Per-instance launch overrides.** The `instance_launch_overrides` question flagged back in Phase
+1 is resolved: `source_db::fetch_launch_overrides` reads the per-instance `overrides` JSON blob
+(via SQLite's `json()` function, matching how Dyad's own `get_instance_launch_overrides` reads it)
+and extracts fields defensively one key at a time - not deserialized directly into a fixed shape,
+consistent with this feature's compatibility strategy throughout. Surfaced as
+`ImportInstanceCandidate.launch_overrides: Option<ImportLaunchOverridesCandidate>` (`None` when
+there's no row, the table doesn't exist, or nothing on it parsed to anything meaningful), and
+offered as a per-instance opt-in checkbox in the UI, defaulting to on when there's something to
+carry over. `execute::launch_overrides_patch` turns a candidate into Dyad's own
+`InstanceLaunchOverridesPatch` (only touching fields the source actually had set), applied via the
+same `instance::edit` call that already carries over `last_played`/playtime after instance
+creation. Same known limitation as the existing global Java-path import: an imported `java_path`
+points at the source app's own managed JRE, not a copy.
+
+**Phase 4 (ts-rs/postcard bindings) - turned out to already be complete.** Checked rather than
+assumed: this codebase's binding generation (`generate_bindings!` in
+`packages/app-lib/src/event/mod.rs`) only ever covers `AppEvent`-tagged types pushed from backend
+to frontend - it has never included command parameter/return types, which are hand-written TS
+throughout this codebase (see the goal-6 frontend helper's own doc comment). None of goal 6's types
+(`ImportSelection`, `ImportPreview`, `SymlinkAction`, `ImportLaunchOverridesCandidate`, etc.) were
+ever meant to be in that list. The one type goal 6 actually touches that *is* on that list,
+`InstallJobKind`, already picked up its `import_modrinth_app` variant automatically the first time
+the real app ran this session (Rust's `ts-rs`/`postcard-bindgen` regenerate the frontend's
+`generated/app-events/` files as a side effect of running with `--features export-app-events`, not
+a separate manual step). Verified by running the built binary directly just now and diffing
+`apps/app-frontend/src/generated/` afterward: no changes, confirming everything relevant is already
+committed. Nothing left to do here.

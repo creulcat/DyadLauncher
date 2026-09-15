@@ -1,3 +1,4 @@
+use crate::api::migrate_modrinth_app::ImportLaunchOverridesCandidate;
 use crate::api::migrate_modrinth_app::execute::ImportSelection;
 use crate::api::pack::import::ImportLauncherType;
 use crate::api::pack::install_from::{CreatePackInstance, CreatePackLocation};
@@ -202,6 +203,12 @@ pub enum InstallRequest {
         /// reporting cadence, not to Dyad).
         #[serde(default)]
         total_time_played: u64,
+        /// This instance's own launch overrides (JVM args, memory, hooks, a
+        /// specific Java path), if the user opted to carry them over from
+        /// the source - `None` either because the source had none or the
+        /// user chose not to import them.
+        #[serde(default)]
+        launch_overrides: Option<ImportLaunchOverridesCandidate>,
     },
     DuplicateInstance {
         source_instance_id: String,

@@ -91,6 +91,29 @@ export interface ImportInstanceCandidate {
 	 */
 	worlds: ImportWorldCandidate[]
 	symlinks: ImportSymlinkCandidate[]
+	/**
+	 * This instance's own launch overrides (JVM args, memory, hooks, a
+	 * specific Java path), if any were set on the source and could be read.
+	 */
+	launchOverrides: ImportLaunchOverridesCandidate | null
+}
+
+/**
+ * Same shape as `ImportSettingsCandidate` plus a specific Java path - global
+ * settings import instead offers a *list* of detected installs to pick from
+ * (`ImportJavaVersionCandidate`), since a per-instance override names
+ * exactly one.
+ */
+export interface ImportLaunchOverridesCandidate {
+	javaPath: string | null
+	extraLaunchArgs: string[] | null
+	customEnvVars: [string, string][] | null
+	memoryMaximumMb: number | null
+	forceFullscreen: boolean | null
+	gameResolution: [number, number] | null
+	hookPreLaunch: string | null
+	hookWrapper: string | null
+	hookPostExit: string | null
 }
 
 export interface ImportSettingsCandidate {
@@ -155,6 +178,7 @@ export interface InstallImportModrinthAppRequest {
 	deleteSourceAfterImport: boolean
 	lastPlayed: number | null
 	totalTimePlayed: number
+	launchOverrides: ImportLaunchOverridesCandidate | null
 }
 
 /** Looks for an official Modrinth App install at `sourceDir`, or the platform default if omitted. */

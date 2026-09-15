@@ -6,6 +6,7 @@ use theseus::data::ModLoader;
 use theseus::install::{
     InstallJobSnapshot, InstallModpackPreview, InstallPostInstallEdit,
 };
+use theseus::migrate_modrinth_app::ImportLaunchOverridesCandidate;
 use theseus::migrate_modrinth_app::execute::ImportSelection;
 use theseus::pack::import::ImportLauncherType;
 use theseus::pack::install_from::CreatePackLocation;
@@ -135,6 +136,8 @@ pub struct InstallImportModrinthAppRequest {
     pub last_played: Option<i64>,
     #[serde(default)]
     pub total_time_played: u64,
+    #[serde(default)]
+    pub launch_overrides: Option<ImportLaunchOverridesCandidate>,
 }
 
 /// Goal 6 (see `docs/goal-6-import-design.md`): imports one instance from an
@@ -155,6 +158,7 @@ pub async fn install_import_modrinth_app_instance(
         request.delete_source_after_import,
         request.last_played,
         request.total_time_played,
+        request.launch_overrides,
     )
     .await?)
 }
