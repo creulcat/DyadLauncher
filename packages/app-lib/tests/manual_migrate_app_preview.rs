@@ -4,7 +4,7 @@
 //! it depends on machine-local state (a real install) that CI and other
 //! machines won't have. Run with:
 //!
-//!   cargo test -p theseus --test manual_modrinth_app_preview -- --ignored --nocapture
+//!   cargo test -p theseus --test manual_migrate_app_preview -- --ignored --nocapture
 
 #[tokio::test]
 #[ignore]

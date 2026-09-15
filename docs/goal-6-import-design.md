@@ -226,6 +226,60 @@ selection only removes what was selected and leaves everything else untouched. A
 `migrate_modrinth_app` tests (5 from Phase 1, 4 new) and the crate's full 33-test suite pass;
 `clippy --all-targets` is clean on both `theseus` and `theseus_gui`.
 
+## Real-install validation, round 2: Linux + first real Phase 2 E2E run (2026-09-15)
+
+Ran the same kind of real-install validation as above, but on a second machine (Linux, not
+Windows) and, new this round, an actual end-to-end run of Phase 2's write path - not just Phase
+1's read-only preview. Four findings:
+
+1. **`is_source_running`'s process-name substring match can self-detect the test binary.** Linux
+   truncates process `comm` names to 15 characters
+   ([`TASK_COMM_LEN`](https://man7.org/linux/man-pages/man5/proc_pid_comm.5.html)). The original
+   manual test binary, `manual_modrinth_app_preview`, truncates to exactly `manual_modrinth` -
+   which itself contains "modrinth", so `is_source_running()` reported `true` (blocking the
+   preview branch) even with the real app fully closed. Confirmed by temporarily dumping matching
+   `sysinfo` processes: the only match was the test's own PID, `exe` pointing at
+   `target/debug/deps/manual_modrinth_app_preview-...`. Not a production bug - the shipped app
+   isn't named anything containing "modrinth" - but it made this exact test unable to validate its
+   own "app is closed" branch. Fixed by renaming the test to
+   `tests/manual_migrate_app_preview.rs` (truncated name no longer contains "modrinth"). Worth
+   remembering if any *other* dev-only binary/script here ever ends up with "modrinth" in its first
+   15 characters.
+2. **A real install can be running an old, pre-refactor schema - confirmed live, not just
+   theorized.** This machine's real official Modrinth App install (last updated some months prior)
+   was still on migration `20260323185654`, well before the `instances`/`instance_content_sets`
+   split - it had the old flat `profiles` table (with `override_*` columns inline) and still had
+   `modrinth_users`. `build_preview` failed exactly as designed: a specific, named error
+   (`"...missing the expected instances table...may be too old or too new a version to
+   import from."`) rather than a crash or silently-wrong data. This is a real validation of the
+   Phase 0 compatibility strategy, and a reminder that "too old a source version" isn't a lab
+   hypothetical - real users sitting on months-old official-app installs is a plausible support
+   case, not just "too new" schema drift. No import support was added for this older shape; the
+   clean failure is the intended behavior for now. After updating the real install to current
+   (`20260911120000`, matching upstream `main` exactly), the full preview succeeded: 1 instance
+   (`CreulCat`, Fabric 26.2), correctly showing only the categories that actually had files (Mods:
+   34, Config: 46, Logs: 4) and correctly omitting Resourcepacks/Shaderpacks/Saves/Screenshots,
+   whose folders exist on disk but are empty - confirming empty-category omission isn't a bug.
+3. **First real end-to-end Phase 2 run (not just the `resolve_copy_manifest` unit tests).** Added
+   `tests/manual_migrate_app_import.rs` (same `#[ignore]`d pattern, a dedicated
+   `DyadLauncherManualTest` app identifier so it never touches a real Dyad data directory) that
+   calls `install::import_modrinth_app_instance` for real against the validated install above,
+   selecting Mods + Config, and polls the job to completion. Result: succeeded in ~55s including a
+   real ~600MB Minecraft 26.2 + Fabric 0.19.3 + JRE download, 34/34 mod files and 46/46 config
+   files copied byte-for-byte identical to the source, the new instance registered correctly
+   (name/loader/game version all correct), and the source instance directory confirmed untouched
+   afterward (`delete_source_after_import: false`). This is the first time Phase 2's actual write
+   path - not just its pure-function unit tests - has run against a real source install.
+4. **Minor: empty directories inside a copied category aren't recreated.** Diffing source vs.
+   copied `config/` folder-by-folder (after confirming all 46 files matched) found 9 empty
+   directories present in the source (`worldedit/`, `craftingtweaks/grids/`,
+   `viafabricplus/jars/`, etc. - leftover empty folders some mods create) that don't exist in the
+   copy. Every actual file copied correctly; only zero-file directories were dropped, presumably
+   because the copy walks/copies files rather than mirroring the directory tree itself. Low
+   impact - mods that use these folders generally recreate them on first run - but worth a
+   deliberate decision (recreate empty dirs too, or explicitly accept the gap) rather than leaving
+   it as an unnoticed side effect the next time someone touches this code.
+
 **Not yet done:**
 - Tauri command wiring is in place (`install_import_modrinth_app_instance`,
   `apply_modrinth_app_settings`) but there's no frontend calling them yet - that's Phase 3.
