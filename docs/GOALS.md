@@ -265,8 +265,20 @@ was also invalid, since Tauri disallows underscores). Also fixed `last_played`/p
 carried over to imported instances - previously read but never applied (`last_played`), or not read
 at all (playtime). See [goal-6-import-design.md](goal-6-import-design.md) for the full writeup.
 
-Phase 4 (ts-rs/postcard bindings, further tests, docs) is not started - not a blocker, since
-command param/return types in this codebase are hand-written TS regardless of that pass.
+Phase 4 (ts-rs/postcard bindings, further tests, docs) turned out to already be complete on
+inspection as of 2026-09-16 - this codebase's binding generation only ever covers backend→frontend
+event types, never command types, so none of goal 6's types were ever going to need it; the one
+bound type goal 6 does touch (`InstallJobKind`) already picked up its new variant automatically the
+first time the app ran.
+
+**Follow-ups — done as of 2026-09-16:** symlink/junction handling (a whole symlinked category or
+world folder is detected and offered as copy/recreate/ignore per item, defaulting to recreate;
+Windows recreates a real NTFS junction rather than a Windows symlink, since junctions need no
+elevation); empty directories inside a copied category are now recreated instead of silently
+dropped; and per-instance launch overrides (JVM args, memory, hooks, a specific Java path) are now
+read from the source and offered as a per-instance opt-in, applied the same way `last_played`/
+playtime already were. No known gaps remain for goal 6 beyond real-world Windows validation - the
+junction-creation path and the whole Phase 3 UI have so far only run on Linux.
 
 ## Status
 
@@ -282,20 +294,11 @@ Goals 5 (unsigned Windows installer/SmartScreen) and 6 (migrate-from-Modrinth-Ap
 were added on 2026-09-13 after a scoping discussion with the user. Goal 5 is not implemented yet;
 its next concrete step is submitting a SignPath.io OSS-signing application, with the CI
 tag-signing fallback bug and installer metadata gap as independent smaller fixes noted alongside
-it. Goal 6 is implemented end-to-end as of 2026-09-15 — Phase 0 (design), Phase 1 (read-only
-detection/preview), Phase 2 (actual instance creation and content copying), and Phase 3 (frontend
-UI) are all done and validated against a real official Modrinth App install on two machines
-(Windows and Linux); see [goal-6-import-design.md](goal-6-import-design.md) for the full writeup.
-Phase 4 (ts-rs/postcard bindings) turned out to already be complete on inspection — this codebase's
-binding generation only ever covers backend→frontend event types, never command types, so goal 6's
-types were never going to be in it; the one bound type it does touch (`InstallJobKind`) already
-picked up its new variant automatically. Symlink/junction handling was added on 2026-09-16 (detects
-a whole symlinked category or world folder, offers copy/recreate/ignore per one, recreates as a
-real NTFS junction on Windows). The two remaining known gaps as of 2026-09-15 — per-instance launch
-overrides not carried over, and empty directories inside a copied category not recreated — were
-both fixed on 2026-09-16; see [goal-6-import-design.md](goal-6-import-design.md) for the full
-writeup. No known gaps remain for goal 6 beyond real-world Windows validation (the junction-creation
-path and the Phase 3 UI have only run on Linux so far).
+it. Goal 6 is implemented end-to-end as of 2026-09-16, including Phase 4 and the symlink-handling/
+empty-directory/launch-overrides follow-ups — see goal 6's own section above for the full phase
+breakdown and [goal-6-import-design.md](goal-6-import-design.md) for the detailed writeup. No known
+gaps remain beyond real-world Windows validation, which this fork's other machine should pick up
+next.
 
 This document should be updated as scope changes — treat it as the source of truth for what this fork
 is trying to do, ahead of any individual issue or PR.
