@@ -154,9 +154,20 @@ jobs:
             dasel delete -f apps/app/tauri-release.conf.json 'bundle.windows.signCommand'
           fi
 
-      - name: Build macOS app
-        run: ${{ (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || inputs.app-version-override != '') && 'pnpm --filter=@modrinth/app run tauri build --target universal-apple-darwin --config tauri-release.conf.json' || 'pnpm --filter=@modrinth/app run tauri build --target universal-apple-darwin --config tauri-dev.conf.json' }}
+      - name: Check for Apple code signing secrets
+        id: apple-signing
         if: contains(matrix.artifact-target-name, 'darwin')
+        shell: bash
+        run: |
+          if [ -n '${{ secrets.APPLE_CERTIFICATE }}' ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build macOS app (signed)
+        run: ${{ (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || inputs.app-version-override != '') && 'pnpm --filter=@modrinth/app run tauri build --target universal-apple-darwin --config tauri-release.conf.json' || 'pnpm --filter=@modrinth/app run tauri build --target universal-apple-darwin --config tauri-dev.conf.json' }}
+        if: contains(matrix.artifact-target-name, 'darwin') && steps.apple-signing.outputs.enabled == 'true'
         env:
           TAURI_BUNDLER_DMG_IGNORE_CI: 'true'
           ENABLE_CODE_SIGNING: ${{ secrets.APPLE_CERTIFICATE }}
@@ -166,6 +177,19 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+
+      - name: Build macOS app (unsigned)
+        # No Apple code signing secrets are configured in this repo (e.g. this fork) --
+        # degrade to an unsigned/ad-hoc-signed build instead of hard-failing on keychain import.
+        # Setting APPLE_CERTIFICATE to an empty string (rather than omitting it) still makes
+        # tauri-bundler attempt to import it into the keychain, which fails, so these Apple env
+        # vars must be left completely unset here.
+        run: ${{ (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || inputs.app-version-override != '') && 'pnpm --filter=@modrinth/app run tauri build --target universal-apple-darwin --config tauri-release.conf.json' || 'pnpm --filter=@modrinth/app run tauri build --target universal-apple-darwin --config tauri-dev.conf.json' }}
+        if: contains(matrix.artifact-target-name, 'darwin') && steps.apple-signing.outputs.enabled == 'false'
+        env:
+          TAURI_BUNDLER_DMG_IGNORE_CI: 'true'
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
 
