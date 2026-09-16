@@ -1,4 +1,4 @@
-use super::{FriendPayload, LoadingBarId};
+use super::LoadingBarId;
 #[cfg(feature = "tauri")]
 use crate::event::{
     AppEvent, InstanceGroupsChangedPayload, InstancePayload, LoadingPayload,
@@ -8,9 +8,7 @@ use crate::event::{
     CommandPayload, EventError, InstanceBulkUpdateProgressPayload,
     InstancePayloadType, LoadingBar, LoadingBarType, ProcessPayloadType,
 };
-use crate::state::OnboardingChecklist;
 use futures::prelude::*;
-use serde_json::Value;
 #[cfg(feature = "tauri")]
 use tauri::Manager;
 use uuid::Uuid;
@@ -247,41 +245,6 @@ pub async fn emit_instance_groups_changed(
             },
         ))?;
     }
-    Ok(())
-}
-
-#[allow(unused_variables)]
-pub async fn emit_onboarding_checklist(
-    checklist: OnboardingChecklist,
-) -> crate::Result<()> {
-    #[cfg(feature = "tauri")]
-    {
-        let event_state = crate::EventState::get();
-        event_state.send(AppEvent::OnboardingChecklist(checklist))?;
-    }
-    Ok(())
-}
-
-#[allow(unused_variables)]
-pub async fn emit_friend(payload: FriendPayload) -> crate::Result<()> {
-    #[cfg(feature = "tauri")]
-    {
-        let event_state = crate::EventState::get();
-        event_state.send(AppEvent::Friend(payload))?;
-    }
-
-    Ok(())
-}
-
-#[allow(unused_variables)]
-pub async fn emit_notification(payload: Value) -> crate::Result<()> {
-    #[cfg(feature = "tauri")]
-    {
-        let event_state = crate::EventState::get();
-        event_state
-            .send(AppEvent::Notification(serde_json::to_string(&payload)?))?;
-    }
-
     Ok(())
 }
 

@@ -83,6 +83,7 @@ pub struct InstanceLaunchOverridesPatch {
     pub game_resolution: Option<Option<WindowSize>>,
     pub hooks: Option<Hooks>,
     pub visible_tabs: Option<InstanceTabVisibility>,
+    pub allow_concurrent_launches: Option<bool>,
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -112,13 +113,6 @@ pub(crate) async fn edit_instance(
 ) -> crate::Result<Instance> {
     let modifies_content =
         patch.link.is_some() || patch.content_set_patch.is_some();
-    let should_mark_shared_instance_stale = patch.link.is_some()
-        || patch.content_set_patch.as_ref().is_some_and(|patch| {
-            patch.source_kind.is_some()
-                || patch.game_version.is_some()
-                || patch.loader.is_some()
-                || patch.loader_version.is_some()
-        });
     let mut instance = instance_rows::get_instance_by_id(instance_id, pool)
         .await?
         .ok_or_else(|| {
@@ -210,10 +204,6 @@ pub(crate) async fn edit_instance(
 
     tx.commit().await?;
 
-    if should_mark_shared_instance_stale {
-        super::mark_shared_instance_stale(instance_id, pool).await?;
-    }
-
     Ok(instance)
 }
 
@@ -302,6 +292,9 @@ fn apply_launch_overrides_patch(
     }
     if let Some(visible_tabs) = patch.visible_tabs {
         overrides.visible_tabs = visible_tabs;
+    }
+    if let Some(allow_concurrent_launches) = patch.allow_concurrent_launches {
+        overrides.allow_concurrent_launches = allow_concurrent_launches;
     }
 
     overrides

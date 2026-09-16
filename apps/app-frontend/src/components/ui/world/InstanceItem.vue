@@ -31,7 +31,6 @@ import { useRouter } from 'vue-router'
 
 import { useAppEvent } from '@/composables/use-app-event'
 import { handleSevereError } from '@/composables/use-error.js'
-import { trackEvent } from '@/helpers/analytics'
 import { getInstanceIconUrl, kill, run } from '@/helpers/instance'
 import { get_by_instance_id } from '@/helpers/process'
 import type { GameInstance } from '@/helpers/types'
@@ -113,13 +112,6 @@ const play = async (event: MouseEvent) => {
 			handleSevereError(err, { instanceId: props.instance.id })
 			return false
 		})
-		.finally(() => {
-			trackEvent('InstanceStart', {
-				loader: props.instance.loader,
-				game_version: props.instance.game_version,
-				source: 'InstanceItem',
-			})
-		})
 	if (launched) emit('play')
 	loading.value = false
 }
@@ -128,11 +120,6 @@ const stop = async (event: MouseEvent) => {
 	event?.stopPropagation()
 	loading.value = true
 	await kill(props.instance.id).catch(handleError)
-	trackEvent('InstanceStop', {
-		loader: props.instance.loader,
-		game_version: props.instance.game_version,
-		source: 'InstanceItem',
-	})
 	emit('stop')
 	loading.value = false
 }

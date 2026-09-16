@@ -16,7 +16,6 @@ import { useRouter } from 'vue-router'
 import NavButton from '@/components/ui/NavButton.vue'
 import { useAppEvent } from '@/composables/use-app-event'
 import { handleSevereError } from '@/composables/use-error.js'
-import { trackEvent } from '@/helpers/analytics'
 import { getInstanceIconUrl, kill, run } from '@/helpers/instance'
 import { get_all } from '@/helpers/process'
 import { showInstanceInFolder } from '@/helpers/utils'
@@ -204,24 +203,11 @@ async function checkProcesses() {
 
 async function playInstance(instance) {
 	if (instance.quarantined || instance.install_stage !== 'installed') return
-	await run(instance.id)
-		.catch((err) => handleSevereError(err, { instanceId: instance.id }))
-		.finally(() => {
-			trackEvent('InstanceStart', {
-				loader: instance.loader,
-				game_version: instance.game_version,
-				source: 'QuickInstanceSwitcher',
-			})
-		})
+	await run(instance.id).catch((err) => handleSevereError(err, { instanceId: instance.id }))
 }
 
 async function stopInstance(instance) {
 	await kill(instance.id).catch(handleError)
-	trackEvent('InstanceStop', {
-		loader: instance.loader,
-		game_version: instance.game_version,
-		source: 'QuickInstanceSwitcher',
-	})
 }
 
 function openContextMenu(event, instance) {

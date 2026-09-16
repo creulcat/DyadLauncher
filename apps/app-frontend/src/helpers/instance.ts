@@ -7,7 +7,7 @@ import type { Labrinth } from '@modrinth/api-client'
 import type { ContentItem, ContentOwner } from '@modrinth/ui'
 import { convertFileSrc, invoke } from '@tauri-apps/api/core'
 
-import type { InstallJobSnapshot, SharedInstanceUpdateDiff } from './install'
+import type { InstallJobSnapshot } from './install'
 import type {
 	CacheBehaviour,
 	ContentFile,
@@ -15,7 +15,6 @@ import type {
 	GameInstance,
 	InstanceIconConfig,
 	InstanceLoader,
-	SharedInstanceAttachment,
 } from './types'
 
 export function getInstanceIconUrl(iconPath: string | null | undefined): string | null {
@@ -651,114 +650,4 @@ export async function cache_generated_icon(
 
 export async function get_recent_icon_configs(): Promise<InstanceIconConfig[]> {
 	return await invoke('plugin:instance|instance_get_recent_icon_configs')
-}
-
-export type SharedInstanceUsers = {
-	user_ids: string[]
-	users: SharedInstanceUser[]
-	tokens: number
-}
-
-export type SharedInstanceJoinType = 'owner' | 'invite' | 'link'
-
-export type SharedInstanceUser = {
-	id: string
-	joined_at?: string | null
-	join_type: SharedInstanceJoinType
-	last_played?: string | null
-}
-
-export interface SharedInstancePublishPreview {
-	sharedInstanceId: string
-	latestVersion: number
-	diffs: SharedInstanceUpdateDiff[]
-	configFiles: string[]
-}
-
-export interface SharedInstanceInviteLink {
-	inviteId: string
-	expiresAt: string
-	maxUses: number
-}
-
-export interface SharedInstanceInvite {
-	id: string
-	expiration: string
-	maxUses: number
-	uses: number
-}
-
-export async function can_current_user_use_shared_instances(): Promise<boolean> {
-	return await invoke('plugin:instance|instance_share_can_current_user_use')
-}
-
-export async function get_shared_instance_users(instanceId: string): Promise<SharedInstanceUsers> {
-	return await invoke('plugin:instance|instance_share_get_users', { instanceId })
-}
-
-export async function invite_shared_instance_users(
-	instanceId: string,
-	userIds: string[],
-): Promise<SharedInstanceUsers> {
-	return await invoke('plugin:instance|instance_share_invite_users', { instanceId, userIds })
-}
-
-export async function create_shared_instance_invite_link(
-	instanceId: string,
-	options: {
-		maxAgeSeconds?: number
-		maxUses?: number
-		replaceInviteId?: string
-	} = {},
-): Promise<SharedInstanceInviteLink> {
-	return await invoke('plugin:instance|instance_share_create_invite_link', {
-		instanceId,
-		...options,
-	})
-}
-
-export async function get_shared_instance_invites(
-	instanceId: string,
-): Promise<SharedInstanceInvite[]> {
-	return await invoke('plugin:instance|instance_share_get_invites', { instanceId })
-}
-
-export async function revoke_shared_instance_invite(
-	instanceId: string,
-	inviteId: string,
-): Promise<void> {
-	return await invoke('plugin:instance|instance_share_revoke_invite', { instanceId, inviteId })
-}
-
-export async function remove_shared_instance_users(
-	instanceId: string,
-	userIds: string[],
-	hasPendingRecipients: boolean,
-): Promise<SharedInstanceUsers> {
-	return await invoke('plugin:instance|instance_share_remove_users', {
-		instanceId,
-		userIds,
-		hasPendingRecipients,
-	})
-}
-
-export async function get_shared_instance_publish_preview(
-	instanceId: string,
-): Promise<SharedInstancePublishPreview | null> {
-	return await invoke('plugin:instance|instance_share_get_publish_preview', { instanceId })
-}
-
-export async function publish_shared_instance(
-	instanceId: string,
-	configPaths: string[],
-): Promise<SharedInstanceAttachment> {
-	return await invoke('plugin:instance|instance_share_publish', { instanceId, configPaths })
-}
-
-export async function unlink_shared_instance(instanceId: string): Promise<void> {
-	return await invoke('plugin:instance|instance_share_unlink', { instanceId })
-}
-
-export async function unpublish_shared_instance(instanceId: string): Promise<void> {
-	return await invoke('plugin:instance|instance_share_unpublish', { instanceId })
 }

@@ -144,9 +144,14 @@ fn main() {
                     ),
             )
             .plugin(
-                "onboarding-checklist",
+                "migrate-modrinth-app",
                 InlinedPlugin::new()
-                    .commands(&["get_onboarding_checklist"])
+                    .commands(&[
+                        "detect_modrinth_app_install",
+                        "is_modrinth_app_running",
+                        "preview_modrinth_app_import",
+                        "apply_modrinth_app_settings",
+                    ])
                     .default_permission(
                         DefaultPermissionRule::AllowAllCommands,
                     ),
@@ -164,6 +169,7 @@ fn main() {
                         "install_shared_instance",
                         "install_update_shared_instance",
                         "install_import_instance",
+                        "install_import_modrinth_app_instance",
                         "install_duplicate_instance",
                         "install_existing_instance",
                         "install_pack_to_existing_instance",

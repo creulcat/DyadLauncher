@@ -1,6 +1,8 @@
 {
+	"build": {
+		"features": ["updater"]
+	},
 	"bundle": {
-		"createUpdaterArtifacts": "v1Compatible",
 		"windows": {
 			"signCommand": {
 				"cmd": "jsign",
@@ -20,21 +22,17 @@
 			}
 		}
 	},
-	"build": {
-		"features": ["updater"]
-	},
 	"app": {
 		"security": {
-			"capabilities": ["ads", "core", "plugins", "updater"]
+			"capabilities": ["core", "plugins", "updater"]
 		}
 	},
 	"plugins": {
 		"updater": {
-			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDIwMzM5QkE0M0FCOERBMzkKUldRNTJyZzZwSnN6SUdPRGdZREtUUGxMblZqeG9OVHYxRUlRTzJBc2U3MUNJaDMvZDQ1UytZZmYK",
-			"endpoints": ["https://launcher-files.modrinth.com/updates.json"],
-			"windows": {
-				"installMode": "quiet"
-			}
+			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEFEQjIzRDQyNTU4NDIxOTMKUldTVElZUlZRajJ5cllJdW50d1RKM0JXbEhWWERObUZKMWNVbngyWExqWjgyKzIveWRCK2xWZSsK",
+			"endpoints": [
+				"https://github.com/creulcat/DyadLauncher/releases/latest/download/updates.json"
+			]
 		}
 	}
 }

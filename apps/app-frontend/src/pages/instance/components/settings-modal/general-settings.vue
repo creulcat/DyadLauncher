@@ -15,6 +15,7 @@ import {
 	injectNotificationManager,
 	Input,
 	TeleportOverflowMenu,
+	Toggle,
 	useVIntl,
 } from '@modrinth/ui'
 import { useQueryClient } from '@tanstack/vue-query'
@@ -24,11 +25,11 @@ import { useRouter } from 'vue-router'
 
 import IconEditorModal from '@/components/ui/instance_settings/icon-editor-modal/index.vue'
 import ConfirmDeleteInstanceModal from '@/components/ui/modal/ConfirmDeleteInstanceModal.vue'
-import { trackEvent } from '@/helpers/analytics'
 import { install_duplicate_instance } from '@/helpers/install'
 import { edit, edit_icon, getInstanceIconUrl, remove } from '@/helpers/instance'
 import type { GameInstance, InstanceIconConfig } from '@/helpers/types'
 
+import { instanceKeys } from '../../query-options'
 import { injectInstanceSettings } from './instance-settings-context'
 
 const { handleError } = injectNotificationManager()
@@ -64,10 +65,6 @@ watch(
 
 async function duplicateInstance() {
 	await install_duplicate_instance(instance.value.id).catch(handleError)
-	trackEvent('InstanceDuplicate', {
-		loader: instance.value.loader,
-		game_version: instance.value.game_version,
-	})
 }
 
 function formatReleaseChannelLabel(channel: ReleaseChannel) {
@@ -116,6 +113,58 @@ watch(selectedReleaseChannel, async (channel, previousChannel) => {
 	savingReleaseChannel.value = false
 })
 
+const savingAllowConcurrentLaunches = ref(false)
+async function setAllowConcurrentLaunches(allow: boolean) {
+	if (savingAllowConcurrentLaunches.value) return
+
+	const instanceId = instance.value.id
+	const detailKey = instanceKeys.detail(instanceId)
+	const listKey = instanceKeys.list()
+	const previous = instance.value.allow_concurrent_launches
+	const applyAllow = (current: GameInstance): GameInstance => ({
+		...current,
+		allow_concurrent_launches: allow,
+	})
+
+	savingAllowConcurrentLaunches.value = true
+	await Promise.all([
+		queryClient.cancelQueries({ queryKey: detailKey }),
+		queryClient.cancelQueries({ queryKey: listKey }),
+	])
+	queryClient.setQueryData<GameInstance>(detailKey, (current) =>
+		applyAllow(current ?? instance.value),
+	)
+	queryClient.setQueryData<GameInstance[]>(listKey, (instances) =>
+		instances?.map((candidate) =>
+			candidate.id === instanceId ? applyAllow(candidate) : candidate,
+		),
+	)
+
+	try {
+		await edit(instanceId, { allow_concurrent_launches: allow })
+	} catch (error) {
+		const rollbackAllow = (current: GameInstance): GameInstance => ({
+			...current,
+			allow_concurrent_launches: previous,
+		})
+		queryClient.setQueryData<GameInstance>(detailKey, (current) =>
+			current ? rollbackAllow(current) : current,
+		)
+		queryClient.setQueryData<GameInstance[]>(listKey, (instances) =>
+			instances?.map((candidate) =>
+				candidate.id === instanceId ? rollbackAllow(candidate) : candidate,
+			),
+		)
+		handleError(error)
+	} finally {
+		savingAllowConcurrentLaunches.value = false
+		await Promise.all([
+			queryClient.invalidateQueries({ queryKey: detailKey }),
+			queryClient.invalidateQueries({ queryKey: listKey }),
+		])
+	}
+}
+
 async function resetIcon() {
 	try {
 		await edit_icon(instance.value.id, null)
@@ -125,7 +174,6 @@ async function resetIcon() {
 		handleError(error)
 		return
 	}
-	trackEvent('InstanceRemoveIcon')
 }
 
 async function setIcon() {
@@ -149,19 +197,15 @@ async function setIcon() {
 		handleError(error)
 		return
 	}
-
-	trackEvent('InstanceSetIcon')
 }
 
 function openIconEditor() {
 	iconEditorModal.value?.show()
-	trackEvent(iconConfig.value ? 'InstanceEditCreatedIcon' : 'InstanceCreateIcon')
 }
 
 function onGeneratedIconSaved(iconPath: string, config: InstanceIconConfig) {
 	icon.value = iconPath
 	iconConfig.value = config
-	trackEvent('InstanceSaveCreatedIcon')
 }
 
 const editInstanceObject = computed(() => ({
@@ -181,11 +225,6 @@ const removing = ref(false)
 async function removeInstance() {
 	removing.value = true
 	const path = instance.value.id
-
-	trackEvent('InstanceRemove', {
-		loader: instance.value.loader,
-		game_version: instance.value.game_version,
-	})
 
 	await router.push({ path: '/' })
 	await remove(path).catch(handleError)
@@ -271,6 +310,15 @@ const messages = defineMessages({
 	selectUpdateChannelAriaLabel: {
 		id: 'instance.settings.tabs.general.update-channel.select',
 		defaultMessage: 'Select update channel',
+	},
+	allowConcurrentLaunches: {
+		id: 'instance.settings.tabs.general.allow-concurrent-launches',
+		defaultMessage: 'Allow concurrent multi-account launches',
+	},
+	allowConcurrentLaunchesDescription: {
+		id: 'instance.settings.tabs.general.allow-concurrent-launches.description',
+		defaultMessage:
+			'Lets this instance be launched more than once at a time, each under a different account, all pointed at this same instance folder. Known tradeoff: logs/latest.log, usercache.json, and crash reports can be overwritten or interleaved between the running copies, and a world open in more than one copy at once can corrupt. Only enable this if you understand and accept that risk.',
 	},
 	deleteInstance: {
 		id: 'instance.settings.tabs.general.delete',
@@ -409,6 +457,24 @@ const messages = defineMessages({
 			/>
 			<p class="m-0">
 				{{ formatReleaseChannelDescription(selectedReleaseChannel) }}
+			</p>
+		</div>
+
+		<div class="flex flex-col gap-2.5 mt-6">
+			<div class="flex items-center justify-between gap-6">
+				<h2 id="allow-concurrent-launches-label" class="m-0 text-lg font-semibold text-contrast">
+					{{ formatMessage(messages.allowConcurrentLaunches) }}
+				</h2>
+				<Toggle
+					id="allow-concurrent-launches"
+					aria-labelledby="allow-concurrent-launches-label"
+					:model-value="instance.allow_concurrent_launches"
+					:disabled="savingAllowConcurrentLaunches"
+					@update:model-value="setAllowConcurrentLaunches"
+				/>
+			</div>
+			<p class="m-0">
+				{{ formatMessage(messages.allowConcurrentLaunchesDescription) }}
 			</p>
 		</div>
 

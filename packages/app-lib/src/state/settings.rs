@@ -22,9 +22,7 @@ pub struct Settings {
     pub sync_theme_across_devices: bool,
     pub sync_behavior_across_devices: bool,
 
-    pub telemetry: bool,
     pub discord_rpc: bool,
-    pub personalized_ads: bool,
 
     pub extra_launch_args: Vec<String>,
     pub custom_env_vars: Vec<(String, String)>,
@@ -44,6 +42,10 @@ pub struct Settings {
     pub skipped_update: Option<String>,
     pub pending_update_toast_for_version: Option<String>,
     pub auto_download_updates: Option<bool>,
+    /// Opt-in (off by default) toggle for checking for app updates at all. Independent of
+    /// whether the `updater` Cargo feature is compiled in -- this is the user-facing consent
+    /// gate on top of that build-time switch.
+    pub check_for_updates: bool,
 
     pub version: usize,
 }
@@ -57,7 +59,6 @@ pub enum FeatureFlag {
     ServerRamAsBytesAlwaysOn,
     AlwaysShowAppControls,
     SkipUnknownPackWarning,
-    PrideFundraiser,
     ServersInApp,
     ServerProjectQa,
     I18nDebug,
@@ -86,13 +87,14 @@ impl Settings {
             SELECT
                 max_concurrent_writes, max_concurrent_downloads,
                 theme, locale, default_page, collapsed_navigation, hide_nametag_skins_page, advanced_rendering, native_decorations,
-                discord_rpc, developer_mode, telemetry, personalized_ads,
+                discord_rpc, developer_mode,
                 json(extra_launch_args) extra_launch_args, json(custom_env_vars) custom_env_vars,
                 mc_memory_max, mc_force_fullscreen, mc_game_resolution_x, mc_game_resolution_y, hide_on_process_start,
                 hook_pre_launch, hook_wrapper, hook_post_exit,
                 custom_dir, prev_custom_dir, migrated, json(feature_flags) feature_flags, toggle_sidebar,
                 skipped_update, pending_update_toast_for_version, auto_download_updates,
                 sync_theme_across_devices, sync_behavior_across_devices,
+                check_for_updates,
                 version
             FROM settings
             "
@@ -111,10 +113,13 @@ impl Settings {
             advanced_rendering: res.advanced_rendering == 1,
             native_decorations: res.native_decorations == 1,
             toggle_sidebar: res.toggle_sidebar == 1,
-            telemetry: res.telemetry == 1,
-            discord_rpc: res.discord_rpc == 1,
+            // Discord Rich Presence is force-disabled for now, regardless of what's stored:
+            // its toggle is hidden in the app (see AppSettingsModal.vue) because the presence
+            // still shows Modrinth branding, which this fork doesn't want to display. The
+            // stored `res.discord_rpc` value is intentionally ignored rather than migrated
+            // away, so this can be flipped back to `res.discord_rpc == 1` to restore it later.
+            discord_rpc: false,
             developer_mode: res.developer_mode == 1,
-            personalized_ads: res.personalized_ads == 1,
             extra_launch_args: res
                 .extra_launch_args
                 .as_ref()
@@ -153,6 +158,7 @@ impl Settings {
             auto_download_updates: res.auto_download_updates.map(|x| x == 1),
             sync_theme_across_devices: res.sync_theme_across_devices == 1,
             sync_behavior_across_devices: res.sync_behavior_across_devices == 1,
+            check_for_updates: res.check_for_updates == 1,
             version: res.version as usize,
         })
     }
@@ -186,37 +192,37 @@ impl Settings {
 
                 discord_rpc = $9,
                 developer_mode = $10,
-                telemetry = $11,
-                personalized_ads = $12,
 
-                extra_launch_args = jsonb($13),
-                custom_env_vars = jsonb($14),
-                mc_memory_max = $15,
-                mc_force_fullscreen = $16,
-                mc_game_resolution_x = $17,
-                mc_game_resolution_y = $18,
-                hide_on_process_start = $19,
+                extra_launch_args = jsonb($11),
+                custom_env_vars = jsonb($12),
+                mc_memory_max = $13,
+                mc_force_fullscreen = $14,
+                mc_game_resolution_x = $15,
+                mc_game_resolution_y = $16,
+                hide_on_process_start = $17,
 
-                hook_pre_launch = $20,
-                hook_wrapper = $21,
-                hook_post_exit = $22,
+                hook_pre_launch = $18,
+                hook_wrapper = $19,
+                hook_post_exit = $20,
 
-                custom_dir = $23,
-                prev_custom_dir = $24,
-                migrated = $25,
+                custom_dir = $21,
+                prev_custom_dir = $22,
+                migrated = $23,
 
-                toggle_sidebar = $26,
-                feature_flags = $27,
-                hide_nametag_skins_page = $28,
+                toggle_sidebar = $24,
+                feature_flags = $25,
+                hide_nametag_skins_page = $26,
 
-                skipped_update = $29,
-                pending_update_toast_for_version = $30,
-                auto_download_updates = $31,
+                skipped_update = $27,
+                pending_update_toast_for_version = $28,
+                auto_download_updates = $29,
 
-                sync_theme_across_devices = $32,
-                sync_behavior_across_devices = $33,
+                sync_theme_across_devices = $30,
+                sync_behavior_across_devices = $31,
 
-                version = $34
+                check_for_updates = $32,
+
+                version = $33
             ",
             max_concurrent_writes,
             max_concurrent_downloads,
@@ -228,8 +234,6 @@ impl Settings {
             self.native_decorations,
             self.discord_rpc,
             self.developer_mode,
-            self.telemetry,
-            self.personalized_ads,
             extra_launch_args,
             custom_env_vars,
             self.memory.maximum,
@@ -251,6 +255,7 @@ impl Settings {
             self.auto_download_updates,
             self.sync_theme_across_devices,
             self.sync_behavior_across_devices,
+            self.check_for_updates,
             version,
         )
         .execute(exec)

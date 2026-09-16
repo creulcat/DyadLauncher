@@ -15,9 +15,7 @@ import type { GameVersionTag, PlatformTag } from '@modrinth/utils'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, ref } from 'vue'
 
-import { useManagedContentPolicy } from '@/composables/instances/use-managed-content-policy'
 import { useAppSettings } from '@/composables/use-app-settings.ts'
-import { trackEvent } from '@/helpers/analytics'
 import { get_project_versions, get_version } from '@/helpers/cache'
 import {
 	install_existing_instance,
@@ -27,7 +25,6 @@ import {
 import {
 	edit,
 	get_linked_modpack_info,
-	unlink_shared_instance,
 	update_managed_modrinth_version,
 	update_repair_modrinth,
 } from '@/helpers/instance'
@@ -37,9 +34,7 @@ import { injectAppEvents } from '@/providers/app-events'
 import { provideInstanceBackup } from '@/providers/instance-backup'
 
 import type { Manifest } from '../../../../helpers/types'
-import { instanceKeys } from '../../query-options.ts'
 import { injectInstanceSettings } from './instance-settings-context.ts'
-import SharedInstanceInstallationSettingsControls from './shared-instance-installation-settings-controls.vue'
 
 const { handleError } = injectNotificationManager()
 const appEvents = injectAppEvents()
@@ -50,7 +45,6 @@ const debug = useDebugLogger('AppInstallationSettings')
 const appSettings = useAppSettings()
 
 const { instance, offline, isMinecraftServer, onUnlinked, closeModal } = injectInstanceSettings()
-const managedContentPolicy = useManagedContentPolicy(instance)
 const skipNonEssentialWarnings = computed(() =>
 	appSettings.getFeatureFlag('skip_non_essential_warnings'),
 )
@@ -121,8 +115,6 @@ const isModrinthLinkedModpack = computed(
 			!!instance.value.link.modpack_version_id),
 )
 const isImportedModpack = computed(() => instance.value.link?.type === 'imported_modpack')
-const isSharedInstanceManagedModpack = managedContentPolicy.isManagedModpack
-const canUnlinkSharedInstance = managedContentPolicy.canUnlink
 
 const modpackInfoQuery = useQuery({
 	queryKey: computed(() => ['linkedModpackInfo', instance.value.id]),
@@ -133,35 +125,17 @@ const modpackInfo = modpackInfoQuery.data
 
 const repairing = ref(false)
 const reinstalling = ref(false)
-const unlinkingSharedInstance = ref(false)
 const installationSettingsBusy = computed(
 	() =>
 		instance.value.quarantined ||
 		instance.value.install_stage !== 'installed' ||
 		repairing.value ||
 		reinstalling.value ||
-		unlinkingSharedInstance.value ||
 		!!offline,
 )
 const installationSettingsBusyMessage = computed(() =>
 	instance.value.quarantined ? formatMessage(messages.locked) : null,
 )
-
-async function unlinkSharedInstance() {
-	unlinkingSharedInstance.value = true
-	try {
-		await unlink_shared_instance(instance.value.id)
-		await queryClient.invalidateQueries({
-			queryKey: instanceKeys.sharedMembers(instance.value.id),
-		})
-		await queryClient.invalidateQueries({ queryKey: ['linkedModpackInfo', instance.value.id] })
-		onUnlinked()
-	} catch (error) {
-		handleError(error)
-	} finally {
-		unlinkingSharedInstance.value = false
-	}
-}
 
 const messages = defineMessages({
 	loaderVersion: {
@@ -234,8 +208,7 @@ provideInstallationSettings({
 		() =>
 			isModrinthLinkedModpack.value ||
 			isImportedModpack.value ||
-			instance.value.link?.type === 'server_project' ||
-			isSharedInstanceManagedModpack.value,
+			instance.value.link?.type === 'server_project',
 	),
 	isBusy: installationSettingsBusy,
 	busyMessage: installationSettingsBusyMessage,
@@ -363,10 +336,6 @@ provideInstallationSettings({
 	afterSave: async () => {
 		debug('afterSave: installing', { instanceId: instance.value.id })
 		await install_existing_instance(instance.value.id, false).catch(handleError)
-		trackEvent('InstanceRepair', {
-			loader: instance.value.loader,
-			game_version: instance.value.game_version,
-		})
 		debug('afterSave: done')
 	},
 
@@ -375,32 +344,20 @@ provideInstallationSettings({
 		repairing.value = true
 		await install_existing_instance(instance.value.id, true).catch(handleError)
 		repairing.value = false
-		trackEvent('InstanceRepair', {
-			loader: instance.value.loader,
-			game_version: instance.value.game_version,
-		})
 		debug('repair: done')
 	},
 
 	async reinstallModpack() {
 		debug('reinstallModpack: called', { instanceId: instance.value.id })
 		reinstalling.value = true
-		let shouldTrack = false
 		try {
 			if (isImportedModpack.value) {
-				shouldTrack = await installLocalModpackFromPicker()
+				await installLocalModpackFromPicker()
 			} else {
 				await update_repair_modrinth(instance.value.id).catch(handleError)
-				shouldTrack = true
 			}
 		} finally {
 			reinstalling.value = false
-		}
-		if (shouldTrack) {
-			trackEvent('InstanceRepair', {
-				loader: instance.value.loader,
-				game_version: instance.value.game_version,
-			})
 		}
 		debug('reinstallModpack: done')
 	},
@@ -409,13 +366,7 @@ provideInstallationSettings({
 		debug('swapModpack: called', { instanceId: instance.value.id })
 		reinstalling.value = true
 		try {
-			const installed = await installLocalModpackFromPicker()
-			if (installed) {
-				trackEvent('InstanceRepair', {
-					loader: instance.value.loader,
-					game_version: instance.value.game_version,
-				})
-			}
+			await installLocalModpackFromPicker()
 		} finally {
 			reinstalling.value = false
 		}
@@ -475,28 +426,14 @@ provideInstallationSettings({
 	isServer: false,
 	isApp: true,
 	showModpackVersionActions: computed(
-		() =>
-			isModrinthLinkedModpack.value &&
-			!isMinecraftServer.value &&
-			!isSharedInstanceManagedModpack.value,
+		() => isModrinthLinkedModpack.value && !isMinecraftServer.value,
 	),
 	isLocalFile: isImportedModpack,
-	isManagedModpack: isSharedInstanceManagedModpack,
-	managedModpackWarning: managedContentPolicy.managedModpackWarning,
 	repairing,
 	reinstalling,
 })
 </script>
 
 <template>
-	<InstallationSettingsLayout>
-		<template #extra>
-			<SharedInstanceInstallationSettingsControls
-				:can-unlink="canUnlinkSharedInstance"
-				:busy="installationSettingsBusy"
-				:unlinking="unlinkingSharedInstance"
-				:unlink="unlinkSharedInstance"
-			/>
-		</template>
-	</InstallationSettingsLayout>
+	<InstallationSettingsLayout />
 </template>

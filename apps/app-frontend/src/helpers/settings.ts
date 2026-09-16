@@ -47,9 +47,7 @@ export type AppSettings = {
 	sync_theme_across_devices: boolean
 	sync_behavior_across_devices: boolean
 
-	telemetry: boolean
 	discord_rpc: boolean
-	personalized_ads: boolean
 
 	extra_launch_args: string[]
 	custom_env_vars: [string, string][]
@@ -69,6 +67,7 @@ export type AppSettings = {
 	skipped_update: string | null
 	pending_update_toast_for_version: string | null
 	auto_download_updates: boolean | null
+	check_for_updates: boolean
 
 	version: number
 }

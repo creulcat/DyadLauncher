@@ -1,3 +1,5 @@
+use crate::api::migrate_modrinth_app::ImportLaunchOverridesCandidate;
+use crate::api::migrate_modrinth_app::execute::ImportSelection;
 use crate::api::pack::import::ImportLauncherType;
 use crate::api::pack::install_from::{CreatePackInstance, CreatePackLocation};
 use crate::state::{
@@ -171,13 +173,42 @@ pub enum InstallRequest {
         #[serde(default)]
         post_install_edit: Option<InstallPostInstallEdit>,
     },
-    CreateSharedInstance {
-        data: SharedInstanceInstallData,
-    },
     ImportInstance {
         launcher_type: ImportLauncherType,
         base_path: PathBuf,
         instance_folder: String,
+    },
+    /// Goal 6 (see `docs/goal-6-import-design.md`): imports one instance
+    /// from an official Modrinth App install, given a selection the caller
+    /// already resolved from a Phase 1 `ImportPreview`. Unlike
+    /// `ImportInstance`, the name/game version/loader are already known
+    /// exactly (read from the source database during the preview step), so
+    /// there's no placeholder-then-correct step needed.
+    ImportModrinthApp {
+        source_instance_dir: PathBuf,
+        name: String,
+        game_version: String,
+        loader: ModLoader,
+        loader_version: Option<String>,
+        icon_path: Option<PathBuf>,
+        selection: ImportSelection,
+        delete_source_after_import: bool,
+        /// Unix timestamp of the source instance's last-played time, if any -
+        /// carried over onto the new instance so it doesn't look never-played.
+        #[serde(default)]
+        last_played: Option<i64>,
+        /// Total seconds played on the source instance (its
+        /// `submitted_time_played + recent_time_played`, collapsed into one
+        /// figure since the split only matters for the source app's own
+        /// reporting cadence, not to Dyad).
+        #[serde(default)]
+        total_time_played: u64,
+        /// This instance's own launch overrides (JVM args, memory, hooks, a
+        /// specific Java path), if the user opted to carry them over from
+        /// the source - `None` either because the source had none or the
+        /// user chose not to import them.
+        #[serde(default)]
+        launch_overrides: Option<ImportLaunchOverridesCandidate>,
     },
     DuplicateInstance {
         source_instance_id: String,
@@ -191,10 +222,6 @@ pub enum InstallRequest {
         location: CreatePackLocation,
         #[serde(default)]
         post_install_edit: Option<InstallPostInstallEdit>,
-    },
-    UpdateSharedInstance {
-        instance_id: String,
-        data: SharedInstanceInstallData,
     },
 }
 
@@ -210,46 +237,6 @@ pub struct InstallPostInstallEdit {
     pub link: Option<InstanceLink>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct SharedInstanceInstallData {
-    pub shared_instance_id: String,
-    pub manager_id: Option<String>,
-    #[serde(default)]
-    pub server_manager_name: Option<String>,
-    #[serde(default)]
-    pub server_manager_icon_url: Option<String>,
-    #[serde(default)]
-    pub instance_icon_url: Option<String>,
-    #[serde(default)]
-    pub linked_user_id: Option<String>,
-    pub name: String,
-    pub version: i32,
-    pub modrinth_ids: Vec<String>,
-    #[serde(default)]
-    pub external_files: Vec<SharedInstanceExternalFileData>,
-    pub modpack: Option<SharedInstanceInstallModpack>,
-    pub game_version: String,
-    pub loader: ModLoader,
-    pub loader_version: Option<String>,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct SharedInstanceExternalFileData {
-    pub file_name: String,
-    pub file_type: String,
-    pub url: String,
-    pub file_size: u64,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct SharedInstanceInstallModpack {
-    pub project_id: String,
-    pub version_id: String,
-    pub title: String,
-    pub icon_url: Option<String>,
-    pub dependency_count: usize,
-}
-
 impl InstallRequest {
     pub fn kind(&self) -> InstallJobKind {
         match self {
@@ -257,10 +244,8 @@ impl InstallRequest {
             Self::CreateModpackInstance { .. } => {
                 InstallJobKind::CreateModpackInstance
             }
-            Self::CreateSharedInstance { .. } => {
-                InstallJobKind::CreateSharedInstance
-            }
             Self::ImportInstance { .. } => InstallJobKind::ImportInstance,
+            Self::ImportModrinthApp { .. } => InstallJobKind::ImportModrinthApp,
             Self::DuplicateInstance { .. } => InstallJobKind::DuplicateInstance,
             Self::InstallExistingInstance { .. } => {
                 InstallJobKind::InstallExistingInstance
@@ -268,17 +253,13 @@ impl InstallRequest {
             Self::InstallPackToExistingInstance { .. } => {
                 InstallJobKind::InstallPackToExistingInstance
             }
-            Self::UpdateSharedInstance { .. } => {
-                InstallJobKind::UpdateSharedInstance
-            }
         }
     }
 
     pub fn target(&self) -> InstallTarget {
         match self {
             Self::InstallExistingInstance { instance_id, .. }
-            | Self::InstallPackToExistingInstance { instance_id, .. }
-            | Self::UpdateSharedInstance { instance_id, .. } => {
+            | Self::InstallPackToExistingInstance { instance_id, .. } => {
                 InstallTarget::ExistingInstance {
                     instance_id: instance_id.clone(),
                 }
@@ -290,8 +271,7 @@ impl InstallRequest {
     pub fn cleanup(&self) -> InstallCleanup {
         match self {
             Self::InstallExistingInstance { instance_id, .. }
-            | Self::InstallPackToExistingInstance { instance_id, .. }
-            | Self::UpdateSharedInstance { instance_id, .. } => {
+            | Self::InstallPackToExistingInstance { instance_id, .. } => {
                 InstallCleanup::RestoreExistingInstance {
                     instance_id: instance_id.clone(),
                 }
@@ -310,12 +290,11 @@ impl InstallRequest {
 pub enum InstallJobKind {
     CreateInstance,
     CreateModpackInstance,
-    CreateSharedInstance,
     ImportInstance,
+    ImportModrinthApp,
     DuplicateInstance,
     InstallExistingInstance,
     InstallPackToExistingInstance,
-    UpdateSharedInstance,
 }
 
 impl InstallJobKind {
@@ -323,28 +302,26 @@ impl InstallJobKind {
         match self {
             Self::CreateInstance => "create_instance",
             Self::CreateModpackInstance => "create_modpack_instance",
-            Self::CreateSharedInstance => "create_shared_instance",
             Self::ImportInstance => "import_instance",
+            Self::ImportModrinthApp => "import_modrinth_app",
             Self::DuplicateInstance => "duplicate_instance",
             Self::InstallExistingInstance => "install_existing_instance",
             Self::InstallPackToExistingInstance => {
                 "install_pack_to_existing_instance"
             }
-            Self::UpdateSharedInstance => "update_shared_instance",
         }
     }
 
     pub fn from_stored_str(value: &str) -> Self {
         match value {
             "create_modpack_instance" => Self::CreateModpackInstance,
-            "create_shared_instance" => Self::CreateSharedInstance,
             "import_instance" => Self::ImportInstance,
+            "import_modrinth_app" => Self::ImportModrinthApp,
             "duplicate_instance" => Self::DuplicateInstance,
             "install_existing_instance" => Self::InstallExistingInstance,
             "install_pack_to_existing_instance" => {
                 Self::InstallPackToExistingInstance
             }
-            "update_shared_instance" => Self::UpdateSharedInstance,
             _ => Self::CreateInstance,
         }
     }

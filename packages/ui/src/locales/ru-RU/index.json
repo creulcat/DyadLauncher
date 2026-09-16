@@ -5040,7 +5040,7 @@
     "defaultMessage": "Установка модов в один клик"
   },
   "servers.list-empty.play-with-friends-description": {
-    "defaultMessage": "Пригласите ваших друзей поиграть на вашем сервере в один клик в Modrinth App."
+    "defaultMessage": "Пригласите ваших друзей поиграть на вашем сервере в один клик в Dyad Launcher."
   },
   "servers.list-empty.play-with-friends-title": {
     "defaultMessage": "Совместная игра"
@@ -5576,6 +5576,9 @@
   "settings.display.theme.description": {
     "defaultMessage": "Выберите тему для Modrinth."
   },
+  "settings.display.theme.description-standalone": {
+    "defaultMessage": "Выберите тему оформления."
+  },
   "settings.display.theme.light": {
     "defaultMessage": "Светлая"
   },
@@ -5619,7 +5622,7 @@
     "defaultMessage": "Результаты поиска"
   },
   "settings.language.coverage.app-tooltip": {
-    "defaultMessage": "Около {percentage}% Modrinth App переведено на этот язык."
+    "defaultMessage": "Около {percentage}% Dyad Launcher переведено на этот язык."
   },
   "settings.language.coverage.label": {
     "defaultMessage": "Поддерживается {percentage}%"

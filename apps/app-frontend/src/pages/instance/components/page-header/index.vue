@@ -10,23 +10,13 @@
 			/>
 		</template>
 
-		<template v-if="instance.shared_instance || instance.quarantined" #badges>
+		<template v-if="instance.quarantined" #badges>
 			<PageHeaderBadgeItem
-				v-if="instance.quarantined"
 				:icon="LockIcon"
 				aria-label="Locked instance information"
 				class="!border-orange !bg-highlight-orange !text-orange"
 			>
 				Locked
-			</PageHeaderBadgeItem>
-			<PageHeaderBadgeItem
-				v-else
-				:tooltip="sharedInstanceTooltip"
-				aria-label="Shared instance information"
-				class="!border-blue !bg-highlight-blue !text-blue"
-			>
-				Shared
-				<UnknownIcon class="block size-4 shrink-0 text-current" aria-hidden="true" />
 			</PageHeaderBadgeItem>
 		</template>
 
@@ -178,11 +168,9 @@ import {
 	MoreVerticalIcon,
 	PackageIcon,
 	PlayIcon,
-	ReportIcon,
 	SettingsIcon,
 	StopCircleIcon,
 	TimerIcon,
-	UnknownIcon,
 } from '@modrinth/assets'
 import { Button, IconButton, SplitButton, TeleportOverflowMenu } from '@modrinth/ui'
 import {
@@ -224,6 +212,10 @@ const messages = defineMessages({
 		id: 'instance.action.launch-instance',
 		defaultMessage: 'Launch instance',
 	},
+	launchAnotherCopy: {
+		id: 'instance.action.launch-another-copy',
+		defaultMessage: 'Launch another copy',
+	},
 	moreActions: {
 		id: 'instance.action.more-actions',
 		defaultMessage: 'More actions',
@@ -255,14 +247,6 @@ const messages = defineMessages({
 	stopping: {
 		id: 'instance.action.stopping',
 		defaultMessage: 'Stopping...',
-	},
-	sharedInstanceTooltip: {
-		id: 'instance.shared-instance.tooltip',
-		defaultMessage: "This instance's content is being managed by someone else.",
-	},
-	sharedInstanceOwnerTooltip: {
-		id: 'instance.shared-instance.owner-tooltip',
-		defaultMessage: "This instance's content is being shared to other users.",
 	},
 })
 
@@ -307,7 +291,6 @@ const emit = defineEmits<{
 	openFolder: []
 	export: []
 	createShortcut: []
-	report: [event?: MouseEvent]
 }>()
 
 const installingStages = [
@@ -324,13 +307,6 @@ const isInstalling = computed(() => installingStages.includes(props.instance.ins
 const loaderDisplayName = computed(() => formatLoaderLabel(props.instance.loader) as ServerLoader)
 const loaderLabel = computed(() =>
 	[loaderDisplayName.value, props.instance.game_version].filter(Boolean).join(' '),
-)
-const sharedInstanceTooltip = computed(() =>
-	formatMessage(
-		props.instance.shared_instance?.role === 'owner'
-			? messages.sharedInstanceOwnerTooltip
-			: messages.sharedInstanceTooltip,
-	),
 )
 const playtimeLabel = computed(() => {
 	const seconds = Math.floor(props.timePlayed)
@@ -359,14 +335,23 @@ const serverPlayOptions = computed<ButtonMenuOption[]>(() => [
 	},
 ])
 const moreActions = computed<ButtonMenuOption[]>(() => {
-	const actions: ButtonMenuOption[] = [
-		{
-			id: 'open-folder',
-			label: formatMessage(messages.openFolder),
-			icon: FolderOpenIcon,
-			action: () => emit('openFolder'),
-		},
-	]
+	const actions: ButtonMenuOption[] = []
+
+	if (props.playing && props.instance.allow_concurrent_launches && !props.instance.quarantined) {
+		actions.push({
+			id: 'launch-another-copy',
+			label: formatMessage(messages.launchAnotherCopy),
+			icon: PlayIcon,
+			action: () => emit('play'),
+		})
+	}
+
+	actions.push({
+		id: 'open-folder',
+		label: formatMessage(messages.openFolder),
+		icon: FolderOpenIcon,
+		action: () => emit('openFolder'),
+	})
 
 	if (!props.instance.quarantined) {
 		actions.push(
@@ -381,19 +366,6 @@ const moreActions = computed<ButtonMenuOption[]>(() => {
 				label: formatMessage(messages.createShortcut),
 				icon: ExternalIcon,
 				action: () => emit('createShortcut'),
-			},
-		)
-	}
-
-	if (props.instance.shared_instance?.role === 'member') {
-		actions.push(
-			{ type: 'divider' },
-			{
-				id: 'report-shared-instance',
-				label: formatMessage(commonMessages.reportButton),
-				icon: ReportIcon,
-				tone: 'red',
-				action: (event) => emit('report', event),
 			},
 		)
 	}

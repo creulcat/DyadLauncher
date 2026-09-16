@@ -6,10 +6,8 @@ use theseus::data::ModLoader;
 use theseus::install::{
     InstallJobSnapshot, InstallModpackPreview, InstallPostInstallEdit,
 };
-use theseus::instance::{
-    SharedInstanceInstallPreview, SharedInstanceInviteInstallPreview,
-    SharedInstanceUpdatePreview,
-};
+use theseus::migrate_modrinth_app::ImportLaunchOverridesCandidate;
+use theseus::migrate_modrinth_app::execute::ImportSelection;
 use theseus::pack::import::ImportLauncherType;
 use theseus::pack::install_from::CreatePackLocation;
 use uuid::Uuid;
@@ -20,12 +18,8 @@ pub fn init<R: tauri::Runtime>() -> tauri::plugin::TauriPlugin<R> {
             install_get_modpack_preview,
             install_create_instance,
             install_create_modpack_instance,
-            install_get_shared_instance_preview,
-            install_accept_shared_instance_invite,
-            install_get_shared_instance_update_preview,
-            install_shared_instance,
-            install_update_shared_instance,
             install_import_instance,
+            install_import_modrinth_app_instance,
             install_duplicate_instance,
             install_existing_instance,
             install_pack_to_existing_instance,
@@ -113,67 +107,6 @@ pub async fn install_create_modpack_instance(
 }
 
 #[tauri::command]
-pub async fn install_get_shared_instance_preview(
-    shared_instance_id: String,
-    name: String,
-) -> Result<SharedInstanceInstallPreview> {
-    Ok(theseus::instance::get_shared_instance_install_preview(
-        &shared_instance_id,
-        name,
-    )
-    .await?)
-}
-
-#[tauri::command]
-pub async fn install_accept_shared_instance_invite(
-    invite_id: String,
-) -> Result<SharedInstanceInviteInstallPreview> {
-    Ok(
-        theseus::instance::accept_shared_instance_invite_for_install(
-            &invite_id,
-        )
-        .await?,
-    )
-}
-
-#[tauri::command]
-pub async fn install_get_shared_instance_update_preview(
-    instance_id: String,
-) -> Result<Option<SharedInstanceUpdatePreview>> {
-    Ok(
-        theseus::instance::get_shared_instance_update_preview(&instance_id)
-            .await?,
-    )
-}
-
-#[tauri::command]
-pub async fn install_shared_instance(
-    shared_instance_id: String,
-    name: String,
-    manager_id: Option<String>,
-    server_manager_name: Option<String>,
-    server_manager_icon_url: Option<String>,
-    instance_icon_url: Option<String>,
-) -> Result<InstallJobSnapshot> {
-    Ok(theseus::instance::install_shared_instance(
-        &shared_instance_id,
-        name,
-        manager_id,
-        server_manager_name,
-        server_manager_icon_url,
-        instance_icon_url,
-    )
-    .await?)
-}
-
-#[tauri::command]
-pub async fn install_update_shared_instance(
-    instance_id: String,
-) -> Result<InstallJobSnapshot> {
-    Ok(theseus::instance::update_shared_instance(&instance_id).await?)
-}
-
-#[tauri::command]
 pub async fn install_import_instance(
     launcher_type: ImportLauncherType,
     base_path: PathBuf,
@@ -183,6 +116,49 @@ pub async fn install_import_instance(
         launcher_type,
         base_path,
         instance_folder,
+    )
+    .await?)
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstallImportModrinthAppRequest {
+    pub source_instance_dir: PathBuf,
+    pub name: String,
+    pub game_version: String,
+    pub loader: ModLoader,
+    pub loader_version: Option<String>,
+    pub icon_path: Option<PathBuf>,
+    pub selection: ImportSelection,
+    #[serde(default)]
+    pub delete_source_after_import: bool,
+    #[serde(default)]
+    pub last_played: Option<i64>,
+    #[serde(default)]
+    pub total_time_played: u64,
+    #[serde(default)]
+    pub launch_overrides: Option<ImportLaunchOverridesCandidate>,
+}
+
+/// Goal 6 (see `docs/goal-6-import-design.md`): imports one instance from an
+/// official Modrinth App install, given a selection already resolved from a
+/// `theseus::migrate_modrinth_app::build_preview` preview.
+#[tauri::command]
+pub async fn install_import_modrinth_app_instance(
+    request: InstallImportModrinthAppRequest,
+) -> Result<InstallJobSnapshot> {
+    Ok(theseus::install::import_modrinth_app_instance(
+        request.source_instance_dir,
+        request.name,
+        request.game_version,
+        request.loader,
+        request.loader_version,
+        request.icon_path,
+        request.selection,
+        request.delete_source_after_import,
+        request.last_played,
+        request.total_time_played,
+        request.launch_overrides,
     )
     .await?)
 }

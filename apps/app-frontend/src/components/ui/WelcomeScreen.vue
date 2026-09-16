@@ -1,19 +1,25 @@
 <script setup lang="ts">
-import { ImportIcon, PlusIcon } from '@modrinth/assets'
+import { ImportIcon, ModrinthIcon, PlusIcon } from '@modrinth/assets'
 import { Button, defineMessages, IntlFormatted, useVIntl } from '@modrinth/ui'
 import { inject, onMounted, onUnmounted, ref } from 'vue'
 
-import dyadMark from '../../assets/welcome/dyad-mark.svg'
+import { detectModrinthAppInstall } from '@/helpers/migrate-modrinth-app'
+
+import dyadMark from '../../assets/welcome/dyad-mark.svg?url'
+import MigrateModrinthAppModal from './modal/MigrateModrinthAppModal.vue'
 
 const showCreationModal = inject<() => void>('showCreationModal')
 const showImportModal = inject<() => void>('showImportModal')
+
+const migrateModal = ref<InstanceType<typeof MigrateModrinthAppModal> | null>(null)
+const modrinthAppDetected = ref(false)
 
 const { formatMessage } = useVIntl()
 
 const messages = defineMessages({
 	welcomeTitle: {
 		id: 'app.welcome-screen.title',
-		defaultMessage: 'Welcome to Modrinth',
+		defaultMessage: 'Welcome to Dyad',
 	},
 	welcomeDescription: {
 		id: 'app.welcome-screen.description',
@@ -34,6 +40,10 @@ const messages = defineMessages({
 	importFromLauncher: {
 		id: 'app.welcome-screen.import-from-launcher',
 		defaultMessage: 'Import from launcher',
+	},
+	importFromModrinthApp: {
+		id: 'app.welcome-screen.import-from-modrinth-app',
+		defaultMessage: 'Import from Modrinth App',
 	},
 })
 
@@ -71,6 +81,14 @@ onMounted(() => {
 	window.addEventListener('offline', handleOffline)
 	window.addEventListener('online', handleOnline)
 	window.addEventListener('keydown', handleQuickCreate)
+
+	detectModrinthAppInstall()
+		.then((detected) => {
+			modrinthAppDetected.value = !!detected
+		})
+		.catch(() => {
+			modrinthAppDetected.value = false
+		})
 })
 
 onUnmounted(() => {
@@ -129,11 +147,24 @@ onUnmounted(() => {
 			class="flex flex-col h-max items-center justify-end gap-4 text-sm leading-5 text-secondary"
 		>
 			<span class="whitespace-nowrap">{{ formatMessage(messages.importPrompt) }}</span>
-			<Button size="lg" class="!font-medium" :disabled="offline" @click="showImportModal?.()">
-				<ImportIcon />
-				{{ formatMessage(messages.importFromLauncher) }}
-			</Button>
+			<div class="flex items-center gap-2">
+				<Button size="lg" class="!font-medium" :disabled="offline" @click="showImportModal?.()">
+					<ImportIcon />
+					{{ formatMessage(messages.importFromLauncher) }}
+				</Button>
+				<Button
+					v-if="modrinthAppDetected"
+					size="lg"
+					class="!font-medium"
+					:disabled="offline"
+					@click="migrateModal?.show()"
+				>
+					<ModrinthIcon />
+					{{ formatMessage(messages.importFromModrinthApp) }}
+				</Button>
+			</div>
 		</div>
+		<MigrateModrinthAppModal ref="migrateModal" />
 	</div>
 </template>
 

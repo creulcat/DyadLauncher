@@ -1,4 +1,4 @@
-import { reactive, ref } from 'vue'
+import { reactive } from 'vue'
 
 export const DEFAULT_FEATURE_FLAGS = {
 	project_background: false,
@@ -10,7 +10,6 @@ export const DEFAULT_FEATURE_FLAGS = {
 	always_show_app_controls: false,
 	skip_non_essential_warnings: false,
 	skip_unknown_pack_warning: false,
-	pride_fundraiser: true,
 	i18n_debug: false,
 	show_instance_play_time: true,
 	compact_instance_cards: false,
@@ -28,24 +27,18 @@ export const DEFAULT_FEATURE_FLAGS = {
 export type FeatureFlag = keyof typeof DEFAULT_FEATURE_FLAGS
 type FeatureFlags = Record<FeatureFlag, boolean>
 
-const syncBehaviorAcrossDevices = ref(false)
 const featureFlags = reactive<FeatureFlags>({ ...DEFAULT_FEATURE_FLAGS })
-
-function setBehaviorSyncAcrossDevices(enabled: boolean): void {
-	syncBehaviorAcrossDevices.value = enabled
-}
 
 function getFeatureFlag(key: FeatureFlag): boolean {
 	return featureFlags[key] ?? DEFAULT_FEATURE_FLAGS[key]
 }
 
 const appSettings = reactive({
-	syncBehaviorAcrossDevices,
 	hideNametagSkinsPage: false,
 	toggleSidebar: false,
 	devMode: false,
+	checkForUpdates: false,
 	featureFlags,
-	setBehaviorSyncAcrossDevices,
 	getFeatureFlag,
 })
 

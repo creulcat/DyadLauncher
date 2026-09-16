@@ -3,13 +3,7 @@ use super::model::{
     InstallCleanup, InstallErrorContext, InstallErrorView, InstallJobDisplay,
     InstallJobEventKind, InstallJobSnapshot, InstallJobState, InstallJobStatus,
     InstallPhaseDetails, InstallPhaseId, InstallPostInstallEdit,
-    InstallProgress, InstallRequest, InstallRollbackState, InstallTarget,
-    SharedInstanceInstallData,
-};
-use super::shared_instance::{
-    apply_shared_instance_content, apply_shared_instance_update,
-    attach_pending_shared_instance, finalize_shared_instance_attachment,
-    shared_instance_link, shared_instance_pack_location,
+    InstallRequest, InstallRollbackState, InstallTarget,
 };
 use super::{diagnostics, recovery, store};
 use crate::ErrorKind;
@@ -24,10 +18,11 @@ use crate::event::emit::emit_instance;
 use crate::state::instances::adapters::sqlite::content_rows;
 use crate::state::instances::commands::resolve_icon_path;
 use crate::state::{
-    ContentSourceKind, InstanceIconConfig, InstanceInstallStage, InstanceLink,
-    ModLoader, State,
+    ContentSourceKind, EditInstance, InstanceIconConfig, InstanceInstallStage,
+    InstanceLink, ModLoader, State,
 };
 use crate::util::fetch::DownloadReason;
+use chrono::{TimeZone, Utc};
 use std::collections::HashSet;
 use std::path::PathBuf;
 use uuid::Uuid;
@@ -64,19 +59,6 @@ pub async fn create_modpack_instance(
     .await
 }
 
-pub async fn create_shared_instance(
-    data: SharedInstanceInstallData,
-) -> crate::Result<InstallJobSnapshot> {
-    start(InstallRequest::CreateSharedInstance { data }).await
-}
-
-pub async fn update_shared_instance(
-    instance_id: String,
-    data: SharedInstanceInstallData,
-) -> crate::Result<InstallJobSnapshot> {
-    start(InstallRequest::UpdateSharedInstance { instance_id, data }).await
-}
-
 pub async fn import_instance(
     launcher_type: crate::api::pack::import::ImportLauncherType,
     base_path: PathBuf,
@@ -86,6 +68,38 @@ pub async fn import_instance(
         launcher_type,
         base_path,
         instance_folder,
+    })
+    .await
+}
+
+#[allow(clippy::too_many_arguments)]
+pub async fn import_modrinth_app_instance(
+    source_instance_dir: PathBuf,
+    name: String,
+    game_version: String,
+    loader: ModLoader,
+    loader_version: Option<String>,
+    icon_path: Option<PathBuf>,
+    selection: crate::api::migrate_modrinth_app::execute::ImportSelection,
+    delete_source_after_import: bool,
+    last_played: Option<i64>,
+    total_time_played: u64,
+    launch_overrides: Option<
+        crate::api::migrate_modrinth_app::ImportLaunchOverridesCandidate,
+    >,
+) -> crate::Result<InstallJobSnapshot> {
+    start(InstallRequest::ImportModrinthApp {
+        source_instance_dir,
+        name,
+        game_version,
+        loader,
+        loader_version,
+        icon_path,
+        selection,
+        delete_source_after_import,
+        last_played,
+        total_time_played,
+        launch_overrides,
     })
     .await
 }
@@ -506,55 +520,6 @@ async fn prepare_initial_instance(
             );
             set_instance_id(job_state, metadata.instance.id);
         }
-        InstallRequest::CreateSharedInstance { data } => {
-            let shared_link = shared_instance_link(data.modpack.as_ref());
-            let (game_version, loader, loader_version, icon_path) =
-                if let Some(modpack) = data.modpack.clone() {
-                    let preview = get_instance_from_pack(
-                        shared_instance_pack_location(modpack),
-                    )
-                    .await?;
-                    (
-                        preview.game_version,
-                        preview.modloader,
-                        preview.loader_version,
-                        data.instance_icon_url
-                            .clone()
-                            .or_else(|| {
-                                preview.icon.as_ref().map(|path| {
-                                    path.to_string_lossy().to_string()
-                                })
-                            })
-                            .or_else(|| preview.icon_url.clone()),
-                    )
-                } else {
-                    (
-                        data.game_version.clone(),
-                        data.loader,
-                        data.loader_version.clone(),
-                        data.instance_icon_url.clone(),
-                    )
-                };
-            let metadata = crate::api::instance::create(
-                data.name.clone(),
-                game_version,
-                loader,
-                loader_version,
-                icon_path,
-                None,
-                shared_link,
-            )
-            .await?;
-            set_display(
-                job_state,
-                metadata.instance.name,
-                metadata.instance.icon_path,
-            );
-            let instance_id = metadata.instance.id;
-            set_instance_id(job_state, instance_id.clone());
-            attach_pending_shared_instance(&instance_id, &data, state).await?;
-            emit_instance(&instance_id, InstancePayloadType::Edited).await?;
-        }
         InstallRequest::ImportInstance {
             instance_folder, ..
         } => {
@@ -568,6 +533,66 @@ async fn prepare_initial_instance(
                 InstanceLink::Unmanaged,
             )
             .await?;
+            set_display(
+                job_state,
+                metadata.instance.name,
+                metadata.instance.icon_path,
+            );
+            set_instance_id(job_state, metadata.instance.id);
+        }
+        InstallRequest::ImportModrinthApp {
+            name,
+            game_version,
+            loader,
+            loader_version,
+            icon_path,
+            last_played,
+            total_time_played,
+            launch_overrides,
+            ..
+        } => {
+            // Unlike ImportInstance, we already know the real
+            // name/game_version/loader/loader_version from the Phase 1
+            // preview - no placeholder-then-correct step needed. `icon_path`
+            // is an absolute path into the *source* app's own icon cache;
+            // `PathBuf::join` on an already-absolute path just becomes that
+            // path, so `resolve_icon_path`'s normal
+            // `caches_dir().join(icon)` handling re-caches it into Dyad's
+            // own cache correctly without any special-casing here.
+            let metadata = crate::api::instance::create(
+                name,
+                game_version,
+                loader,
+                loader_version,
+                icon_path.map(|path| path.to_string_lossy().to_string()),
+                None,
+                InstanceLink::Unmanaged,
+            )
+            .await?;
+            // `create` always starts a fresh instance at last_played: None,
+            // 0 playtime - carry the source's values over so an imported
+            // instance doesn't look never-played. `submitted_time_played`
+            // and `recent_time_played` only differ by the source app's own
+            // reporting cadence, which means nothing here, so they're
+            // collapsed into one total on `submitted_time_played`.
+            if last_played.is_some() || total_time_played > 0 || launch_overrides.is_some()
+            {
+                crate::api::instance::edit(
+                    &metadata.instance.id,
+                    EditInstance {
+                        last_played: Some(
+                            last_played
+                                .and_then(|secs| Utc.timestamp_opt(secs, 0).single()),
+                        ),
+                        submitted_time_played: Some(total_time_played),
+                        launch_overrides: launch_overrides
+                            .as_ref()
+                            .map(crate::api::migrate_modrinth_app::execute::launch_overrides_patch),
+                        ..Default::default()
+                    },
+                )
+                .await?;
+            }
             set_display(
                 job_state,
                 metadata.instance.name,
@@ -604,8 +629,7 @@ async fn prepare_initial_instance(
         InstallRequest::InstallExistingInstance { instance_id, .. }
         | InstallRequest::InstallPackToExistingInstance {
             instance_id, ..
-        }
-        | InstallRequest::UpdateSharedInstance { instance_id, .. } => {
+        } => {
             prepare_existing_rollback(job_state, state, &instance_id).await?;
         }
     }
@@ -889,28 +913,6 @@ async fn run_request(
             apply_post_install_edit(&instance_id, post_install_edit).await?;
             Ok(Some(instance_id))
         }
-        InstallRequest::CreateSharedInstance { data } => {
-            let Some(instance_id) = current_instance_id(job_state) else {
-                return Err(crate::ErrorKind::InputError(
-                    "Install job is missing its instance id".to_string(),
-                )
-                .into());
-            };
-            Box::pin(apply_shared_instance_content(
-                job_id,
-                job_state,
-                state,
-                &instance_id,
-                &data,
-            ))
-            .await?;
-
-            finalize_shared_instance_attachment(&instance_id, &data, state)
-                .await?;
-            emit_instance(&instance_id, InstancePayloadType::Edited).await?;
-
-            Ok(Some(instance_id))
-        }
         InstallRequest::ImportInstance {
             launcher_type,
             base_path,
@@ -939,6 +941,84 @@ async fn run_request(
                 base_path,
                 instance_folder,
                 InstallProgressReporter::new(job_id, job_state.clone()),
+            )
+            .await?;
+            Ok(Some(instance_id))
+        }
+        InstallRequest::ImportModrinthApp {
+            source_instance_dir,
+            name,
+            game_version,
+            loader,
+            loader_version: _,
+            icon_path: _,
+            selection,
+            delete_source_after_import,
+            last_played: _,
+            total_time_played: _,
+            launch_overrides: _,
+        } => {
+            let Some(instance_id) = current_instance_id(job_state) else {
+                return Err(crate::ErrorKind::InputError(
+                    "Install job is missing its instance id".to_string(),
+                )
+                .into());
+            };
+
+            update_progress(
+                job_id,
+                job_state,
+                state,
+                InstallPhaseId::PreparingInstance,
+                InstallPhaseDetails::Instance { name: name.clone() },
+            )
+            .await?;
+            crate::api::migrate_modrinth_app::execute::copy_selected_content(
+                &instance_id,
+                &source_instance_dir,
+                &selection,
+                &state.io_semaphore,
+                &InstallProgressReporter::new(job_id, job_state.clone()),
+                InstallPhaseDetails::Instance { name: name.clone() },
+            )
+            .await?;
+
+            // Only ever deletes the specific folders that were just copied
+            // above (never anything else in the source instance), and only
+            // after that copy has already succeeded - see
+            // `delete_selected_source_content`'s doc comment.
+            if delete_source_after_import {
+                crate::api::migrate_modrinth_app::execute::delete_selected_source_content(
+                    &source_instance_dir,
+                    &selection,
+                )
+                .await?;
+            }
+
+            update_progress(
+                job_id,
+                job_state,
+                state,
+                InstallPhaseId::DownloadingMinecraft,
+                InstallPhaseDetails::Minecraft {
+                    game_version,
+                    loader,
+                },
+            )
+            .await?;
+            let context =
+                crate::state::instances::commands::get_instance_launch_context(
+                    &instance_id,
+                    &state.pool,
+                )
+                .await?
+                .ok_or_else(|| {
+                    crate::ErrorKind::InputError("Unknown instance".to_string())
+                })?;
+            crate::launcher::install_minecraft_with_reporter(
+                &context,
+                false,
+                Some(InstallProgressReporter::new(job_id, job_state.clone())),
             )
             .await?;
             Ok(Some(instance_id))
@@ -1045,49 +1125,6 @@ async fn run_request(
             apply_post_install_edit(&instance_id, post_install_edit).await?;
             Ok(Some(instance_id))
         }
-        InstallRequest::UpdateSharedInstance { instance_id, data } => {
-            prepare_existing_rollback(job_state, state, &instance_id).await?;
-            lock_existing_instance(&instance_id, state).await?;
-            let rollback_instance = job_state
-                .rollback
-                .as_ref()
-                .map(|rollback| rollback.instance.clone())
-                .ok_or_else(|| {
-                    crate::ErrorKind::OtherError(
-                        "Shared instance update rollback state is missing"
-                            .to_string(),
-                    )
-                })?;
-            let staging_dir = recovery::prepare_shared_instance_update_backup(
-                job_id,
-                &rollback_instance,
-                state,
-            )
-            .await?;
-            job_state.paths.staging_dir = Some(staging_dir);
-            let record = store::update_state(job_id, job_state, state).await?;
-            emit_install_job(&record.snapshot()).await?;
-            let disabled_project_ids =
-                disabled_project_ids(&instance_id, state).await?;
-            Box::pin(apply_shared_instance_update(
-                job_id,
-                job_state,
-                state,
-                &instance_id,
-                &data,
-            ))
-            .await?;
-            restore_disabled_projects(
-                &instance_id,
-                disabled_project_ids,
-                state,
-            )
-            .await?;
-            finalize_shared_instance_attachment(&instance_id, &data, state)
-                .await?;
-            emit_instance(&instance_id, InstancePayloadType::Edited).await?;
-            Ok(Some(instance_id))
-        }
     }
 }
 
@@ -1127,20 +1164,6 @@ async fn apply_post_install_edit(
     emit_instance(instance_id, InstancePayloadType::Edited).await?;
 
     Ok(())
-}
-
-async fn disabled_project_ids(
-    instance_id: &str,
-    state: &State,
-) -> crate::Result<HashSet<String>> {
-    Ok(crate::state::instances::commands::list_project_files(
-        instance_id,
-        state,
-    )
-    .await?
-    .into_iter()
-    .filter_map(|file| (!file.enabled).then_some(file.project_id?))
-    .collect())
 }
 
 async fn remove_existing_pack_content(
@@ -1442,25 +1465,6 @@ pub(super) async fn update_progress(
     details: InstallPhaseDetails,
 ) -> crate::Result<()> {
     job_state.set_progress(phase, None, details);
-    let record = store::update_state(job_id, job_state, state).await?;
-    emit_install_job(&record.snapshot()).await?;
-    Ok(())
-}
-
-pub(super) async fn update_content_progress(
-    job_id: Uuid,
-    job_state: &mut InstallJobState,
-    state: &State,
-    current: u64,
-    total: u64,
-) -> crate::Result<()> {
-    job_state.progress.phase = InstallPhaseId::DownloadingContent;
-    job_state.progress.progress = Some(InstallProgress {
-        current,
-        total,
-        secondary: None,
-    });
-    job_state.progress.details = InstallPhaseDetails::Empty;
     let record = store::update_state(job_id, job_state, state).await?;
     emit_install_job(&record.snapshot()).await?;
     Ok(())

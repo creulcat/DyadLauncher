@@ -1,5 +1,4 @@
 use crate::State;
-use crate::api::instance::CONFIG_FILE_EXTENSIONS;
 use crate::event::emit::loading_try_for_each_concurrent;
 use crate::install::{
     InstallErrorContext, InstallJobEventKind, InstallPhaseDetails,
@@ -45,6 +44,22 @@ type ExtractProgressFn<'a> = dyn FnMut(u64) -> Pin<Box<dyn Future<Output = crate
 type HashProgressFn<'a> = dyn FnMut(u64) -> crate::Result<()> + Send + 'a;
 const MODPACK_CONTENT_DOWNLOAD_CONCURRENCY: usize = 4;
 const MRPACK_WARNING_IGNORED_EXTENSIONS: &[&str] = &["rpo"];
+const CONFIG_FILE_EXTENSIONS: [&str; 14] = [
+    "json",
+    "json5",
+    "jsonc",
+    "yml",
+    "yaml",
+    "css",
+    "toml",
+    "txt",
+    "ini",
+    "cfg",
+    "conf",
+    "properties",
+    "xml",
+    "nbt",
+];
 
 fn is_ignored_mrpack_warning_file(path: &str) -> bool {
     Path::new(path)

@@ -47,48 +47,28 @@ function deserialize_APP_EVENT(d) {
         };
     case 4:
         return {
-            tag: "onboarding_checklist",
-            value: deserialize_ONBOARDING_CHECKLIST(d)
-        };
-    case 5:
-        return {
             tag: "instance_bulk_update_progress",
             value: deserialize_INSTANCE_BULK_UPDATE_PROGRESS_PAYLOAD(d)
         };
-    case 6:
+    case 5:
         return {
             tag: "install_job",
             value: deserialize_INSTALL_JOB_SNAPSHOT(d)
         };
-    case 7:
+    case 6:
         return {
             tag: "command",
             value: deserialize_COMMAND_PAYLOAD(d)
         };
-    case 8:
+    case 7:
         return {
             tag: "warning",
             value: deserialize_WARNING_PAYLOAD(d)
         };
-    case 9:
-        return {
-            tag: "friend",
-            value: deserialize_FRIEND_PAYLOAD(d)
-        };
-    case 10:
-        return {
-            tag: "notification",
-            value: d.deserialize_string()
-        };
-    case 11:
+    case 8:
         return {
             tag: "log",
             value: deserialize_LOG_PAYLOAD(d)
-        };
-    case 12:
-        return {
-            tag: "ads_consent_required",
-            value: d.deserialize_bool()
         };
     default:
         throw "variant not implemented"
@@ -288,13 +268,6 @@ function deserialize_COMMAND_PAYLOAD(d) {
         };
     case 5:
         return {
-            tag: "InstallSharedInstanceInvite",
-            value: {
-                invite_id: d.deserialize_string()
-            }
-        };
-    case 6:
-        return {
             tag: "RunMRPack",
             value: {
                 path: d.deserialize_string()
@@ -404,55 +377,6 @@ function deserialize_INSTANCE_GROUPS_CHANGED_PAYLOAD(d) {
     };
 }
 
-function deserialize_ONBOARDING_CHECKLIST(d) {
-    return {
-        has_created_instance: d.deserialize_bool(),
-        has_logged_into_minecraft: d.deserialize_bool(),
-        has_logged_into_modrinth: d.deserialize_bool(),
-        show_checklist: d.deserialize_bool()
-    };
-}
-
-function deserialize_FRIEND_PAYLOAD(d) {
-    switch (d.deserialize_number(U32_BYTES, false)) {
-    case 0:
-        return {
-            tag: "friend_request",
-            value: {
-                from: d.deserialize_string()
-            }
-        };
-    case 1:
-        return {
-            tag: "user_offline",
-            value: {
-                id: d.deserialize_string()
-            }
-        };
-    case 2:
-        return {
-            tag: "status_update",
-            value: {
-                user_status: deserialize_FRIEND_STATUS_PAYLOAD(d)
-            }
-        };
-    case 3:
-        return {
-            tag: "status_sync"
-        };
-    default:
-        throw "variant not implemented"
-    }
-}
-
-function deserialize_FRIEND_STATUS_PAYLOAD(d) {
-    return {
-        user_id: d.deserialize_string(),
-        profile_name: (d.deserialize_number(U32_BYTES, false) === 0) ? undefined : d.deserialize_string(),
-        last_update: d.deserialize_string()
-    };
-}
-
 function deserialize_LOG_EVENT(d) {
     switch (d.deserialize_number(U32_BYTES, false)) {
     case 0:
@@ -521,11 +445,11 @@ function deserialize_INSTALL_JOB_KIND(d) {
         };
     case 2:
         return {
-            tag: "create_shared_instance"
+            tag: "import_instance"
         };
     case 3:
         return {
-            tag: "import_instance"
+            tag: "import_modrinth_app"
         };
     case 4:
         return {
@@ -538,10 +462,6 @@ function deserialize_INSTALL_JOB_KIND(d) {
     case 6:
         return {
             tag: "install_pack_to_existing_instance"
-        };
-    case 7:
-        return {
-            tag: "update_shared_instance"
         };
     default:
         throw "variant not implemented"
@@ -925,15 +845,6 @@ function deserialize(type, bytes) {
         break;
     case "InstanceGroupsChangedPayload":
         return_value = deserialize_INSTANCE_GROUPS_CHANGED_PAYLOAD(d);
-        break;
-    case "OnboardingChecklist":
-        return_value = deserialize_ONBOARDING_CHECKLIST(d);
-        break;
-    case "FriendPayload":
-        return_value = deserialize_FRIEND_PAYLOAD(d);
-        break;
-    case "FriendStatusPayload":
-        return_value = deserialize_FRIEND_STATUS_PAYLOAD(d);
         break;
     case "LogEvent":
         return_value = deserialize_LOG_EVENT(d);

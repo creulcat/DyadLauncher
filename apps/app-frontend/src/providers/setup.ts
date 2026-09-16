@@ -4,7 +4,6 @@ import type { AbstractPopupNotificationManager, AbstractWebNotificationManager }
 import type { InstanceIconConfig } from '@/helpers/types'
 
 import type { AppEvents } from './app-events'
-import { setupOnboardingChecklistProvider } from './onboarding-checklist'
 import { setupCreationModal } from './setup/creation-modal'
 import { setupFileDropProvider } from './setup/file-drop'
 import { setupFilePickerProvider } from './setup/file-picker'
@@ -17,7 +16,7 @@ export function setupProviders(
 	client: AbstractModrinthClient,
 	notificationManager: AbstractWebNotificationManager,
 	_popupNotificationManager: AbstractPopupNotificationManager,
-	appEvents: AppEvents,
+	_appEvents: AppEvents,
 	getGeneratedIconConfig?: (iconPath: string) => InstanceIconConfig | null,
 ) {
 	setupUserCountryProvider(client)
@@ -26,10 +25,8 @@ export function setupProviders(
 	setupFilePickerProvider()
 	setupImageViewerEditorProvider()
 	setupInstanceImportProvider(notificationManager)
-	const onboardingChecklist = setupOnboardingChecklistProvider(appEvents)
 
 	return {
 		...setupCreationModal(notificationManager, getGeneratedIconConfig),
-		onboardingChecklist,
 	}
 }

@@ -63,7 +63,7 @@ watch(
 	(newPath) => {
 		if (newPath && optimalJava?.parsed_version) {
 			if (!hasInitialized) {
-				testJavaInstallation(newPath, optimalJava?.parsed_version, false)
+				testJavaInstallation(newPath, optimalJava?.parsed_version)
 				hasInitialized = true
 			} else {
 				testJavaInstallationDebounced(newPath, optimalJava?.parsed_version)
@@ -271,7 +271,7 @@ const messages = defineMessages({
 												: undefined,
 									}"
 									class="!text-[var(--legacy-button-color,var(--color-base))] [&>svg]:!text-[var(--legacy-button-color,var(--color-primary))]"
-									@click="testJavaInstallation(activePath, optimalJava?.parsed_version, true)"
+									@click="testJavaInstallation(activePath, optimalJava?.parsed_version)"
 									@mouseenter="hoveringTest = true"
 									@mouseleave="hoveringTest = false"
 								>

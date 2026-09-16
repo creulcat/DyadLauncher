@@ -9,9 +9,8 @@ pub mod instance;
 pub mod jre;
 pub mod logs;
 pub mod metadata;
+pub mod migrate_modrinth_app;
 pub mod minecraft_skins;
-pub mod mr_auth;
-pub mod onboarding_checklist;
 pub mod process;
 pub mod reports;
 pub mod settings;
@@ -20,17 +19,9 @@ pub mod tags;
 pub mod users;
 pub mod utils;
 
-pub mod ads;
-#[cfg(target_os = "macos")]
-mod ads_occlusion_macos;
-#[cfg(windows)]
-mod ads_occlusion_windows;
 pub mod cache;
 pub mod files;
-pub mod friends;
 pub mod worlds;
-
-mod oauth_utils;
 
 pub type Result<T> = std::result::Result<T, TheseusSerializableError>;
 
