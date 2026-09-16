@@ -442,6 +442,7 @@ async function setupApp() {
 		developer_mode,
 		feature_flags,
 		pending_update_toast_for_version,
+		check_for_updates,
 	} = await getSettings()
 
 	// Initialize locale from saved settings
@@ -462,6 +463,7 @@ async function setupApp() {
 	appSettings.hideNametagSkinsPage = hide_nametag_skins_page
 	appSettings.toggleSidebar = toggle_sidebar
 	appSettings.devMode = developer_mode
+	appSettings.checkForUpdates = check_for_updates
 	stateInitialized.value = true
 
 	await getCurrentWindow().onResized(async () => {
@@ -849,11 +851,11 @@ const updatePopupMessages = defineMessages({
 	},
 	meteredBody: {
 		id: 'app.update-popup.body.metered',
-		defaultMessage: `Modrinth App v{version} is available now! Since you're on a metered network, we didn't automatically download it.`,
+		defaultMessage: `Dyad Launcher v{version} is available now! Since you're on a metered network, we didn't automatically download it.`,
 	},
 	downloadedBody: {
 		id: 'app.update-popup.body.download-complete',
-		defaultMessage: `Modrinth App v{version} has finished downloading. Reload to update now, or automatically when you close Modrinth App.`,
+		defaultMessage: `Dyad Launcher v{version} has finished downloading. Reload to update now, or automatically when you close Dyad Launcher.`,
 	},
 	reload: {
 		id: 'app.update-popup.reload',
@@ -974,6 +976,12 @@ function showDelayedUpdatePopup() {
 async function checkUpdates() {
 	if (!(await areUpdatesEnabled())) {
 		console.log('Skipping update check as updates are disabled in this build or environment')
+		updatesEnabled.value = false
+		return
+	}
+
+	if (!appSettings.checkForUpdates) {
+		console.log('Skipping update check as the user has not opted in')
 		updatesEnabled.value = false
 		return
 	}
