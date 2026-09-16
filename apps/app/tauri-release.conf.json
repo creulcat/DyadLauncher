@@ -30,7 +30,7 @@
 	},
 	"plugins": {
 		"updater": {
-			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEFEQjIzRDQyNTU4NDIxOTMKUldTVElZUlZRajJ5cllJdW50d1RKM0JXbEhWWERObUZKMWNVbngyWExqWjgyKzIveWRCK2xWZSsK",
+			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDExMUMzMzYzNTgwNjZCRTUKUldUbGF3WllZek1jRWFZZTd0d0ZzQmwzWmdxbmlzRXBSckhZc2ZESGZ4ZnFQSGJsUkZtaVRHckkK",
 			"endpoints": [
 				"https://github.com/creulcat/DyadLauncher/releases/latest/download/updates.json"
 			]
