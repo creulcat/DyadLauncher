@@ -154,6 +154,44 @@ pub(super) async fn fetch_instances(
         .collect())
 }
 
+pub(super) struct RawContentSet {
+    pub instance_id: String,
+    pub game_version: String,
+    pub loader: String,
+    pub loader_version: Option<String>,
+}
+
+/// Every `instance_content_sets` row, ordered so that for each `instance_id`
+/// the most recently modified content set comes first - a best-effort
+/// fallback for `fetch_instances`' `applied_content_set_id` join coming back
+/// empty (see `resolve_game_version_fallback` in `mod.rs`). Not filtered to
+/// only-orphaned instances: the caller only consults this when the primary
+/// join was empty, so fetching every content set once here is simpler than a
+/// second correlated-subquery round trip per instance.
+pub(super) async fn fetch_content_sets_by_recency(
+    pool: &Pool<Sqlite>,
+) -> crate::Result<Vec<RawContentSet>> {
+    let rows = sqlx::query(
+        "
+        SELECT instance_id, game_version, loader, loader_version
+        FROM instance_content_sets
+        ORDER BY instance_id, modified DESC
+        ",
+    )
+    .fetch_all(pool)
+    .await?;
+
+    Ok(rows
+        .into_iter()
+        .map(|row| RawContentSet {
+            instance_id: row.get("instance_id"),
+            game_version: row.get("game_version"),
+            loader: row.get("loader"),
+            loader_version: row.get("loader_version"),
+        })
+        .collect())
+}
+
 pub(super) struct RawJavaVersion {
     pub major_version: i64,
     pub full_version: String,

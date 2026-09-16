@@ -138,6 +138,10 @@ pub struct InstallImportModrinthAppRequest {
     pub total_time_played: u64,
     #[serde(default)]
     pub launch_overrides: Option<ImportLaunchOverridesCandidate>,
+    pub source_settings_dir: PathBuf,
+    pub source_id: String,
+    #[serde(default)]
+    pub replace_existing_instance_id: Option<String>,
 }
 
 /// Goal 6 (see `docs/goal-6-import-design.md`): imports one instance from an
@@ -159,6 +163,9 @@ pub async fn install_import_modrinth_app_instance(
         request.last_played,
         request.total_time_played,
         request.launch_overrides,
+        request.source_settings_dir,
+        request.source_id,
+        request.replace_existing_instance_id,
     )
     .await?)
 }

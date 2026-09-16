@@ -1,7 +1,9 @@
 use std::path::PathBuf;
 
 use crate::api::Result;
-use theseus::migrate_modrinth_app::execute::SettingsImportSelection;
+use theseus::migrate_modrinth_app::execute::{
+    SettingsImportSelection, SyncedOptionsMigrationOutcome,
+};
 use theseus::migrate_modrinth_app::{
     self, DetectedSource, ImportJavaVersionCandidate, ImportPreview,
     ImportSettingsCandidate,
@@ -14,6 +16,7 @@ pub fn init<R: tauri::Runtime>() -> tauri::plugin::TauriPlugin<R> {
             is_modrinth_app_running,
             preview_modrinth_app_import,
             apply_modrinth_app_settings,
+            migrate_modrinth_app_synced_options,
         ])
         .build()
 }
@@ -63,6 +66,20 @@ pub async fn apply_modrinth_app_settings(
         &candidate,
         &java_versions,
         &selection,
+    )
+    .await?)
+}
+
+/// Migrates the official Modrinth App's app-level synced-options store
+/// (shared server list, hotbars, command history) into Dyad's own store,
+/// given `source_config_dir` from a Phase 1 preview. Only ever seeds an
+/// empty destination store - see the outcome enum's doc comments.
+#[tauri::command]
+pub async fn migrate_modrinth_app_synced_options(
+    source_config_dir: PathBuf,
+) -> Result<SyncedOptionsMigrationOutcome> {
+    Ok(migrate_modrinth_app::execute::migrate_synced_options_store(
+        &source_config_dir,
     )
     .await?)
 }

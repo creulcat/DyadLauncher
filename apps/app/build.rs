@@ -151,6 +151,7 @@ fn main() {
                         "is_modrinth_app_running",
                         "preview_modrinth_app_import",
                         "apply_modrinth_app_settings",
+                        "migrate_modrinth_app_synced_options",
                     ])
                     .default_permission(
                         DefaultPermissionRule::AllowAllCommands,

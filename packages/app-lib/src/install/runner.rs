@@ -87,6 +87,9 @@ pub async fn import_modrinth_app_instance(
     launch_overrides: Option<
         crate::api::migrate_modrinth_app::ImportLaunchOverridesCandidate,
     >,
+    source_settings_dir: PathBuf,
+    source_id: String,
+    replace_existing_instance_id: Option<String>,
 ) -> crate::Result<InstallJobSnapshot> {
     start(InstallRequest::ImportModrinthApp {
         source_instance_dir,
@@ -100,6 +103,9 @@ pub async fn import_modrinth_app_instance(
         last_played,
         total_time_played,
         launch_overrides,
+        source_settings_dir,
+        source_id,
+        replace_existing_instance_id,
     })
     .await
 }
@@ -549,8 +555,21 @@ async fn prepare_initial_instance(
             last_played,
             total_time_played,
             launch_overrides,
+            source_settings_dir,
+            source_id,
+            replace_existing_instance_id,
             ..
         } => {
+            // The user chose to overwrite a prior import of this same source
+            // instance (see `migrate_modrinth_app::import_link`) rather than
+            // skip it or create another copy - remove that old instance
+            // first so this import creates a clean replacement instead of a
+            // second duplicate sitting alongside it.
+            if let Some(existing_instance_id) = &replace_existing_instance_id
+            {
+                crate::api::instance::remove(existing_instance_id).await?;
+            }
+
             // Unlike ImportInstance, we already know the real
             // name/game_version/loader/loader_version from the Phase 1
             // preview - no placeholder-then-correct step needed. `icon_path`
@@ -592,6 +611,23 @@ async fn prepare_initial_instance(
                     },
                 )
                 .await?;
+            }
+            // Recorded on a best-effort basis - a failure here shouldn't
+            // fail an otherwise-successful import, just mean a future
+            // re-import of this same source instance won't be warned about.
+            if let Err(error) =
+                crate::api::migrate_modrinth_app::import_link::record_import(
+                    &state.pool,
+                    &metadata.instance.id,
+                    &source_settings_dir,
+                    &source_id,
+                )
+                .await
+            {
+                tracing::warn!(
+                    "Failed to record Modrinth App import source for instance {}: {error}",
+                    metadata.instance.id
+                );
             }
             set_display(
                 job_state,
@@ -957,6 +993,9 @@ async fn run_request(
             last_played: _,
             total_time_played: _,
             launch_overrides: _,
+            source_settings_dir: _,
+            source_id: _,
+            replace_existing_instance_id: _,
         } => {
             let Some(instance_id) = current_instance_id(job_state) else {
                 return Err(crate::ErrorKind::InputError(

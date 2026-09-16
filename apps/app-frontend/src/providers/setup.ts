@@ -9,6 +9,7 @@ import { setupFileDropProvider } from './setup/file-drop'
 import { setupFilePickerProvider } from './setup/file-picker'
 import { setupImageViewerEditorProvider } from './setup/image-viewer-editor'
 import { setupInstanceImportProvider } from './setup/instance-import'
+import { setupMigrateModrinthAppModalProvider } from './setup/migrate-modrinth-app-modal'
 import { setupTagsProvider } from './setup/tags'
 import { setupUserCountryProvider } from './setup/user-country'
 
@@ -28,5 +29,6 @@ export function setupProviders(
 
 	return {
 		...setupCreationModal(notificationManager, getGeneratedIconConfig),
+		...setupMigrateModrinthAppModalProvider(),
 	}
 }

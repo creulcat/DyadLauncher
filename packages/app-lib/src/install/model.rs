@@ -209,6 +209,20 @@ pub enum InstallRequest {
         /// user chose not to import them.
         #[serde(default)]
         launch_overrides: Option<ImportLaunchOverridesCandidate>,
+        /// The source app's settings dir and this source instance's own id
+        /// (`ImportInstanceCandidate::source_id`) - recorded against the
+        /// newly created instance on success so a later import of the same
+        /// source instance can detect it and warn instead of silently
+        /// duplicating it. See `migrate_modrinth_app::import_link`.
+        source_settings_dir: PathBuf,
+        source_id: String,
+        /// If the frontend already knows (from `ImportInstanceCandidate::already_imported`)
+        /// that this source instance was imported before, and the user chose
+        /// to overwrite that prior import rather than skip or create another
+        /// copy: the existing Dyad instance to delete before creating the
+        /// new one.
+        #[serde(default)]
+        replace_existing_instance_id: Option<String>,
     },
     DuplicateInstance {
         source_instance_id: String,

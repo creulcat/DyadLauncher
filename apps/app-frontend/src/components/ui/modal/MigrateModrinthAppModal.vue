@@ -43,6 +43,7 @@ import {
 	type ImportSymlinkCandidate,
 	installImportModrinthAppInstance,
 	isModrinthAppRunning,
+	migrateModrinthAppSyncedOptions,
 	previewModrinthAppImport,
 	type SettingsImportSelection,
 	type SymlinkAction,
@@ -181,6 +182,26 @@ const messages = defineMessages({
 		defaultMessage: 'Screenshots',
 	},
 	categoryLogs: { id: 'app.migrate-modrinth-app.category.logs', defaultMessage: 'Logs' },
+	categoryOtherFiles: {
+		id: 'app.migrate-modrinth-app.category.other-files',
+		defaultMessage: 'Other files (server list, waypoints, backups, ...)',
+	},
+	alreadyImported: {
+		id: 'app.migrate-modrinth-app.already-imported',
+		defaultMessage: 'Already imported as "{name}"',
+	},
+	overwriteExisting: {
+		id: 'app.migrate-modrinth-app.overwrite-existing',
+		defaultMessage: 'Overwrite that instance instead of creating a copy',
+	},
+	importCopySuffix: {
+		id: 'app.migrate-modrinth-app.import-copy-suffix',
+		defaultMessage: '{name} (import copy)',
+	},
+	gameVersionInferred: {
+		id: 'app.migrate-modrinth-app.game-version-inferred',
+		defaultMessage: 'best guess, please double-check',
+	},
 	symlinkTitle: {
 		id: 'app.migrate-modrinth-app.symlink.title',
 		defaultMessage: '{category} (linked folder)',
@@ -222,6 +243,10 @@ const worldSelections = reactive<Record<string, Record<string, boolean>>>({})
 const symlinkSelections = reactive<Record<string, Record<string, SymlinkAction>>>({})
 /** Whether to carry over an instance's own launch overrides - only meaningful when it has any. */
 const launchOverridesSelections = reactive<Record<string, boolean>>({})
+/** Whether to copy `instance.otherFiles` - only meaningful when it's non-null. */
+const otherFilesSelections = reactive<Record<string, boolean>>({})
+/** Whether to overwrite a prior import instead of creating another copy - only meaningful when `instance.alreadyImported` is set. */
+const overwriteSelections = reactive<Record<string, boolean>>({})
 const settingsSelection = reactive<SettingsImportSelection>({
 	extraLaunchArgs: false,
 	customEnvVars: false,
@@ -261,6 +286,10 @@ function resetState() {
 	for (const key of Object.keys(symlinkSelections)) Reflect.deleteProperty(symlinkSelections, key)
 	for (const key of Object.keys(launchOverridesSelections))
 		Reflect.deleteProperty(launchOverridesSelections, key)
+	for (const key of Object.keys(otherFilesSelections))
+		Reflect.deleteProperty(otherFilesSelections, key)
+	for (const key of Object.keys(overwriteSelections))
+		Reflect.deleteProperty(overwriteSelections, key)
 	for (const key of Object.keys(activeJobs)) Reflect.deleteProperty(activeJobs, key)
 	settingsSelection.extraLaunchArgs = false
 	settingsSelection.customEnvVars = false
@@ -317,8 +346,16 @@ async function loadPreview(detected: DetectedSource) {
 
 function initSelections(result: ImportPreview) {
 	for (const instance of result.instances) {
-		includedInstances[instance.sourceId] = !!instance.gameVersion
+		// A guessed game version (see `gameVersionInferred`) or a prior
+		// import (see `alreadyImported`) both leave the checkbox enabled
+		// (there's something real to work with) but unchecked by default -
+		// "best effort, opt in" rather than assuming the guess is right or
+		// that the user wants another copy of something already imported.
+		includedInstances[instance.sourceId] =
+			!!instance.gameVersion && !instance.gameVersionInferred && !instance.alreadyImported
 		expandedInstances[instance.sourceId] = false
+		otherFilesSelections[instance.sourceId] = instance.otherFiles != null
+		overwriteSelections[instance.sourceId] = false
 
 		const categories: Partial<Record<ContentCategory, boolean>> = {}
 		for (const category of instance.categories) {
@@ -414,6 +451,20 @@ function symlinkForWorld(
 	return instance.symlinks.find((symlink) => symlink.relativePath === `saves/${folderName}`)
 }
 
+/**
+ * The name to create the instance with - suffixed to stand out in the
+ * instance list when this is deliberately a second copy of an
+ * already-imported source instance, rather than relying solely on
+ * `resolve_instance_path`'s generic `" (1)"` folder-collision numbering
+ * (which looks identical to any other unrelated name clash).
+ */
+function resolveImportName(instance: ImportInstanceCandidate): string {
+	if (instance.alreadyImported && !overwriteSelections[instance.sourceId]) {
+		return formatMessage(messages.importCopySuffix, { name: instance.name })
+	}
+	return instance.name
+}
+
 function setSymlinkAction(
 	instance: ImportInstanceCandidate,
 	relativePath: string,
@@ -449,7 +500,9 @@ function cancelAll() {
 }
 
 async function confirmImport() {
-	if (!preview.value || isImporting.value) return
+	if (!preview.value || !source.value || isImporting.value) return
+	const currentPreview = preview.value
+	const currentSource = source.value
 	isImporting.value = true
 	step.value = 'importing'
 
@@ -458,7 +511,16 @@ async function confirmImport() {
 		if (job) job.snapshot = snapshot
 	})
 
-	for (const instance of preview.value.instances) {
+	// Best-effort and app-level (not per-instance) - only ever seeds an
+	// empty destination store, so a failure or a no-op skip here should
+	// never block the per-instance imports below.
+	try {
+		await migrateModrinthAppSyncedOptions(currentPreview.sourceConfigDir)
+	} catch (error) {
+		handleError(error)
+	}
+
+	for (const instance of currentPreview.instances) {
 		if (!includedInstances[instance.sourceId] || !instance.gameVersion) continue
 
 		const categories = (
@@ -493,12 +555,18 @@ async function confirmImport() {
 			}
 		}
 
-		const selection: ImportSelection = { categories, worlds, symlinkActions }
+		const selection: ImportSelection = {
+			categories,
+			worlds,
+			symlinkActions,
+			includeOtherFiles: !!(instance.otherFiles && otherFilesSelections[instance.sourceId]),
+		}
 
 		try {
+			const importName = resolveImportName(instance)
 			const snapshot = await installImportModrinthAppInstance({
 				sourceInstanceDir: instance.instanceDir,
-				name: instance.name,
+				name: importName,
 				gameVersion: instance.gameVersion,
 				loader: instance.loader,
 				loaderVersion: instance.loaderVersion,
@@ -510,8 +578,14 @@ async function confirmImport() {
 				launchOverrides: launchOverridesSelections[instance.sourceId]
 					? instance.launchOverrides
 					: null,
+				sourceSettingsDir: currentSource.settingsDir,
+				sourceId: instance.sourceId,
+				replaceExistingInstanceId:
+					instance.alreadyImported && overwriteSelections[instance.sourceId]
+						? instance.alreadyImported.instanceId
+						: null,
 			})
-			activeJobs[snapshot.job_id] = { instanceName: instance.name, snapshot }
+			activeJobs[snapshot.job_id] = { instanceName: importName, snapshot }
 		} catch (error) {
 			handleError(error)
 		}
@@ -520,7 +594,7 @@ async function confirmImport() {
 	const wantsSettings = Object.values(settingsSelection).some(Boolean)
 	if (wantsSettings) {
 		try {
-			await applyModrinthAppSettings(preview.value.settings, preview.value.javaVersions, {
+			await applyModrinthAppSettings(currentPreview.settings, currentPreview.javaVersions, {
 				...settingsSelection,
 			})
 		} catch (error) {
@@ -664,13 +738,28 @@ async function confirmImport() {
 									<template v-if="instance.gameVersion">
 										{{ instance.gameVersion }}
 										<template v-if="instance.rawLoader">· {{ instance.rawLoader }}</template>
+										<template v-if="instance.gameVersionInferred">
+											· {{ formatMessage(messages.gameVersionInferred) }}</template
+										>
 									</template>
 									<template v-else>{{ formatMessage(messages.noGameVersion) }}</template>
+								</span>
+								<span v-if="instance.alreadyImported" class="text-xs text-orange truncate">
+									{{
+										formatMessage(messages.alreadyImported, {
+											name: instance.alreadyImported.instanceName ?? instance.name,
+										})
+									}}
 								</span>
 							</div>
 						</div>
 						<Collapsible :collapsed="!expandedInstances[instance.sourceId]">
 							<div class="flex flex-col gap-2 p-3">
+								<Checkbox
+									v-if="instance.alreadyImported"
+									v-model="overwriteSelections[instance.sourceId]"
+									:label="formatMessage(messages.overwriteExisting)"
+								/>
 								<Checkbox
 									v-if="instance.launchOverrides"
 									v-model="launchOverridesSelections[instance.sourceId]"
@@ -753,6 +842,20 @@ async function confirmImport() {
 										</template>
 									</div>
 								</div>
+
+								<Checkbox
+									v-if="instance.otherFiles"
+									v-model="otherFilesSelections[instance.sourceId]"
+								>
+									<span class="text-sm">
+										{{ formatMessage(messages.categoryOtherFiles) }}
+										<span class="text-secondary">
+											({{ instance.otherFiles.fileCount }}, {{
+												formatBytes(instance.otherFiles.totalSize)
+											}})
+										</span>
+									</span>
+								</Checkbox>
 
 								<div
 									v-for="symlink in categorySymlinks(instance)"

@@ -965,6 +965,135 @@
   "app.library.title": {
     "message": "Library"
   },
+  "app.migrate-modrinth-app.already-imported": {
+    "message": "Already imported as \"{name}\""
+  },
+  "app.migrate-modrinth-app.browse": {
+    "message": "Browse..."
+  },
+  "app.migrate-modrinth-app.cancel-all": {
+    "message": "Cancel all"
+  },
+  "app.migrate-modrinth-app.cancel-job": {
+    "message": "Cancel"
+  },
+  "app.migrate-modrinth-app.category.config": {
+    "message": "Config"
+  },
+  "app.migrate-modrinth-app.category.logs": {
+    "message": "Logs"
+  },
+  "app.migrate-modrinth-app.category.mods": {
+    "message": "Mods"
+  },
+  "app.migrate-modrinth-app.category.other-files": {
+    "message": "Other files (server list, waypoints, backups, ...)"
+  },
+  "app.migrate-modrinth-app.category.resource-packs": {
+    "message": "Resource packs"
+  },
+  "app.migrate-modrinth-app.category.saves": {
+    "message": "Worlds/saves"
+  },
+  "app.migrate-modrinth-app.category.screenshots": {
+    "message": "Screenshots"
+  },
+  "app.migrate-modrinth-app.category.shader-packs": {
+    "message": "Shader packs"
+  },
+  "app.migrate-modrinth-app.detecting": {
+    "message": "Looking for an official Modrinth App install..."
+  },
+  "app.migrate-modrinth-app.error.title": {
+    "message": "Couldn't read the Modrinth App install"
+  },
+  "app.migrate-modrinth-app.game-version-inferred": {
+    "message": "best guess, please double-check"
+  },
+  "app.migrate-modrinth-app.header": {
+    "message": "Import from Modrinth App"
+  },
+  "app.migrate-modrinth-app.import-button": {
+    "message": "Import"
+  },
+  "app.migrate-modrinth-app.import-copy-suffix": {
+    "message": "{name} (import copy)"
+  },
+  "app.migrate-modrinth-app.instances-title": {
+    "message": "Instances"
+  },
+  "app.migrate-modrinth-app.java-versions-title": {
+    "message": "Java installations"
+  },
+  "app.migrate-modrinth-app.launch-overrides": {
+    "message": "Also import this instance's launch overrides (JVM args, memory, hooks, Java path)"
+  },
+  "app.migrate-modrinth-app.need-folder.text": {
+    "message": "Pick the Modrinth App data folder manually (the one containing app.db)."
+  },
+  "app.migrate-modrinth-app.need-folder.title": {
+    "message": "Couldn't find a Modrinth App install"
+  },
+  "app.migrate-modrinth-app.no-game-version": {
+    "message": "Can't import - no recognizable game version"
+  },
+  "app.migrate-modrinth-app.overwrite-existing": {
+    "message": "Overwrite that instance instead of creating a copy"
+  },
+  "app.migrate-modrinth-app.progress-title": {
+    "message": "Import progress"
+  },
+  "app.migrate-modrinth-app.running.text": {
+    "message": "Close the official Modrinth App completely, then try again."
+  },
+  "app.migrate-modrinth-app.running.title": {
+    "message": "Modrinth App is still running"
+  },
+  "app.migrate-modrinth-app.settings-title": {
+    "message": "Global settings"
+  },
+  "app.migrate-modrinth-app.settings.custom-env-vars": {
+    "message": "Custom environment variables"
+  },
+  "app.migrate-modrinth-app.settings.extra-launch-args": {
+    "message": "Extra launch arguments"
+  },
+  "app.migrate-modrinth-app.settings.force-fullscreen": {
+    "message": "Force fullscreen"
+  },
+  "app.migrate-modrinth-app.settings.game-resolution": {
+    "message": "Game resolution"
+  },
+  "app.migrate-modrinth-app.settings.hooks": {
+    "message": "Pre-launch, wrapper, and post-exit hooks"
+  },
+  "app.migrate-modrinth-app.settings.memory-maximum": {
+    "message": "Maximum memory allocation"
+  },
+  "app.migrate-modrinth-app.symlink.copy": {
+    "message": "Copy"
+  },
+  "app.migrate-modrinth-app.symlink.ignore": {
+    "message": "Skip"
+  },
+  "app.migrate-modrinth-app.symlink.recreate": {
+    "message": "Link"
+  },
+  "app.migrate-modrinth-app.symlink.target-inside": {
+    "message": "This points inside the official Modrinth App itself - Link will copy its contents instead."
+  },
+  "app.migrate-modrinth-app.symlink.target-outside": {
+    "message": "Linked to {target} - Link keeps it there instead of copying it, so both installs would keep using the same files."
+  },
+  "app.migrate-modrinth-app.symlink.title": {
+    "message": "{category} (linked folder)"
+  },
+  "app.migrate-modrinth-app.try-again": {
+    "message": "Try again"
+  },
+  "app.migrate-modrinth-app.worlds-label": {
+    "message": "Worlds"
+  },
   "app.modal.install-to-play.external-files-dont-install": {
     "message": "Don't install"
   },
@@ -1355,6 +1484,15 @@
   "app.settings.java-installations.location.title": {
     "message": "Java {version, number} location"
   },
+  "app.settings.migrate-modrinth-app.button": {
+    "message": "Import..."
+  },
+  "app.settings.migrate-modrinth-app.description": {
+    "message": "Bring instances, content, and settings over from an existing official Modrinth App install."
+  },
+  "app.settings.migrate-modrinth-app.title": {
+    "message": "Import from Modrinth App"
+  },
   "app.settings.operating-system.macos": {
     "message": "macOS"
   },
@@ -1489,6 +1627,9 @@
   },
   "app.settings.tabs.language": {
     "message": "Language"
+  },
+  "app.settings.tabs.migrate-modrinth-app": {
+    "message": "Import from Modrinth App"
   },
   "app.settings.tabs.privacy": {
     "message": "Privacy"
@@ -1705,6 +1846,9 @@
   },
   "app.welcome-screen.import-from-launcher": {
     "message": "Import from launcher"
+  },
+  "app.welcome-screen.import-from-modrinth-app": {
+    "message": "Import from Modrinth App"
   },
   "app.welcome-screen.import-prompt": {
     "message": "Escaping another launcher?"

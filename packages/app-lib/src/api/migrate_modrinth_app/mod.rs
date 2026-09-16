@@ -14,6 +14,7 @@
 //! paths. It never re-reads the source database - everything it needs comes
 //! from a Phase 1 preview the caller already has.
 
+pub(crate) mod import_link;
 mod source_db;
 
 pub mod execute;
@@ -188,6 +189,21 @@ pub struct ImportContentCategory {
     pub default_selected: bool,
 }
 
+/// The catch-all for everything at an instance's root that isn't one of the
+/// 7 named `ContentCategory` folders and isn't a regenerable cache (see
+/// `OTHER_FILES_EXCLUDED_ROOT_ENTRIES`) - loose per-instance files like
+/// `options.txt`, `servers.dat`, `usercache.json`, `hotbar.nbt`, and misc
+/// folders like `backups/`, `waypoints/`, mod-specific data directories,
+/// none of which the original 7-category scan ever covered. Added after
+/// real-install testing found settings silently missing post-import even
+/// with every offered category selected.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ImportOtherFilesCandidate {
+    pub file_count: u64,
+    pub total_size: u64,
+}
+
 /// One world folder found under an instance's `saves/` directory. Listed
 /// individually rather than folded into a single recursive category total -
 /// see `ImportContentCategory::total_size`'s doc comment.
@@ -265,11 +281,26 @@ pub struct ImportInstanceCandidate {
     /// Whole category folders or world folders that are themselves a
     /// symlink/junction - see `ImportSymlinkCandidate`.
     pub symlinks: Vec<ImportSymlinkCandidate>,
+    /// Loose root-level files/folders outside the 7 named categories - see
+    /// `ImportOtherFilesCandidate`. `None` if there's nothing there (or
+    /// everything there is an excluded regenerable cache).
+    pub other_files: Option<ImportOtherFilesCandidate>,
     /// This instance's own launch overrides (JVM args, memory, hooks, a
     /// specific Java path, ...) read from the source, if any were set and
     /// the JSON could be read. `None` if the source has no row for this
     /// instance at all, or nothing in it parsed to anything meaningful.
     pub launch_overrides: Option<ImportLaunchOverridesCandidate>,
+    /// Set if this exact source instance was already imported into a Dyad
+    /// instance that still exists, from a prior import run (see
+    /// `import_link::find_existing_import`) - lets the UI warn on a re-import
+    /// instead of silently creating a duplicate instance.
+    pub already_imported: Option<import_link::ExistingImport>,
+    /// `true` if `game_version`/`loader`/`loader_version` came from a
+    /// best-effort fallback (the source instance's most recently modified
+    /// content set) rather than its currently-`applied_content_set_id` row -
+    /// see `resolve_game_version_fallback`. The UI should flag this so the
+    /// user can double-check it before importing.
+    pub game_version_inferred: bool,
 }
 
 /// A source instance's own `instance_launch_overrides` row, read
@@ -334,6 +365,14 @@ pub struct ImportJavaVersionCandidate {
 #[serde(rename_all = "camelCase")]
 pub struct ImportPreview {
     pub source: DetectedSource,
+    /// The source app's resolved config dir - its `custom_dir` setting if
+    /// set and still on disk, otherwise `source.settings_dir` (see
+    /// `DirectoryInfo.config_dir`). Instances live under
+    /// `source_config_dir/profiles`, and the app-level synced-options store
+    /// (see `execute::migrate_synced_options_store`) lives directly under
+    /// `source_config_dir` - exposed here so the frontend doesn't have to
+    /// re-derive it to call that separately.
+    pub source_config_dir: PathBuf,
     pub instances: Vec<ImportInstanceCandidate>,
     pub settings: ImportSettingsCandidate,
     pub java_versions: Vec<ImportJavaVersionCandidate>,
@@ -393,22 +432,48 @@ async fn build_preview_from_pool(
     }
 
     let raw_instances = source_db::fetch_instances(pool).await?;
+    // Keyed by source instance id, most-recently-modified content set first -
+    // a best-effort fallback for instances whose `applied_content_set_id`
+    // link is null/orphaned (see `resolve_game_version_fallback`) instead of
+    // treating them as having no game version at all.
+    let mut content_set_fallbacks: std::collections::HashMap<
+        String,
+        source_db::RawContentSet,
+    > = std::collections::HashMap::new();
+    for content_set in source_db::fetch_content_sets_by_recency(pool).await? {
+        content_set_fallbacks
+            .entry(content_set.instance_id.clone())
+            .or_insert(content_set);
+    }
+
+    let state = crate::State::get().await?;
     let mut instances = Vec::with_capacity(raw_instances.len());
     for raw in raw_instances {
         let instance_dir = base_instances_dir.join(&raw.path);
-        let icon_path = match raw.icon_path {
-            Some(p) if tokio::fs::try_exists(&p).await.unwrap_or(false) => {
+        let icon_path = match &raw.icon_path {
+            Some(p) if tokio::fs::try_exists(p).await.unwrap_or(false) => {
                 Some(PathBuf::from(p))
             }
             _ => None,
         };
 
-        let (categories, worlds, symlinks) =
+        let (categories, worlds, symlinks, other_files) =
             scan_content_categories(&instance_dir, &source_roots).await;
         let launch_overrides =
             source_db::fetch_launch_overrides(pool, &raw.id)
                 .await
                 .filter(|overrides| !overrides.is_empty());
+
+        let (game_version, loader, loader_version, game_version_inferred) =
+            resolve_game_version_fallback(&raw, &content_set_fallbacks);
+
+        let already_imported = import_link::find_existing_import(
+            &state.pool,
+            &source.settings_dir,
+            &raw.id,
+        )
+        .await?
+        .filter(|existing| existing.instance_name.is_some());
 
         instances.push(ImportInstanceCandidate {
             source_id: raw.id,
@@ -416,11 +481,11 @@ async fn build_preview_from_pool(
             name: raw.name,
             icon_path,
             loader: ModLoader::from_string(
-                raw.loader.as_deref().unwrap_or("vanilla"),
+                loader.as_deref().unwrap_or("vanilla"),
             ),
-            raw_loader: raw.loader,
-            loader_version: raw.loader_version,
-            game_version: raw.game_version,
+            raw_loader: loader,
+            loader_version,
+            game_version,
             created: raw.created,
             modified: raw.modified,
             last_played: raw.last_played,
@@ -430,7 +495,10 @@ async fn build_preview_from_pool(
             categories,
             worlds,
             symlinks,
+            other_files,
             launch_overrides,
+            already_imported,
+            game_version_inferred,
         });
     }
 
@@ -453,11 +521,43 @@ async fn build_preview_from_pool(
 
     Ok(ImportPreview {
         source: source.clone(),
+        source_config_dir: config_dir,
         instances,
         settings,
         java_versions,
         compatibility_notes,
     })
+}
+
+/// Resolves an instance's game version/loader/loader_version, falling back
+/// to its most recently modified `instance_content_sets` row (from
+/// `fallbacks`, keyed by source instance id) when the row `raw` joined via
+/// `applied_content_set_id` came back empty - e.g. because that pointer is
+/// null or references a content set that's since been deleted, orphaning an
+/// otherwise-real, previously-played instance. Returns
+/// `(game_version, loader, loader_version, used_fallback)`.
+fn resolve_game_version_fallback(
+    raw: &source_db::RawInstance,
+    fallbacks: &std::collections::HashMap<String, source_db::RawContentSet>,
+) -> (Option<String>, Option<String>, Option<String>, bool) {
+    if raw.game_version.is_some() {
+        return (
+            raw.game_version.clone(),
+            raw.loader.clone(),
+            raw.loader_version.clone(),
+            false,
+        );
+    }
+
+    match fallbacks.get(&raw.id) {
+        Some(fallback) => (
+            Some(fallback.game_version.clone()),
+            Some(fallback.loader.clone()),
+            fallback.loader_version.clone(),
+            true,
+        ),
+        None => (None, None, None, false),
+    }
 }
 
 /// How many `stat` calls to have in flight at once while sizing a category.
@@ -471,7 +571,12 @@ const CATEGORY_METADATA_CONCURRENCY: usize = 32;
 async fn scan_content_categories(
     instance_dir: &Path,
     source_roots: &[PathBuf],
-) -> (Vec<ImportContentCategory>, Vec<ImportWorldCandidate>, Vec<ImportSymlinkCandidate>) {
+) -> (
+    Vec<ImportContentCategory>,
+    Vec<ImportWorldCandidate>,
+    Vec<ImportSymlinkCandidate>,
+    Option<ImportOtherFilesCandidate>,
+) {
     let mut categories = Vec::new();
     let mut symlinks = Vec::new();
 
@@ -533,7 +638,90 @@ async fn scan_content_categories(
         }
     }
 
-    (categories, worlds, symlinks)
+    let other_files = scan_other_files(instance_dir).await;
+
+    (categories, worlds, symlinks, other_files)
+}
+
+/// Root-level entries inside an instance folder that always excluded from
+/// the catch-all "everything else" copy because they're regenerable
+/// loader/asset caches, not user data or settings - `.fabric` in particular
+/// held 40,000+ small processed/remapped-jar files in real-install testing
+/// (see the CreulCat findings), fully rebuilt by Fabric on next launch.
+/// Case-sensitive: these are the exact names the official app creates.
+const OTHER_FILES_EXCLUDED_ROOT_ENTRIES: [&str; 2] = [".fabric", ".cache"];
+
+/// Lists the top-level entries directly under `instance_dir` that aren't one
+/// of the 7 known `ContentCategory` folders and aren't an excluded
+/// regenerable cache - see `ImportOtherFilesCandidate`. Each returned path
+/// can be a file or a directory; recursing into a directory entry is left to
+/// the caller (`get_all_subfiles`, same as every other category).
+pub(crate) async fn other_root_entries(instance_dir: &Path) -> Vec<PathBuf> {
+    let known_category_folders: Vec<&str> = ContentCategory::ALL
+        .iter()
+        .map(|category| category.folder_name())
+        .collect();
+
+    let Ok(mut read_dir) = crate::util::io::read_dir(instance_dir).await
+    else {
+        return Vec::new();
+    };
+
+    let mut entries = Vec::new();
+    while let Ok(Some(entry)) = read_dir.next_entry().await {
+        let path = entry.path();
+        let Some(name) = path.file_name().and_then(|n| n.to_str()) else {
+            continue;
+        };
+        if known_category_folders.contains(&name)
+            || OTHER_FILES_EXCLUDED_ROOT_ENTRIES.contains(&name)
+        {
+            continue;
+        }
+        entries.push(path);
+    }
+    entries
+}
+
+/// Sizes every `other_root_entries` entry the same way `scan_one_category`
+/// sizes a single category folder - one combined file count/total size
+/// across every loose file and misc folder at the instance root.
+async fn scan_other_files(
+    instance_dir: &Path,
+) -> Option<ImportOtherFilesCandidate> {
+    let entries = other_root_entries(instance_dir).await;
+    if entries.is_empty() {
+        return None;
+    }
+
+    let mut files = Vec::new();
+    for entry in entries {
+        if let Ok(subfiles) =
+            crate::api::pack::import::get_all_subfiles(&entry, false).await
+        {
+            files.extend(subfiles);
+        }
+    }
+    if files.is_empty() {
+        return None;
+    }
+
+    let file_count = files.len() as u64;
+    let total_size = stream::iter(files)
+        .map(|file| async move {
+            tokio::fs::metadata(&file)
+                .await
+                .map(|m| m.len())
+                .unwrap_or(0)
+        })
+        .buffer_unordered(CATEGORY_METADATA_CONCURRENCY)
+        .fold(0u64, |acc, size| async move { acc + size })
+        .await;
+
+    Some(ImportOtherFilesCandidate {
+        file_count,
+        total_size,
+    })
 }
 
 /// Checks whether `path` is itself a symlink/junction resolving to a
@@ -685,6 +873,107 @@ mod tests {
         ));
     }
 
+    fn raw_instance(id: &str, game_version: Option<&str>) -> source_db::RawInstance {
+        source_db::RawInstance {
+            id: id.to_string(),
+            path: id.to_string(),
+            name: id.to_string(),
+            icon_path: None,
+            created: 0,
+            modified: 0,
+            last_played: None,
+            submitted_time_played: 0,
+            recent_time_played: 0,
+            game_version: game_version.map(str::to_string),
+            loader: game_version.map(|_| "fabric".to_string()),
+            loader_version: None,
+        }
+    }
+
+    #[test]
+    fn game_version_fallback_prefers_the_applied_content_set() {
+        let raw = raw_instance("i1", Some("1.20.1"));
+        let fallbacks = std::collections::HashMap::from([(
+            "i1".to_string(),
+            source_db::RawContentSet {
+                instance_id: "i1".to_string(),
+                game_version: "1.19.2".to_string(),
+                loader: "forge".to_string(),
+                loader_version: None,
+            },
+        )]);
+
+        let (game_version, loader, _, inferred) =
+            resolve_game_version_fallback(&raw, &fallbacks);
+
+        assert_eq!(game_version.as_deref(), Some("1.20.1"));
+        assert_eq!(loader.as_deref(), Some("fabric"));
+        assert!(!inferred);
+    }
+
+    #[test]
+    fn game_version_fallback_used_when_applied_content_set_is_missing() {
+        // Mirrors an instance whose `applied_content_set_id` is null/orphaned
+        // in the source database (e.g. the CreulCat real-install case) but
+        // still has a real, previously-applied content set on record.
+        let raw = raw_instance("i1", None);
+        let fallbacks = std::collections::HashMap::from([(
+            "i1".to_string(),
+            source_db::RawContentSet {
+                instance_id: "i1".to_string(),
+                game_version: "1.19.2".to_string(),
+                loader: "forge".to_string(),
+                loader_version: Some("47.2.0".to_string()),
+            },
+        )]);
+
+        let (game_version, loader, loader_version, inferred) =
+            resolve_game_version_fallback(&raw, &fallbacks);
+
+        assert_eq!(game_version.as_deref(), Some("1.19.2"));
+        assert_eq!(loader.as_deref(), Some("forge"));
+        assert_eq!(loader_version.as_deref(), Some("47.2.0"));
+        assert!(inferred);
+    }
+
+    #[test]
+    fn game_version_fallback_stays_none_with_no_content_set_at_all() {
+        let raw = raw_instance("i1", None);
+        let (game_version, loader, loader_version, inferred) =
+            resolve_game_version_fallback(&raw, &std::collections::HashMap::new());
+
+        assert!(game_version.is_none());
+        assert!(loader.is_none());
+        assert!(loader_version.is_none());
+        assert!(!inferred);
+    }
+
+    #[tokio::test]
+    async fn other_root_entries_excludes_known_categories_and_caches() {
+        let dir = tempfile::tempdir().expect("failed to create temp dir");
+        let instance_dir = dir.path();
+
+        for name in ["mods", "config", "saves", ".fabric", ".cache"] {
+            tokio::fs::create_dir(instance_dir.join(name)).await.unwrap();
+        }
+        tokio::fs::write(instance_dir.join("servers.dat"), "s").await.unwrap();
+        tokio::fs::create_dir(instance_dir.join("backups")).await.unwrap();
+
+        let entries = other_root_entries(instance_dir).await;
+        let names: std::collections::HashSet<String> = entries
+            .iter()
+            .map(|p| p.file_name().unwrap().to_string_lossy().into_owned())
+            .collect();
+
+        assert_eq!(
+            names,
+            std::collections::HashSet::from([
+                "servers.dat".to_string(),
+                "backups".to_string(),
+            ])
+        );
+    }
+
     #[cfg(unix)]
     mod unix_symlinks {
         use super::*;
@@ -814,7 +1103,7 @@ mod tests {
             std::os::unix::fs::symlink(&real_mods, instance_dir.join("mods"))
                 .unwrap();
 
-            let (categories, _worlds, symlinks) =
+            let (categories, _worlds, symlinks, _other_files) =
                 scan_content_categories(&instance_dir, &[]).await;
 
             assert!(

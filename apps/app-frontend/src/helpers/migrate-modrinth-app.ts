@@ -42,6 +42,17 @@ export interface ImportWorldCandidate {
 	modified: number | null
 }
 
+/**
+ * Loose root-level files/folders outside the 7 named categories -
+ * `options.txt`, `servers.dat`, `usercache.json`, `backups/`, `waypoints/`,
+ * and similar. Added after real-install testing found settings silently
+ * missing post-import even with every offered category selected.
+ */
+export interface ImportOtherFilesCandidate {
+	fileCount: number
+	totalSize: number
+}
+
 export type SymlinkAction = 'copy' | 'recreate' | 'ignore'
 
 /**
@@ -64,6 +75,15 @@ export interface ImportSymlinkCandidate {
 	 * "recreate" choice for this one should be sent as `"copy"` instead.
 	 */
 	targetOutsideSourceApp: boolean
+}
+
+/** Set if this exact source instance was already imported into a Dyad instance that still exists. */
+export interface ExistingImport {
+	instanceId: string
+	/** `null` if the previously-imported instance has since been deleted. */
+	instanceName: string | null
+	/** Unix timestamp (seconds) of the prior import. */
+	importedAt: number
 }
 
 export interface ImportInstanceCandidate {
@@ -91,11 +111,22 @@ export interface ImportInstanceCandidate {
 	 */
 	worlds: ImportWorldCandidate[]
 	symlinks: ImportSymlinkCandidate[]
+	/** Loose root-level files/folders outside the 7 named categories - see `ImportOtherFilesCandidate`. */
+	otherFiles: ImportOtherFilesCandidate | null
 	/**
 	 * This instance's own launch overrides (JVM args, memory, hooks, a
 	 * specific Java path), if any were set on the source and could be read.
 	 */
 	launchOverrides: ImportLaunchOverridesCandidate | null
+	/** Set if this source instance was already imported before - see `ExistingImport`. */
+	alreadyImported: ExistingImport | null
+	/**
+	 * `true` if `gameVersion`/`loader`/`loaderVersion` came from a best-effort
+	 * fallback (the instance's most recently modified content set) rather
+	 * than its currently-applied one - the UI should flag this as a guess
+	 * worth double-checking.
+	 */
+	gameVersionInferred: boolean
 }
 
 /**
@@ -136,6 +167,12 @@ export interface ImportJavaVersionCandidate {
 
 export interface ImportPreview {
 	source: DetectedSource
+	/**
+	 * The source app's resolved config dir - instances live under
+	 * `sourceConfigDir/profiles`, and the app-level synced-options store
+	 * lives directly under it. Pass this to `migrateModrinthAppSyncedOptions`.
+	 */
+	sourceConfigDir: string
 	instances: ImportInstanceCandidate[]
 	settings: ImportSettingsCandidate
 	javaVersions: ImportJavaVersionCandidate[]
@@ -154,7 +191,14 @@ export interface ImportSelection {
 	 * classification rather than re-deriving it itself.
 	 */
 	symlinkActions: Record<string, SymlinkAction>
+	/** Whether to also copy `ImportOtherFilesCandidate`'s loose root files/folders. */
+	includeOtherFiles: boolean
 }
+
+export type SyncedOptionsMigrationOutcome =
+	| 'migrated'
+	| 'skipped_dest_not_empty'
+	| 'skipped_nothing_to_migrate'
 
 export interface SettingsImportSelection {
 	extraLaunchArgs: boolean
@@ -179,6 +223,10 @@ export interface InstallImportModrinthAppRequest {
 	lastPlayed: number | null
 	totalTimePlayed: number
 	launchOverrides: ImportLaunchOverridesCandidate | null
+	sourceSettingsDir: string
+	sourceId: string
+	/** Set when the user chose to overwrite a prior import instead of skipping or copying. */
+	replaceExistingInstanceId: string | null
 }
 
 /** Looks for an official Modrinth App install at `sourceDir`, or the platform default if omitted. */
@@ -218,4 +266,17 @@ export async function installImportModrinthAppInstance(
 	request: InstallImportModrinthAppRequest,
 ): Promise<InstallJobSnapshot> {
 	return await invoke('plugin:install|install_import_modrinth_app_instance', { request })
+}
+
+/**
+ * Migrates the official Modrinth App's app-level synced-options store
+ * (shared server list, hotbars, command history) into Dyad's own store.
+ * Only ever seeds an empty destination store - see `SyncedOptionsMigrationOutcome`.
+ */
+export async function migrateModrinthAppSyncedOptions(
+	sourceConfigDir: string,
+): Promise<SyncedOptionsMigrationOutcome> {
+	return await invoke('plugin:migrate-modrinth-app|migrate_modrinth_app_synced_options', {
+		sourceConfigDir,
+	})
 }

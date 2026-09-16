@@ -6,12 +6,15 @@ import { inject, onMounted, onUnmounted, ref } from 'vue'
 import { detectModrinthAppInstall } from '@/helpers/migrate-modrinth-app'
 
 import dyadMark from '../../assets/welcome/dyad-mark.svg?url'
-import MigrateModrinthAppModal from './modal/MigrateModrinthAppModal.vue'
 
 const showCreationModal = inject<() => void>('showCreationModal')
 const showImportModal = inject<() => void>('showImportModal')
+// Provided from `App.vue` rather than owned here - this component unmounts
+// (via its parent's `v-if="!hasCreatedInstance"`) the moment an import
+// creates its first instance, which would otherwise tear a locally-owned
+// modal down mid-import.
+const showMigrateModrinthAppModal = inject<() => void>('showMigrateModrinthAppModal')
 
-const migrateModal = ref<InstanceType<typeof MigrateModrinthAppModal> | null>(null)
 const modrinthAppDetected = ref(false)
 
 const { formatMessage } = useVIntl()
@@ -157,14 +160,13 @@ onUnmounted(() => {
 					size="lg"
 					class="!font-medium"
 					:disabled="offline"
-					@click="migrateModal?.show()"
+					@click="showMigrateModrinthAppModal?.()"
 				>
 					<ModrinthIcon />
 					{{ formatMessage(messages.importFromModrinthApp) }}
 				</Button>
 			</div>
 		</div>
-		<MigrateModrinthAppModal ref="migrateModal" />
 	</div>
 </template>
 
