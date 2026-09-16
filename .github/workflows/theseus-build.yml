@@ -45,6 +45,9 @@ jobs:
     env:
       VITE_STRIPE_PUBLISHABLE_KEY: pk_live_51JbFxJJygY5LJFfKLVVldb10HlLt24p421OWRsTOWc5sXYFOnFUXWieSc6HD3PHo25ktx8db1WcHr36XGFvZFVUz00V9ixrCs5
       RUSTC_WRAPPER: 'sccache'
+      # secrets can't be referenced directly in a step's `if:` (GitHub Actions rejects that at
+      # parse time), so resolve it into a plain env var here instead.
+      HAS_APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE != '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -156,7 +159,7 @@ jobs:
 
       - name: Build macOS app (signed)
         run: ${{ (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || inputs.app-version-override != '') && 'pnpm --filter=@modrinth/app run tauri build --target universal-apple-darwin --config tauri-release.conf.json' || 'pnpm --filter=@modrinth/app run tauri build --target universal-apple-darwin --config tauri-dev.conf.json' }}
-        if: contains(matrix.artifact-target-name, 'darwin') && secrets.APPLE_CERTIFICATE != ''
+        if: contains(matrix.artifact-target-name, 'darwin') && env.HAS_APPLE_CERTIFICATE == 'true'
         env:
           TAURI_BUNDLER_DMG_IGNORE_CI: 'true'
           ENABLE_CODE_SIGNING: ${{ secrets.APPLE_CERTIFICATE }}
@@ -176,7 +179,7 @@ jobs:
         # tauri-bundler attempt to import it into the keychain, which fails, so these Apple env
         # vars must be left completely unset here.
         run: ${{ (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || inputs.app-version-override != '') && 'pnpm --filter=@modrinth/app run tauri build --target universal-apple-darwin --config tauri-release.conf.json' || 'pnpm --filter=@modrinth/app run tauri build --target universal-apple-darwin --config tauri-dev.conf.json' }}
-        if: contains(matrix.artifact-target-name, 'darwin') && secrets.APPLE_CERTIFICATE == ''
+        if: contains(matrix.artifact-target-name, 'darwin') && env.HAS_APPLE_CERTIFICATE == 'false'
         env:
           TAURI_BUNDLER_DMG_IGNORE_CI: 'true'
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
