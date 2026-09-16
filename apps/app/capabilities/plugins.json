@@ -100,6 +100,7 @@
 		"minecraft-skins:default",
 		"instance:default",
 		"install:default",
+		"migrate-modrinth-app:default",
 		"process:default",
 		"reports:default",
 		"cache:default",

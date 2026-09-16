@@ -254,6 +254,7 @@ fn main() {
         .plugin(api::logs::init())
         .plugin(api::jre::init())
         .plugin(api::metadata::init())
+        .plugin(api::migrate_modrinth_app::init())
         .plugin(api::minecraft_skins::init())
         .plugin(api::process::init())
         .plugin(api::reports::init())

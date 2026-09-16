@@ -229,6 +229,57 @@ Not started, no implementation timeline yet. Needs a technical design pass on re
 app's SQLite schema safely — it may have drifted from Dyad's fork point over time — before
 implementation starts.
 
+**Phase 0 (schema discovery/strategy) — done as of 2026-09-13:** see
+[goal-6-import-design.md](goal-6-import-design.md) for the full write-up. Headline finding: the
+tables this feature actually needs (`instances`, `instance_content_sets`,
+`instance_launch_overrides`, `instance_icon_configs`, `java_versions`) are currently identical
+between Dyad and current upstream `modrinth/code`; `settings` differs only by columns outside our
+import allowlist. Reader strategy decided: named-column `SELECT`s only (never `SELECT *` /
+bulk-copy), `PRAGMA table_info` presence checks with named errors on an unrecognized schema, and
+`minecraft_users` (account credentials) explicitly never read. Planned as incremental PRs: Phase 1
+(read-only detection/preview, no writes) is next.
+
+**Phase 1 (read-only detection/preview) — done as of 2026-09-13:** implemented in
+`packages/app-lib/src/api/migrate_modrinth_app/{mod,source_db}.rs`. Validated against a real
+official Modrinth App install (not just fixtures), which surfaced and fixed two real bugs (wrong
+instance-folder resolution when `custom_dir` is set; `saves/` sizing that took 80+ seconds against
+a real 330k-file world, now a per-world listing with deferred sizing instead) and replaced a
+fundamentally broken lock-detection approach (a `BEGIN IMMEDIATE` DB probe, which SQLite's WAL
+mode made a false negative even with the app confirmed running) with a process-list check. Full
+writeup in [goal-6-import-design.md](goal-6-import-design.md).
+
+**Phase 2 (actual instance creation and content copying) — done as of 2026-09-13:** implemented as
+a new `InstallRequest::ImportModrinthApp` variant in Dyad's existing install-job engine
+(`packages/app-lib/src/install/`), reusing its progress reporting, crash recovery, and
+rollback-on-failure rather than building bespoke versions. Copies only the user-selected
+categories/worlds (not "copy everything" like the legacy multi-launcher importer), with an opt-in
+per-instance "delete from source after import" that only ever removes what was actually copied.
+Settings/Java-path import is a separate, simple settings edit.
+
+**Phase 3 (frontend UI) — done as of 2026-09-15:** a dedicated import modal
+(detect/preview/per-instance/per-category/per-world selection, live per-job progress with
+cancel/cancel-all), a Settings-page entry, and a welcome-screen entry. Fixed two real bugs only
+caught once this actually ran through the Tauri IPC layer for the first time (missing capability
+grants for the `migrate_modrinth_app` plugin and the new install command; the plugin's identifier
+was also invalid, since Tauri disallows underscores). Also fixed `last_played`/playtime not being
+carried over to imported instances - previously read but never applied (`last_played`), or not read
+at all (playtime). See [goal-6-import-design.md](goal-6-import-design.md) for the full writeup.
+
+Phase 4 (ts-rs/postcard bindings, further tests, docs) turned out to already be complete on
+inspection as of 2026-09-16 - this codebase's binding generation only ever covers backend→frontend
+event types, never command types, so none of goal 6's types were ever going to need it; the one
+bound type goal 6 does touch (`InstallJobKind`) already picked up its new variant automatically the
+first time the app ran.
+
+**Follow-ups — done as of 2026-09-16:** symlink/junction handling (a whole symlinked category or
+world folder is detected and offered as copy/recreate/ignore per item, defaulting to recreate;
+Windows recreates a real NTFS junction rather than a Windows symlink, since junctions need no
+elevation); empty directories inside a copied category are now recreated instead of silently
+dropped; and per-instance launch overrides (JVM args, memory, hooks, a specific Java path) are now
+read from the source and offered as a per-instance opt-in, applied the same way `last_played`/
+playtime already were. No known gaps remain for goal 6 beyond real-world Windows validation - the
+junction-creation path and the whole Phase 3 UI have so far only run on Linux.
+
 ## Status
 
 Goals 1-3 were agreed direction as of 2026-09-02; goal 4 was added on 2026-09-04. Goal 1
@@ -240,11 +291,14 @@ necessary during scoping and was a larger, separate pass) landed 2026-09-05. Goa
 updater) is a future idea, not yet scoped or started. Goal 2 is not implemented yet.
 
 Goals 5 (unsigned Windows installer/SmartScreen) and 6 (migrate-from-Modrinth-App import tool)
-were added on 2026-09-13 after a scoping discussion with the user. Neither is implemented yet.
-Goal 5's next concrete step is submitting a SignPath.io OSS-signing application; the CI
-tag-signing fallback bug and installer metadata gap are independent smaller fixes noted alongside
-it. Goal 6 needs a technical design pass on reading the official Modrinth App's SQLite schema
-safely before implementation can start.
+were added on 2026-09-13 after a scoping discussion with the user. Goal 5 is not implemented yet;
+its next concrete step is submitting a SignPath.io OSS-signing application, with the CI
+tag-signing fallback bug and installer metadata gap as independent smaller fixes noted alongside
+it. Goal 6 is implemented end-to-end as of 2026-09-16, including Phase 4 and the symlink-handling/
+empty-directory/launch-overrides follow-ups — see goal 6's own section above for the full phase
+breakdown and [goal-6-import-design.md](goal-6-import-design.md) for the detailed writeup. No known
+gaps remain beyond real-world Windows validation, which this fork's other machine should pick up
+next.
 
 This document should be updated as scope changes — treat it as the source of truth for what this fork
 is trying to do, ahead of any individual issue or PR.

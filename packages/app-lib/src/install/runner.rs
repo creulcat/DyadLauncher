@@ -18,10 +18,11 @@ use crate::event::emit::emit_instance;
 use crate::state::instances::adapters::sqlite::content_rows;
 use crate::state::instances::commands::resolve_icon_path;
 use crate::state::{
-    ContentSourceKind, InstanceIconConfig, InstanceInstallStage, InstanceLink,
-    ModLoader, State,
+    ContentSourceKind, EditInstance, InstanceIconConfig, InstanceInstallStage,
+    InstanceLink, ModLoader, State,
 };
 use crate::util::fetch::DownloadReason;
+use chrono::{TimeZone, Utc};
 use std::collections::HashSet;
 use std::path::PathBuf;
 use uuid::Uuid;
@@ -67,6 +68,38 @@ pub async fn import_instance(
         launcher_type,
         base_path,
         instance_folder,
+    })
+    .await
+}
+
+#[allow(clippy::too_many_arguments)]
+pub async fn import_modrinth_app_instance(
+    source_instance_dir: PathBuf,
+    name: String,
+    game_version: String,
+    loader: ModLoader,
+    loader_version: Option<String>,
+    icon_path: Option<PathBuf>,
+    selection: crate::api::migrate_modrinth_app::execute::ImportSelection,
+    delete_source_after_import: bool,
+    last_played: Option<i64>,
+    total_time_played: u64,
+    launch_overrides: Option<
+        crate::api::migrate_modrinth_app::ImportLaunchOverridesCandidate,
+    >,
+) -> crate::Result<InstallJobSnapshot> {
+    start(InstallRequest::ImportModrinthApp {
+        source_instance_dir,
+        name,
+        game_version,
+        loader,
+        loader_version,
+        icon_path,
+        selection,
+        delete_source_after_import,
+        last_played,
+        total_time_played,
+        launch_overrides,
     })
     .await
 }
@@ -507,6 +540,66 @@ async fn prepare_initial_instance(
             );
             set_instance_id(job_state, metadata.instance.id);
         }
+        InstallRequest::ImportModrinthApp {
+            name,
+            game_version,
+            loader,
+            loader_version,
+            icon_path,
+            last_played,
+            total_time_played,
+            launch_overrides,
+            ..
+        } => {
+            // Unlike ImportInstance, we already know the real
+            // name/game_version/loader/loader_version from the Phase 1
+            // preview - no placeholder-then-correct step needed. `icon_path`
+            // is an absolute path into the *source* app's own icon cache;
+            // `PathBuf::join` on an already-absolute path just becomes that
+            // path, so `resolve_icon_path`'s normal
+            // `caches_dir().join(icon)` handling re-caches it into Dyad's
+            // own cache correctly without any special-casing here.
+            let metadata = crate::api::instance::create(
+                name,
+                game_version,
+                loader,
+                loader_version,
+                icon_path.map(|path| path.to_string_lossy().to_string()),
+                None,
+                InstanceLink::Unmanaged,
+            )
+            .await?;
+            // `create` always starts a fresh instance at last_played: None,
+            // 0 playtime - carry the source's values over so an imported
+            // instance doesn't look never-played. `submitted_time_played`
+            // and `recent_time_played` only differ by the source app's own
+            // reporting cadence, which means nothing here, so they're
+            // collapsed into one total on `submitted_time_played`.
+            if last_played.is_some() || total_time_played > 0 || launch_overrides.is_some()
+            {
+                crate::api::instance::edit(
+                    &metadata.instance.id,
+                    EditInstance {
+                        last_played: Some(
+                            last_played
+                                .and_then(|secs| Utc.timestamp_opt(secs, 0).single()),
+                        ),
+                        submitted_time_played: Some(total_time_played),
+                        launch_overrides: launch_overrides
+                            .as_ref()
+                            .map(crate::api::migrate_modrinth_app::execute::launch_overrides_patch),
+                        ..Default::default()
+                    },
+                )
+                .await?;
+            }
+            set_display(
+                job_state,
+                metadata.instance.name,
+                metadata.instance.icon_path,
+            );
+            set_instance_id(job_state, metadata.instance.id);
+        }
         InstallRequest::DuplicateInstance { source_instance_id } => {
             let metadata =
                 crate::state::get_instance(&source_instance_id, &state.pool)
@@ -848,6 +941,84 @@ async fn run_request(
                 base_path,
                 instance_folder,
                 InstallProgressReporter::new(job_id, job_state.clone()),
+            )
+            .await?;
+            Ok(Some(instance_id))
+        }
+        InstallRequest::ImportModrinthApp {
+            source_instance_dir,
+            name,
+            game_version,
+            loader,
+            loader_version: _,
+            icon_path: _,
+            selection,
+            delete_source_after_import,
+            last_played: _,
+            total_time_played: _,
+            launch_overrides: _,
+        } => {
+            let Some(instance_id) = current_instance_id(job_state) else {
+                return Err(crate::ErrorKind::InputError(
+                    "Install job is missing its instance id".to_string(),
+                )
+                .into());
+            };
+
+            update_progress(
+                job_id,
+                job_state,
+                state,
+                InstallPhaseId::PreparingInstance,
+                InstallPhaseDetails::Instance { name: name.clone() },
+            )
+            .await?;
+            crate::api::migrate_modrinth_app::execute::copy_selected_content(
+                &instance_id,
+                &source_instance_dir,
+                &selection,
+                &state.io_semaphore,
+                &InstallProgressReporter::new(job_id, job_state.clone()),
+                InstallPhaseDetails::Instance { name: name.clone() },
+            )
+            .await?;
+
+            // Only ever deletes the specific folders that were just copied
+            // above (never anything else in the source instance), and only
+            // after that copy has already succeeded - see
+            // `delete_selected_source_content`'s doc comment.
+            if delete_source_after_import {
+                crate::api::migrate_modrinth_app::execute::delete_selected_source_content(
+                    &source_instance_dir,
+                    &selection,
+                )
+                .await?;
+            }
+
+            update_progress(
+                job_id,
+                job_state,
+                state,
+                InstallPhaseId::DownloadingMinecraft,
+                InstallPhaseDetails::Minecraft {
+                    game_version,
+                    loader,
+                },
+            )
+            .await?;
+            let context =
+                crate::state::instances::commands::get_instance_launch_context(
+                    &instance_id,
+                    &state.pool,
+                )
+                .await?
+                .ok_or_else(|| {
+                    crate::ErrorKind::InputError("Unknown instance".to_string())
+                })?;
+            crate::launcher::install_minecraft_with_reporter(
+                &context,
+                false,
+                Some(InstallProgressReporter::new(job_id, job_state.clone())),
             )
             .await?;
             Ok(Some(instance_id))
