@@ -50,7 +50,7 @@ Let instances share resources with each other by configuring symlinks, covering:
 - Worlds/saves — with the same caveat as above: only safe when the linked instances aren't
   running concurrently against the same world.
 
-### 3. Debloating the desktop app — removal done, Discord Rich Presence still open
+### 3. Debloating the desktop app — done
 
 Remove:
 
@@ -58,26 +58,65 @@ Remove:
 - Account/login promos & ads
 - News/Discover/social panels
 
-Explicitly **keep** Discord Rich Presence, but revisit/tweak its behavior (specifics TBD). Explicitly
-**keep** anonymous content browsing/searching/downloading against Modrinth's API (no login required) —
-that's the actual point of the launcher, not bloat.
+Explicitly **keep** Discord Rich Presence, but revisit/tweak its behavior (the result is described
+in "Discord Rich Presence" below). Explicitly **keep** anonymous content browsing/searching/
+downloading against Modrinth's API (no login required) — that's the actual point of the launcher,
+not bloat.
 
-**Discord Rich Presence — still to do.** The removal work below is complete, but this half of the
-goal is not: Rich Presence is currently a stopgap, not the finished feature. As of 2026-09-07
-(commit `01e887690`) it is force-disabled — `Settings::get()` in
-`packages/app-lib/src/state/settings.rs` hardcodes `discord_rpc: false` regardless of the stored
-value, and the Privacy settings tab (its only setting) is hidden via `hidden: true` in
-`AppSettingsModal.vue`. The reason is that the presence still shows Modrinth branding (the
-registered Discord Application's name and icon), which this fork doesn't want to display. The
-code, the settings column, and its write path were deliberately left intact so it can be turned
-back on. Remaining work to actually deliver on "keep and tweak":
+**Discord Rich Presence — done as of 2026-09-20.** From 2026-09-07 (commit `01e887690`) until now
+Rich Presence was a stopgap: force-disabled in `Settings::get()` and its settings tab hidden,
+because the presence still showed Modrinth branding (the registered Discord Application's name and
+icon). It is now a finished, opt-in feature:
 
-- Register a Dyad-owned Discord Application (name/icon/assets) and point the client ID at it.
-- Decide and implement the tweaked behavior (specifics still TBD — ask the user before starting).
-- Remove the `discord_rpc: false` override in `Settings::get()` and the `hidden` flag on the
-  Privacy tab, restoring the toggle.
+- **Branding.** A Dyad-owned Discord Application (client ID in
+  `packages/app-lib/src/state/discord.rs`), so Discord shows "Playing Dyad Launcher" with the Dyad
+  mark. The image is the art asset `logo_square_1024`, a square export of `docs/branding/mark.svg`
+  (the asset is uploaded in the Discord Developer Portal, not stored in the repo).
+- **Off by default, opt-in.** Migration `20260920120000_discord-rpc-off-by-default.sql` resets the
+  setting (the column was created `DEFAULT TRUE` by upstream). The toggle lives under Settings →
+  Behavior → Discord (the old Privacy tab, which held only this toggle, was removed) and applies
+  immediately, no restart. With it off the launcher never connects to Discord at all. The welcome
+  screen also offers it: a toggle row that reflects the real setting, so it never re-asks (that
+  screen shows again whenever there are no instances). Existing users, who never see the welcome
+  screen, find it under Behavior.
+- **What it shows.** One presence per launcher, computed by `DiscordGuard::refresh()` from the
+  running instances:
 
-Until then, users have no way to enable Rich Presence.
+  | Situation | Line 1 | Line 2 | Timer |
+  |---|---|---|---|
+  | 1 visible instance | `Playing: <instance name>` | `<game version> · <loader>` | since it launched |
+  | 2+ visible instances | `Playing N instances at once` | — | since the oldest launched |
+  | Nothing running | what the user is doing in the launcher (below) | — | — |
+
+  It refreshes on launch, on exit, at startup, when the setting changes, and when an instance's
+  visibility changes.
+- **Per-instance opt-out.** Instance Settings → General → "Show in Discord Rich Presence" (default
+  on), stored as `hide_from_discord` in the instance's launch overrides (JSON, so no migration).
+  Hidden instances are left out entirely, including from the count. If every running instance is
+  hidden, the presence is cleared rather than showing an idle line while playing. An instance that
+  can't be looked up is treated as hidden (fails closed).
+- **Page-aware idle text.** While nothing visible is running, the frontend reports a coarse
+  category (never a project or instance name), debounced by one second because Discord rate-limits
+  updates, via the `discord` Tauri plugin (`discord_set_launcher_activity`):
+
+  | Page | Shown |
+  |---|---|
+  | Home (includes the Library) and `/instance/…` | Looking at instances |
+  | Browse, project and user pages | Browsing mods |
+  | Skin selector | Changing skins |
+  | Global Screenshots page | Looking at screenshots |
+  | Anything else | In the launcher |
+
+Known tradeoffs and notes:
+
+- The strings are hardcoded English (the previous ones were too).
+- Two copies of the same instance (goal 1) count as "2 instances".
+- The account being played is deliberately never shown.
+- Rich Presence that mods add inside Minecraft is unaffected.
+- The `discord-rich-presence` crate (1.0.0) sends activities without reading Discord's reply and
+  doesn't check the handshake result, so a rejected activity fails silently. If the presence ever
+  doesn't appear, check Discord itself first: Settings → Activity Privacy must allow sharing
+  activity (this was the cause the first time it "didn't work" during development).
 
 **Part 1 — done (telemetry, ads, promos, news/friends UI):**
 
@@ -400,21 +439,21 @@ Last reviewed 2026-09-20.
 |---|---|---|
 | 1 | Concurrent multi-account launches | Done (2026-09-04) |
 | 2 | Symlink-based resource sharing | **Not started** |
-| 3 | Debloating | Removal done (2026-09-04/05); **Discord Rich Presence rework still open** |
+| 3 | Debloating | Done — removals 2026-09-04/05, Discord Rich Presence rework 2026-09-20 |
 | 4 | Auto-update mechanism | Done (phase 1 2026-09-04, phase 2 2026-09-14, release-pipeline fixes 2026-09-16/17) |
 | 5 | Windows installer trust warning | **Partly done** — CI fallback fix and installer metadata landed 2026-09-13; installer is still unsigned, SignPath application not yet submitted |
 | 6 | Migrate-from-Modrinth-App import | Done (2026-09-16), pending real-world Windows validation |
 
 Goals 1-3 were agreed direction as of 2026-09-02; goal 4 was added on 2026-09-04. Goal 1
-(concurrent multi-account launches) is implemented as of 2026-09-04. Goal 3's removal work is
-implemented: part 1 (telemetry, ads, promos, news/friends UI) landed 2026-09-04, and part 2
-(Modrinth account removal, sign-in/OAuth, cloud shared instances, and hosting/billing — which
-turned out to be necessary during scoping and was a larger, separate pass) landed 2026-09-05. The
-other half of goal 3 is not done: Discord Rich Presence is currently force-disabled and hidden as a
-stopgap (2026-09-07) and still needs to be properly rebranded and re-enabled — see goal 3's
-"Discord Rich Presence — still to do" section above. Goal 4 is implemented: phase 1 (disabling
-Modrinth's updater) landed 2026-09-04, and phase 2 (the opt-in, GitHub-Releases-backed updater)
-landed 2026-09-14, alongside a rework of the build/release workflows onto standard GitHub-hosted
+(concurrent multi-account launches) is implemented as of 2026-09-04. Goal 3 is fully implemented:
+part 1 (telemetry, ads, promos, news/friends UI) landed 2026-09-04, and part 2 (Modrinth account
+removal, sign-in/OAuth, cloud shared instances, and hosting/billing — which turned out to be
+necessary during scoping and was a larger, separate pass) landed 2026-09-05. The other half, the
+Discord Rich Presence rework, landed 2026-09-20 after being force-disabled as a stopgap since
+2026-09-07: a Dyad-branded, opt-in presence with per-instance opt-out, multi-instance handling and
+page-aware idle text — see goal 3's "Discord Rich Presence" section above. Goal 4 is implemented:
+phase 1 (disabling Modrinth's updater) landed 2026-09-04, and phase 2 (the opt-in,
+GitHub-Releases-backed updater) landed 2026-09-14, alongside a rework of the build/release workflows onto standard GitHub-hosted
 runners (discovered to be non-functional on Namespace Cloud runners this fork doesn't have) and a
 pruning of workflows scoped to the web frontend/`labrinth` backend that this fork doesn't develop.
 The release pipeline was then debugged through its first tagged releases on 2026-09-16/17,

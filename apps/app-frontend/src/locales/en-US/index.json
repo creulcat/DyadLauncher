@@ -203,6 +203,15 @@
   "app.behavior-settings.content.title": {
     "message": "Home and content"
   },
+  "app.behavior-settings.discord-rich-presence.description": {
+    "message": "Show Dyad Launcher as your current activity on Discord. This does not affect Rich Presence added to instances by mods. Off by default."
+  },
+  "app.behavior-settings.discord-rich-presence.title": {
+    "message": "Discord Rich Presence"
+  },
+  "app.behavior-settings.discord.title": {
+    "message": "Discord"
+  },
   "app.behavior-settings.show-all-screenshots.description": {
     "message": "View screenshots from all your instances on the Screenshots page."
   },
@@ -1496,12 +1505,6 @@
   "app.settings.operating-system.macos": {
     "message": "macOS"
   },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Show Dyad Launcher as your current activity on Discord. This does not affect Rich Presence added to instances by mods. Requires an app restart."
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord Rich Presence"
-  },
   "app.settings.resource-management.always-show-copy-details.description": {
     "message": "Show the Copy details action while an install is queued or running. It is always available for failed or interrupted installs."
   },
@@ -1630,9 +1633,6 @@
   },
   "app.settings.tabs.migrate-modrinth-app": {
     "message": "Import from Modrinth App"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "Privacy"
   },
   "app.settings.tabs.resource-management": {
     "message": "Resource management"
@@ -1843,6 +1843,12 @@
   },
   "app.welcome-screen.description": {
     "message": "Ready to start playing?"
+  },
+  "app.welcome-screen.discord-rich-presence.description": {
+    "message": "Let friends see what you are playing with Discord Rich Presence. Off by default; change it any time in Settings, under Behavior."
+  },
+  "app.welcome-screen.discord-rich-presence.title": {
+    "message": "Show on Discord"
   },
   "app.welcome-screen.import-from-launcher": {
     "message": "Import from launcher"
@@ -2281,6 +2287,12 @@
   },
   "instance.settings.tabs.general.name": {
     "message": "Name"
+  },
+  "instance.settings.tabs.general.show-in-discord": {
+    "message": "Show in Discord Rich Presence"
+  },
+  "instance.settings.tabs.general.show-in-discord.description": {
+    "message": "Show this instance on your Discord profile while you play it. Turn this off to keep it private; it is then left out entirely, and if it is the only instance running, nothing is shown. Only applies if Rich Presence is enabled in Settings, under Behavior."
   },
   "instance.settings.tabs.general.update-channel": {
     "message": "Update channel"

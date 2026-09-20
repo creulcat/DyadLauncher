@@ -62,6 +62,10 @@ pub async fn edit(
     patch: EditInstance,
 ) -> crate::Result<InstanceMetadata> {
     let state = State::get().await?;
+    let changes_discord_visibility = patch
+        .launch_overrides
+        .as_ref()
+        .is_some_and(|overrides| overrides.hide_from_discord.is_some());
     crate::state::edit_instance(instance_id, patch, &state.pool).await?;
 
     let instance = crate::state::get_instance(instance_id, &state.pool)
@@ -70,6 +74,15 @@ pub async fn edit(
             crate::ErrorKind::InputError("Unknown instance".to_string())
                 .as_error()
         })?;
+
+    // Hiding or showing an instance that is running right now should apply straight away
+    if changes_discord_visibility
+        && let Err(e) = state.discord_rpc.refresh(true).await
+    {
+        tracing::warn!(
+            "Failed to refresh Discord presence after instance change: {e}"
+        );
+    }
 
     super::reconcile_instance_synced_options(instance_id).await?;
 

@@ -297,6 +297,14 @@ fn main() {
                     ),
             )
             .plugin(
+                "discord",
+                InlinedPlugin::new()
+                    .commands(&["discord_set_launcher_activity"])
+                    .default_permission(
+                        DefaultPermissionRule::AllowAllCommands,
+                    ),
+            )
+            .plugin(
                 "settings",
                 InlinedPlugin::new()
                     .commands(&[

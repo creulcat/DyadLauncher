@@ -82,6 +82,7 @@ import { useTheme } from '@/composables/use-theme.ts'
 import { config } from '@/config'
 import { check_reachable } from '@/helpers/auth.js'
 import { get_version } from '@/helpers/cache.js'
+import { report_launcher_page } from '@/helpers/discord.ts'
 import { install_create_modpack_instance, install_get_modpack_preview } from '@/helpers/install'
 import { get as getInstance, get_global_synced_options, run } from '@/helpers/instance'
 import { mergeUrlQuery, parseModrinthLink } from '@/helpers/project-links.ts'
@@ -537,8 +538,11 @@ router.beforeEach(() => {
 	if (routerToken) loading.end(routerToken)
 	routerToken = loading.begin()
 })
-router.afterEach(() => {
+router.afterEach((to) => {
 	updateHistoryNavigationState()
+	// Before the backend state is ready there is nothing to report to (the watch on
+	// stateInitialized below sends the page the user is on once it is)
+	if (stateInitialized.value) report_launcher_page(to.path)
 	setTimeout(() => {
 		if (!suspensePending && stateInitialized.value) {
 			if (initialLoadToken) {
@@ -574,6 +578,7 @@ const queryClient = useQueryClient()
 
 watch(stateInitialized, (ready) => {
 	if (ready) {
+		report_launcher_page(route.path)
 		if (initialLoadToken) {
 			loading.end(initialLoadToken)
 			initialLoadToken = null

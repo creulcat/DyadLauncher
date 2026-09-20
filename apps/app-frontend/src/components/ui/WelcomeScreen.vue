@@ -1,9 +1,17 @@
 <script setup lang="ts">
-import { ImportIcon, ModrinthIcon, PlusIcon } from '@modrinth/assets'
-import { Button, defineMessages, IntlFormatted, useVIntl } from '@modrinth/ui'
+import { DiscordIcon, ImportIcon, ModrinthIcon, PlusIcon } from '@modrinth/assets'
+import {
+	Button,
+	defineMessages,
+	injectNotificationManager,
+	IntlFormatted,
+	Toggle,
+	useVIntl,
+} from '@modrinth/ui'
 import { inject, onMounted, onUnmounted, ref } from 'vue'
 
 import { detectModrinthAppInstall } from '@/helpers/migrate-modrinth-app'
+import { get as getSettings, set as setSettings } from '@/helpers/settings.ts'
 
 import dyadMark from '../../assets/welcome/dyad-mark.svg?url'
 
@@ -18,6 +26,30 @@ const showMigrateModrinthAppModal = inject<() => void>('showMigrateModrinthAppMo
 const modrinthAppDetected = ref(false)
 
 const { formatMessage } = useVIntl()
+const { handleError } = injectNotificationManager()
+
+// Opt-in (off by default). This reflects the real setting rather than a one-time answer, since
+// this screen shows again whenever there are no instances, and it must not re-ask anyone
+const discordRichPresence = ref(false)
+const savingDiscordRichPresence = ref(false)
+
+async function setDiscordRichPresence(enabled: boolean) {
+	if (savingDiscordRichPresence.value) return
+
+	const previous = discordRichPresence.value
+	savingDiscordRichPresence.value = true
+	discordRichPresence.value = enabled
+	try {
+		// Read the settings right before writing, since the whole object is saved at once
+		const settings = await getSettings()
+		await setSettings({ ...settings, discord_rpc: enabled })
+	} catch (error) {
+		discordRichPresence.value = previous
+		handleError(error)
+	} finally {
+		savingDiscordRichPresence.value = false
+	}
+}
 
 const messages = defineMessages({
 	welcomeTitle: {
@@ -35,6 +67,15 @@ const messages = defineMessages({
 	quickCreateHint: {
 		id: 'app.welcome-screen.quick-create-hint',
 		defaultMessage: 'Press <shortcut>N</shortcut> to quick create an instance',
+	},
+	discordRichPresenceTitle: {
+		id: 'app.welcome-screen.discord-rich-presence.title',
+		defaultMessage: 'Show on Discord',
+	},
+	discordRichPresenceDescription: {
+		id: 'app.welcome-screen.discord-rich-presence.description',
+		defaultMessage:
+			'Let friends see what you are playing with Discord Rich Presence. Off by default; change it any time in Settings, under Behavior.',
 	},
 	importPrompt: {
 		id: 'app.welcome-screen.import-prompt',
@@ -92,6 +133,14 @@ onMounted(() => {
 		.catch(() => {
 			modrinthAppDetected.value = false
 		})
+
+	getSettings()
+		.then((settings) => {
+			discordRichPresence.value = settings.discord_rpc
+		})
+		.catch(() => {
+			discordRichPresence.value = false
+		})
 })
 
 onUnmounted(() => {
@@ -143,6 +192,29 @@ onUnmounted(() => {
 							</template>
 						</IntlFormatted>
 					</span>
+				</div>
+				<div
+					class="flex w-80 max-w-full items-center justify-between gap-4 rounded-2xl border border-solid border-surface-5 bg-button-bg p-4"
+				>
+					<div class="flex min-w-0 flex-col gap-1">
+						<span
+							id="welcome-discord-rich-presence-label"
+							class="flex items-center gap-2 text-base font-semibold leading-6 text-contrast"
+						>
+							<DiscordIcon class="size-5 shrink-0" aria-hidden="true" />
+							{{ formatMessage(messages.discordRichPresenceTitle) }}
+						</span>
+						<span class="text-sm leading-5 text-secondary">
+							{{ formatMessage(messages.discordRichPresenceDescription) }}
+						</span>
+					</div>
+					<Toggle
+						id="welcome-discord-rich-presence"
+						aria-labelledby="welcome-discord-rich-presence-label"
+						:model-value="discordRichPresence"
+						:disabled="savingDiscordRichPresence"
+						@update:model-value="setDiscordRichPresence"
+					/>
 				</div>
 			</div>
 		</div>

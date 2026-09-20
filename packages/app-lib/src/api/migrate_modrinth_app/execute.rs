@@ -486,8 +486,8 @@ pub async fn migrate_synced_options_store(
 /// actually had set - anything not present in `candidate` is left as
 /// whatever a freshly created instance already has (Dyad's own defaults),
 /// same "only touch what we found" spirit as `apply_settings` above.
-/// `visible_tabs`/`allow_concurrent_launches` are Dyad-specific and have no
-/// source equivalent, so they're never touched here.
+/// `visible_tabs`/`allow_concurrent_launches`/`hide_from_discord` are Dyad-specific and
+/// have no source equivalent, so they're never touched here.
 pub fn launch_overrides_patch(
     candidate: &ImportLaunchOverridesCandidate,
 ) -> InstanceLaunchOverridesPatch {
@@ -512,6 +512,7 @@ pub fn launch_overrides_patch(
         }),
         visible_tabs: None,
         allow_concurrent_launches: None,
+        hide_from_discord: None,
     }
 }
 
@@ -785,6 +786,7 @@ mod tests {
         assert!(patch.hooks.is_none());
         assert!(patch.visible_tabs.is_none());
         assert!(patch.allow_concurrent_launches.is_none());
+        assert!(patch.hide_from_discord.is_none());
     }
 
     #[test]

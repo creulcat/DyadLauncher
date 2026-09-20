@@ -49,6 +49,7 @@ export type GameInstance = {
 		screenshots: boolean
 	}
 	allow_concurrent_launches: boolean
+	hide_from_discord: boolean
 }
 
 export type IconBackground =

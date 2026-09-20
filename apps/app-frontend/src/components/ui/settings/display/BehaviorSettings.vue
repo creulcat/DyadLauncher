@@ -49,6 +49,19 @@ const messages = defineMessages({
 		id: 'app.behavior-settings.confirmations.title',
 		defaultMessage: 'Confirmations',
 	},
+	discordTitle: {
+		id: 'app.behavior-settings.discord.title',
+		defaultMessage: 'Discord',
+	},
+	discordRichPresenceTitle: {
+		id: 'app.behavior-settings.discord-rich-presence.title',
+		defaultMessage: 'Discord Rich Presence',
+	},
+	discordRichPresenceDescription: {
+		id: 'app.behavior-settings.discord-rich-presence.description',
+		defaultMessage:
+			'Show Dyad Launcher as your current activity on Discord. This does not affect Rich Presence added to instances by mods. Off by default.',
+	},
 	updatesTitle: {
 		id: 'app.behavior-settings.updates.title',
 		defaultMessage: 'Updates',
@@ -150,6 +163,7 @@ type BehaviorSettingsState = {
 	warnOnUnknownModpacks: boolean
 	skipNonEssentialWarnings: boolean
 	checkForUpdates: boolean
+	discordRichPresence: boolean
 }
 
 const [initialSettings, initialGlobalSyncedOptions] = await Promise.all([
@@ -182,6 +196,7 @@ function getBehaviorSettingsState(
 			settings.feature_flags[skipNonEssentialWarningsFlag] ??
 			DEFAULT_FEATURE_FLAGS[skipNonEssentialWarningsFlag],
 		checkForUpdates: settings.check_for_updates,
+		discordRichPresence: settings.discord_rpc,
 	}
 }
 
@@ -204,6 +219,7 @@ const { saved, current, changes, saving, hasChanges, reset, save } = useSavable(
 				[skipNonEssentialWarningsFlag]: value.skipNonEssentialWarnings,
 			},
 			check_for_updates: value.checkForUpdates,
+			discord_rpc: value.discordRichPresence,
 		}
 
 		const screenshotsChanged =
@@ -375,6 +391,23 @@ onBeforeUnmount(() => {
 					</p>
 				</div>
 				<Toggle id="skip-non-essential-warnings" v-model="current.skipNonEssentialWarnings" />
+			</div>
+		</div>
+	</section>
+
+	<section class="mt-8 border-0 border-t border-solid border-divider pt-6">
+		<h2 class="m-0 text-xl font-semibold text-contrast">
+			{{ formatMessage(messages.discordTitle) }}
+		</h2>
+		<div class="mt-4 flex flex-col gap-6">
+			<div class="flex items-center justify-between gap-4">
+				<div>
+					<h3 class="m-0 text-lg font-semibold text-contrast">
+						{{ formatMessage(messages.discordRichPresenceTitle) }}
+					</h3>
+					<p class="m-0 mt-1">{{ formatMessage(messages.discordRichPresenceDescription) }}</p>
+				</div>
+				<Toggle id="discord-rich-presence" v-model="current.discordRichPresence" />
 			</div>
 		</div>
 	</section>

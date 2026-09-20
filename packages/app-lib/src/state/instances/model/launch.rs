@@ -34,6 +34,9 @@ pub struct InstanceLaunchOverrides {
     /// Opt-in: allow this instance to be launched more than once at a time,
     /// each under a different account, pointed at the same instance folder.
     pub allow_concurrent_launches: bool,
+    /// Opt-out: keep this instance out of Discord Rich Presence entirely. It is stored as a
+    /// "hide" flag (rather than "show") so instances that predate it keep being shown.
+    pub hide_from_discord: bool,
 }
 
 impl InstanceLaunchOverrides {
@@ -53,6 +56,7 @@ impl InstanceLaunchOverrides {
             },
             visible_tabs: InstanceTabVisibility::default(),
             allow_concurrent_launches: false,
+            hide_from_discord: false,
         }
     }
 }
@@ -77,6 +81,8 @@ pub(crate) struct InstanceLaunchOverridesData {
     pub visible_tabs: InstanceTabVisibility,
     #[serde(default)]
     pub allow_concurrent_launches: bool,
+    #[serde(default)]
+    pub hide_from_discord: bool,
 }
 
 impl InstanceLaunchOverridesData {
@@ -95,6 +101,7 @@ impl InstanceLaunchOverridesData {
             hooks: self.hooks,
             visible_tabs: self.visible_tabs,
             allow_concurrent_launches: self.allow_concurrent_launches,
+            hide_from_discord: self.hide_from_discord,
         }
     }
 }
@@ -111,6 +118,7 @@ impl From<&InstanceLaunchOverrides> for InstanceLaunchOverridesData {
             hooks: overrides.hooks.clone(),
             visible_tabs: overrides.visible_tabs,
             allow_concurrent_launches: overrides.allow_concurrent_launches,
+            hide_from_discord: overrides.hide_from_discord,
         }
     }
 }

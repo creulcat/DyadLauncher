@@ -17,7 +17,17 @@ pub async fn get() -> crate::Result<Settings> {
 #[tracing::instrument]
 pub async fn set(settings: Settings) -> crate::Result<()> {
     let state = State::get().await?;
+    let discord_rpc_changed =
+        Settings::get(&state.pool).await?.discord_rpc != settings.discord_rpc;
     settings.update(&state.pool).await?;
+
+    // Apply the Rich Presence toggle right away instead of waiting for the next launch/exit event
+    if discord_rpc_changed && let Err(e) = state.discord_rpc.refresh(true).await
+    {
+        tracing::warn!(
+            "Failed to refresh Discord presence after settings change: {e}"
+        );
+    }
 
     Ok(())
 }

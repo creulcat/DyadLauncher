@@ -84,6 +84,7 @@ pub struct InstanceLaunchOverridesPatch {
     pub hooks: Option<Hooks>,
     pub visible_tabs: Option<InstanceTabVisibility>,
     pub allow_concurrent_launches: Option<bool>,
+    pub hide_from_discord: Option<bool>,
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -295,6 +296,9 @@ fn apply_launch_overrides_patch(
     }
     if let Some(allow_concurrent_launches) = patch.allow_concurrent_launches {
         overrides.allow_concurrent_launches = allow_concurrent_launches;
+    }
+    if let Some(hide_from_discord) = patch.hide_from_discord {
+        overrides.hide_from_discord = hide_from_discord;
     }
 
     overrides

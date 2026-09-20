@@ -33,8 +33,8 @@ This fork's focus is entirely the desktop launcher (`apps/app`, `apps/app-fronte
 2. **Symlink-based resource sharing** — share mods, resource/shader packs, config/settings, and
    worlds between instances via configurable symlinks.
 3. **Debloating** — strip telemetry/analytics, account/login promos & ads, and news/social panels
-   from the desktop app, while keeping (and tuning) Discord Rich Presence. The removals are done;
-   Rich Presence is currently disabled until it's rebranded and re-enabled.
+   from the desktop app, while keeping (and tuning) Discord Rich Presence, which is now Dyad-branded,
+   opt-in (off by default), and can be hidden per instance.
 4. **Auto-updates** — Modrinth's own update checks are disabled for this fork; a fork-owned,
    opt-in updater backed by GitHub Releases replaces them.
 5. **Windows installer trust** — get the installer signed so SmartScreen stops warning. In

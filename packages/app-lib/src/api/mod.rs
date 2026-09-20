@@ -1,5 +1,6 @@
 //! API for interacting with Theseus
 pub mod cache;
+pub mod discord;
 pub mod handler;
 pub mod instance;
 pub mod jre;
@@ -26,9 +27,9 @@ pub mod data {
         InstanceInstallCandidate, InstanceInstallTarget,
         InstanceLaunchOverridesPatch, InstanceLink, InstanceMetadata,
         InstanceSyncedOption, InstanceSyncedOptions, InstanceTabVisibility,
-        JavaVersion, LinkedModpackInfo, MemorySettings, ModLoader, Organization,
-        OwnerType, ProcessMetadata, Project, ProjectType, ProjectV3,
-        SearchResult, SearchResults, SearchResultsV3,
+        JavaVersion, LauncherActivity, LinkedModpackInfo, MemorySettings,
+        ModLoader, Organization, OwnerType, ProcessMetadata, Project,
+        ProjectType, ProjectV3, SearchResult, SearchResults, SearchResultsV3,
         Settings, SharedInstanceAttachment, SharedInstanceRole, TeamMember,
         Theme, User, Version, WindowSize,
     };
@@ -43,6 +44,7 @@ pub mod prelude {
     pub use crate::{
         State,
         data::*,
+        discord,
         event::CommandPayload,
         install, instance, jre, metadata, minecraft_auth, pack, process,
         settings,

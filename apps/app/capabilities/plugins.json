@@ -93,6 +93,7 @@
 			]
 		},
 		"auth:default",
+		"discord:default",
 		"import:default",
 		"jre:default",
 		"logs:default",

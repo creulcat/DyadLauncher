@@ -8,7 +8,6 @@ import {
 	PaintbrushIcon,
 	RefreshCwIcon,
 	Settings2Icon,
-	ShieldIcon,
 	ToggleRightIcon,
 } from '@modrinth/assets'
 import {
@@ -25,7 +24,6 @@ import { getVersion } from '@tauri-apps/api/app'
 import { platform as getOsPlatform, version as getOsVersion } from '@tauri-apps/plugin-os'
 import { computed, provide, ref, watch } from 'vue'
 
-import PrivacySettings from '@/components/ui/settings/account/PrivacySettings.vue'
 import AppearanceSettings from '@/components/ui/settings/display/AppearanceSettings.vue'
 import BehaviorSettings from '@/components/ui/settings/display/BehaviorSettings.vue'
 import FeatureFlagSettings from '@/components/ui/settings/display/FeatureFlagSettings.vue'
@@ -103,19 +101,6 @@ const tabs = [
 	},
 	{
 		name: defineMessage({
-			id: 'app.settings.tabs.privacy',
-			defaultMessage: 'Privacy',
-		}),
-		category: tabCategories.display,
-		icon: ShieldIcon,
-		content: PrivacySettings,
-		// Hidden: its only setting (Discord Rich Presence) is force-disabled for now
-		// (see Settings::get in packages/app-lib/src/state/settings.rs). Remove `hidden`
-		// here to bring the tab back once that's ready to ship.
-		hidden: true,
-	},
-	{
-		name: defineMessage({
 			id: 'app.settings.tabs.synced-options',
 			defaultMessage: 'Synced settings',
 		}),
@@ -153,7 +138,7 @@ const tabs = [
 ]
 
 const availableTabs = computed(() =>
-	tabs.filter((tab) => !tab.hidden && (!tab.developerOnly || appSettings.devMode)),
+	tabs.filter((tab) => !tab.developerOnly || appSettings.devMode),
 )
 
 const modal = ref<InstanceType<typeof TabbedModal> | null>(null)

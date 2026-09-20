@@ -132,6 +132,7 @@ pub struct Instance {
     pub hooks: Hooks,
     pub visible_tabs: InstanceTabVisibility,
     pub allow_concurrent_launches: bool,
+    pub hide_from_discord: bool,
 }
 
 #[derive(Serialize, Debug, Clone)]
@@ -274,6 +275,7 @@ pub struct EditInstance {
     pub hooks: Option<Hooks>,
     pub visible_tabs: Option<InstanceTabVisibility>,
     pub allow_concurrent_launches: Option<bool>,
+    pub hide_from_discord: Option<bool>,
 }
 
 impl From<InstanceMetadata> for Instance {
@@ -316,6 +318,7 @@ impl From<InstanceMetadata> for Instance {
             allow_concurrent_launches: metadata
                 .launch_overrides
                 .allow_concurrent_launches,
+            hide_from_discord: metadata.launch_overrides.hide_from_discord,
         }
     }
 }
@@ -486,6 +489,7 @@ fn edit_to_core(edit_instance: EditInstance) -> Result<CoreEditInstance> {
             hooks: edit_instance.hooks,
             visible_tabs: edit_instance.visible_tabs,
             allow_concurrent_launches: edit_instance.allow_concurrent_launches,
+            hide_from_discord: edit_instance.hide_from_discord,
         }),
         content_set_patch: Some(AppliedContentSetPatch {
             source_kind: None,
