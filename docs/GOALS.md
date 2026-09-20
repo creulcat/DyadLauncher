@@ -50,7 +50,7 @@ Let instances share resources with each other by configuring symlinks, covering:
 - Worlds/saves — with the same caveat as above: only safe when the linked instances aren't
   running concurrently against the same world.
 
-### 3. Debloating the desktop app — done
+### 3. Debloating the desktop app — removal done, Discord Rich Presence still open
 
 Remove:
 
@@ -61,6 +61,23 @@ Remove:
 Explicitly **keep** Discord Rich Presence, but revisit/tweak its behavior (specifics TBD). Explicitly
 **keep** anonymous content browsing/searching/downloading against Modrinth's API (no login required) —
 that's the actual point of the launcher, not bloat.
+
+**Discord Rich Presence — still to do.** The removal work below is complete, but this half of the
+goal is not: Rich Presence is currently a stopgap, not the finished feature. As of 2026-09-07
+(commit `01e887690`) it is force-disabled — `Settings::get()` in
+`packages/app-lib/src/state/settings.rs` hardcodes `discord_rpc: false` regardless of the stored
+value, and the Privacy settings tab (its only setting) is hidden via `hidden: true` in
+`AppSettingsModal.vue`. The reason is that the presence still shows Modrinth branding (the
+registered Discord Application's name and icon), which this fork doesn't want to display. The
+code, the settings column, and its write path were deliberately left intact so it can be turned
+back on. Remaining work to actually deliver on "keep and tweak":
+
+- Register a Dyad-owned Discord Application (name/icon/assets) and point the client ID at it.
+- Decide and implement the tweaked behavior (specifics still TBD — ask the user before starting).
+- Remove the `discord_rpc: false` override in `Settings::get()` and the `hidden` flag on the
+  Privacy tab, restoring the toggle.
+
+Until then, users have no way to enable Rich Presence.
 
 **Part 1 — done (telemetry, ads, promos, news/friends UI):**
 
@@ -112,7 +129,7 @@ removing them outright was judged not worth the churn.
 Anonymous content browsing, search, and downloads against Modrinth's API were explicitly **not**
 affected by Part 2 — they don't require an account and kept working exactly as before.
 
-### 4. Auto-update mechanism
+### 4. Auto-update mechanism — done
 
 The desktop app's auto-update mechanism (`tauri-plugin-updater`, wired up in
 `apps/app/src/updater_impl.rs`) is only compiled in behind the `updater` Cargo feature, and is only
@@ -126,7 +143,8 @@ respect. `.github/workflows/theseus-build.yml`'s Windows step was updated to sto
 now-unconfigured `updater` bundle target. `.github/workflows/theseus-release.yml` (which uploaded
 signed update manifests to Modrinth's own S3 bucket) was left untouched at the time — rebranding/
 reworking the fork's own release-publishing pipeline was called out as separate, unscoped
-follow-up work. (That follow-up landed as part of phase 2, below.)
+follow-up work. (That follow-up landed as part of phase 2, below; that workflow has since been
+folded into `theseus-build.yml` and no longer exists as a separate file.)
 
 A second, independent check also had to be removed: `apps/app-frontend/src/App.vue` had a
 `checkLinuxUpdates()` fallback that did a raw `fetch('https://launcher-files.modrinth.com/updates.json')`
@@ -188,7 +206,33 @@ scope for a desktop-app-only fork per this document's own framing.
 No beta/prerelease channel distinction was added — every pushed tag is published as a full
 release and becomes "latest" for the update feed, by deliberate choice.
 
-### 5. Windows installer trust warning (SmartScreen)
+**Release-pipeline fixes, 2026-09-16/17** (found while getting the first tagged release through
+CI):
+
+- The release job was folded into `theseus-build.yml` (commit `2fcb325fa`), replacing the separate
+  `theseus-release.yml`: `workflow_run` doesn't reliably fire for workflows triggered by a tag
+  push, so the separate release workflow never actually ran for tagged builds. The release job is
+  now gated on the build job succeeding for a tag ref.
+- Bundle staging now locates each release file by name under the downloaded artifact directory
+  instead of a hardcoded nested path (`d68398da5`), which didn't match `upload-artifact`'s
+  directory layout for wildcarded multi-path uploads.
+- `bundle.createUpdaterArtifacts` is now set to `"v1Compatible"` in
+  `apps/app/tauri-release.conf.json` (`6bfc74044`). Tauri v2 only builds the updater bundles and
+  `.sig` files when that is set explicitly — a signing key alone isn't enough — and the release
+  workflow expects the v1-style `.nsis.zip`/`.AppImage.tar.gz` filenames.
+- **The update-signing keypair was rotated** (`4e2028464`). The `TAURI_PRIVATE_KEY`/
+  `TAURI_KEY_PASSWORD` secrets from the initial phase 2 setup turned out not to match each other;
+  it went unnoticed because signing was never exercised until `createUpdaterArtifacts` was turned
+  on, at which point the build hard-failed with "incorrect updater private key password". Since no
+  release had shipped with working updater artifacts yet, rotating was safe. The public key in
+  `tauri-release.conf.json` was replaced with the new one; the new private key and password were
+  set directly as repo secrets and are not committed. (So the "generated a fork-owned keypair"
+  bullet above describes the original keypair, which is no longer the one in use.)
+- macOS code signing is now skipped on forks without Apple secrets (`b4ed482bf`), via separate
+  signed/unsigned build steps gated on `secrets.APPLE_CERTIFICATE` — the same fallback pattern the
+  Windows signing step already uses.
+
+### 5. Windows installer trust warning (SmartScreen) — partly done, signing itself still open
 
 **Problem:** the NSIS installer this fork's CI produces for Windows is unsigned, so both the
 browser download warning and Windows SmartScreen's "Windows protected your PC" prompt trigger on
@@ -210,19 +254,23 @@ rejected or stalls indefinitely, fall back to evaluating a paid OV or EV certifi
 documenting the warning as an accepted tradeoff — but SignPath is the path to actually pursue
 first, not just one option among several.
 
-**Separate fix, not blocked on the above:** `.github/workflows/theseus-build.yml`'s Windows
-signing step currently takes the "sign" branch on any `refs/tags/v*` push and would fail outright
-against this fork's empty DigiCert secrets, instead of degrading to an unsigned build the way
-normal branch builds already do. This should be fixed regardless of which signing path is chosen,
-so a tag/release build never hard-fails just because signing secrets aren't configured yet.
+**Separate fix, not blocked on the above — done as of 2026-09-13 (`efcbb80df`):**
+`.github/workflows/theseus-build.yml`'s Windows signing step used to take the "sign" branch on any
+`refs/tags/v*` push and would have failed outright against this fork's empty DigiCert secrets. It
+now also checks that the DigiCert secret is actually present, so a tag/release build degrades to an
+unsigned build (like normal branch builds) instead of hard-failing. When SignPath (or another
+signing path) is set up, this condition will need to be revisited to check for whichever
+credentials it uses.
 
-**Independent cheap improvement:** `apps/app/tauri.conf.json`'s `copyright`, `shortDescription`,
-and `longDescription` fields are all empty strings, and no NSIS publisher is set. Filling these in
-won't remove the SmartScreen prompt by itself, but makes the warning dialog identify a real app
-instead of a blank one — and it's metadata a certificate would need attached anyway. Worth doing
-regardless of signing status/timeline.
+**Independent cheap improvement — done as of 2026-09-13 (`efcbb80df`):** `apps/app/tauri.conf.json`'s
+`copyright`, `publisher`, `shortDescription`, and `longDescription` fields, previously empty, are
+now filled in. This doesn't remove the SmartScreen prompt by itself, but the warning dialog now
+identifies a real app instead of a blank one — and it's metadata a certificate would need attached
+anyway.
 
-Not started, no implementation timeline yet — next step is submitting the SignPath application.
+**Still open:** the installer itself is still unsigned, so the SmartScreen and browser download
+warnings still appear. No implementation timeline yet — next step is submitting the SignPath
+application.
 
 ### 6. Migrate-from-Modrinth-App import tool
 
@@ -324,28 +372,65 @@ read from the source and offered as a per-instance opt-in, applied the same way 
 playtime already were. No known gaps remain for goal 6 beyond real-world Windows validation - the
 junction-creation path and the whole Phase 3 UI have so far only run on Linux.
 
+**Real-install bug fixes — done as of 2026-09-16 (`00366d529`):** testing against a real install
+turned up three more bugs, now fixed:
+
+- Instances with no applied content set (e.g. an orphaned/null `applied_content_set_id`) were
+  silently unselectable and skipped by "import all". They now fall back to the instance's most
+  recently modified content set as a best-effort guess, flagged in the preview and left opt-in
+  rather than auto-included.
+- Only the seven curated content-category folders were copied, dropping loose per-instance data at
+  the instance root (`servers.dat`, `usercache.json`, `hotbar.nbt`, `waypoints/`, `backups/`, ...).
+  The copy now also sweeps everything else at the root except regenerable loader/asset caches
+  (`.fabric`, `.cache`). The app-level synced-options store (shared server list/hotbars/command
+  history) can also be migrated now, seeding Dyad's own store when it's still empty.
+- Re-importing an already-imported source instance silently created a second, disconnected
+  instance. A new `modrinth_app_import_sources` table tracks prior imports so the UI can warn and
+  offer skip/copy/overwrite; a deliberate "copy" gets an "(import copy)" name.
+
+The same commit also moved the import modal out of `WelcomeScreen` into `App.vue`'s persistent
+root — it was being torn down mid-import the moment the first imported instance flipped
+`hasCreatedInstance` and unmounted its `v-if` parent.
+
 ## Status
 
+Last reviewed 2026-09-20.
+
+| # | Goal | Status |
+|---|---|---|
+| 1 | Concurrent multi-account launches | Done (2026-09-04) |
+| 2 | Symlink-based resource sharing | **Not started** |
+| 3 | Debloating | Removal done (2026-09-04/05); **Discord Rich Presence rework still open** |
+| 4 | Auto-update mechanism | Done (phase 1 2026-09-04, phase 2 2026-09-14, release-pipeline fixes 2026-09-16/17) |
+| 5 | Windows installer trust warning | **Partly done** — CI fallback fix and installer metadata landed 2026-09-13; installer is still unsigned, SignPath application not yet submitted |
+| 6 | Migrate-from-Modrinth-App import | Done (2026-09-16), pending real-world Windows validation |
+
 Goals 1-3 were agreed direction as of 2026-09-02; goal 4 was added on 2026-09-04. Goal 1
-(concurrent multi-account launches) is implemented as of 2026-09-04. Goal 3 is fully implemented:
-part 1 (telemetry, ads, promos, news/friends UI) landed 2026-09-04, and part 2 (Modrinth account
-removal, sign-in/OAuth, cloud shared instances, and hosting/billing — which turned out to be
-necessary during scoping and was a larger, separate pass) landed 2026-09-05. Goal 4 is fully
-implemented: phase 1 (disabling Modrinth's updater) landed 2026-09-04, and phase 2 (the opt-in,
-GitHub-Releases-backed updater) landed 2026-09-14, alongside a rework of `theseus-build.yml`/
-`theseus-release.yml` onto standard GitHub-hosted runners (discovered to be non-functional on
-Namespace Cloud runners this fork doesn't have) and a pruning of workflows scoped to the web
-frontend/`labrinth` backend that this fork doesn't develop. Goal 2 is not implemented yet.
+(concurrent multi-account launches) is implemented as of 2026-09-04. Goal 3's removal work is
+implemented: part 1 (telemetry, ads, promos, news/friends UI) landed 2026-09-04, and part 2
+(Modrinth account removal, sign-in/OAuth, cloud shared instances, and hosting/billing — which
+turned out to be necessary during scoping and was a larger, separate pass) landed 2026-09-05. The
+other half of goal 3 is not done: Discord Rich Presence is currently force-disabled and hidden as a
+stopgap (2026-09-07) and still needs to be properly rebranded and re-enabled — see goal 3's
+"Discord Rich Presence — still to do" section above. Goal 4 is implemented: phase 1 (disabling
+Modrinth's updater) landed 2026-09-04, and phase 2 (the opt-in, GitHub-Releases-backed updater)
+landed 2026-09-14, alongside a rework of the build/release workflows onto standard GitHub-hosted
+runners (discovered to be non-functional on Namespace Cloud runners this fork doesn't have) and a
+pruning of workflows scoped to the web frontend/`labrinth` backend that this fork doesn't develop.
+The release pipeline was then debugged through its first tagged releases on 2026-09-16/17,
+including folding the release job into `theseus-build.yml` and rotating the update-signing keypair
+— see goal 4's "Release-pipeline fixes" section. Goal 2 is not implemented yet.
 
 Goals 5 (unsigned Windows installer/SmartScreen) and 6 (migrate-from-Modrinth-App import tool)
-were added on 2026-09-13 after a scoping discussion with the user. Goal 5 is not implemented yet;
-its next concrete step is submitting a SignPath.io OSS-signing application, with the CI
-tag-signing fallback bug and installer metadata gap as independent smaller fixes noted alongside
-it. Goal 6 is implemented end-to-end as of 2026-09-16, including Phase 4 and the symlink-handling/
-empty-directory/launch-overrides follow-ups — see goal 6's own section above for the full phase
-breakdown and [goal-6-import-design.md](goal-6-import-design.md) for the detailed writeup. No known
-gaps remain beyond real-world Windows validation, which this fork's other machine should pick up
-next.
+were added on 2026-09-13 after a scoping discussion with the user. Goal 5 is only partly
+implemented: its two independent smaller fixes (the CI tag-signing fallback bug and the installer
+metadata gap) landed 2026-09-13, but the installer is still unsigned, and the next concrete step
+for the goal itself is still submitting a SignPath.io OSS-signing application. Goal 6 is
+implemented end-to-end as of 2026-09-16, including Phase 4, the symlink-handling/empty-directory/
+launch-overrides follow-ups, and a later round of real-install bug fixes — see goal 6's own
+section above for the full phase breakdown and [goal-6-import-design.md](goal-6-import-design.md)
+for the detailed writeup. No known gaps remain beyond real-world Windows validation, which this
+fork's other machine should pick up next.
 
 This document should be updated as scope changes — treat it as the source of truth for what this fork
 is trying to do, ahead of any individual issue or PR.
