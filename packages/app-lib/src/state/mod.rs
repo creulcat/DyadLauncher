@@ -2,7 +2,6 @@
 use crate::util::fetch::{FetchSemaphore, IoSemaphore};
 use dashmap::DashMap;
 use std::sync::Arc;
-use std::sync::atomic::AtomicBool;
 use tokio::sync::{Mutex, MutexGuard, OnceCell, OwnedMutexGuard, Semaphore};
 
 use crate::state::instances::watcher::FileWatcher;
@@ -82,8 +81,6 @@ pub struct State {
     //
     // /// App identifier string (like com.modrinth.ModrinthApp)
     // pub app_identifier: String,
-    pub restart_after_pending_update: AtomicBool,
-
     pub(crate) pool: SqlitePool,
 
     pub(crate) file_watcher: FileWatcher,
@@ -252,7 +249,6 @@ impl State {
             synced_options_lock: Mutex::new(()),
             discord_rpc,
             process_manager,
-            restart_after_pending_update: AtomicBool::new(false),
             pool,
             file_watcher,
             // app_identifier,

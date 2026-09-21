@@ -25,6 +25,9 @@
 			"identifier": "http:default",
 			"allow": [
 				{
+					"url": "https://github.com/creulcat/DyadLauncher/releases/*"
+				},
+				{
 					"url": "https://modrinth.com/*"
 				},
 				{
