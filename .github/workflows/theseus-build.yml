@@ -358,8 +358,14 @@ jobs:
             --notes-file release-notes.md \
             release-assets/updates.json \
             "release-assets/DyadLauncher_${VERSION}_x64-setup.exe" \
+            "release-assets/DyadLauncher_${VERSION}_x64-setup.nsis.zip" \
+            "release-assets/DyadLauncher_${VERSION}_x64-setup.nsis.zip.sig" \
             "release-assets/DyadLauncher_${VERSION}_universal.dmg" \
+            "release-assets/DyadLauncher_${VERSION}_universal.app.tar.gz" \
+            "release-assets/DyadLauncher_${VERSION}_universal.app.tar.gz.sig" \
             "release-assets/DyadLauncher_${VERSION}_amd64.AppImage" \
+            "release-assets/DyadLauncher_${VERSION}_amd64.AppImage.tar.gz" \
+            "release-assets/DyadLauncher_${VERSION}_amd64.AppImage.tar.gz.sig" \
             "release-assets/DyadLauncher_${VERSION}_amd64.deb" \
             "release-assets/DyadLauncher-${VERSION}-1.x86_64.rpm"
 
