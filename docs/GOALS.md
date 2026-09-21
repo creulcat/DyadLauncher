@@ -497,7 +497,9 @@ still left. This goal finishes the job and then makes it stay finished.
 
 **Deliberately kept (not bloat, documented as allowed hosts):**
 
-- Modrinth's content API and CDN (browsing/searching/downloading, per goal 3).
+- Modrinth's content API and CDN (browsing/searching/downloading, per goal 3). That includes the
+  static assets on `cdn-raw.modrinth.com` (Minecraft and Inter fonts) and `launcher-files.modrinth.com`
+  (fallback images); see item 2.
 - **`launcher-meta.modrinth.com`** — Modrinth's mirror of the Minecraft and loader version
   manifests, which the launcher needs in order to create and launch instances. Replacing it would
   mean talking to Mojang, Fabric, Forge, Quilt and NeoForge directly, which is a large separate
@@ -517,23 +519,30 @@ still left. This goal finishes the job and then makes it stay finished.
    Removing the Servers install flow touches `Browse.vue` and `project/Index.vue`, which are also the
    main content-browsing path, so that part is done carefully and checked against the browse and
    project pages.
-2. **Bundle what can be bundled.** Ship the Minecraft fonts and the fallback images inside the app
-   instead of fetching them from Modrinth's CDN, and render account heads locally from the skin
-   texture the launcher already has (there is already a `helpers/storage/head-storage.ts`) rather
-   than sending the UUID to `mc-heads.net`. Only the account avatar needs the skin data; if a head
-   can't be rendered offline, show a default instead of making a third-party request.
+2. **Stop the third-party avatar lookups.** Render account heads locally from the skin texture the
+   launcher already has (there is already a `helpers/storage/head-storage.ts`) rather than sending the
+   UUID to `mc-heads.net`. Only the account avatar needs the skin data; if a head can't be rendered
+   offline, show a default instead of making a third-party request. *Decided 2026-09-21: the Minecraft
+   and Inter fonts and the fallback images (`cdn-raw.modrinth.com`, `launcher-files.modrinth.com`) are
+   **not** bundled. The Minecraft fonts are Mojang-derived and the user doesn't want to redistribute
+   them from this repo; static assets from Modrinth's CDN are fine, they are not tracking or ads. Both
+   hosts go on the allowed list instead.*
 3. **Drop the `modrinth-download-meta` header** and its `DownloadMeta` plumbing.
 4. **Rebrand the User-Agent** to something like `DyadLauncher/<version> (github.com/creulcat/DyadLauncher)`
    in both Rust and TypeScript.
-5. **Version check opt-out (open, needs a decision):** goal 4 now documents the check as it is —
-   always on, no toggle. Either accept that (it is one read of a public file on github.com, no
-   identifiers sent beyond the User-Agent from item 4) or add an off switch in Settings, wired to the
-   existing but currently unused `check_for_updates` setting, so the launcher can be made completely
-   silent toward the network. If a switch is added, goal 4 needs a matching update.
-6. **Verify with real traffic, not just code reading.** Run a fresh profile through a proxy
-   (mitmproxy or Fiddler) for a full session: startup, browsing, installing a mod, launching, signing
-   in. From that, write `docs/NETWORK.md`: one row per host, with the reason it is contacted and
-   whether it is opt-in.
+5. **Version check off switch (decided 2026-09-21: add it, default on):** a Settings toggle wired to
+   the existing but currently unused `check_for_updates` setting, so the launcher can be made
+   completely silent toward the network. When it is off, the launch and hourly checks
+   never fire; the Settings footer's manual "Check for updates" button still works, since that is a
+   deliberate click. Goal 4 (the lines describing the check as unconditional) needs a matching update
+   when this lands.
+6. **Verify with real traffic, not just code reading.** *Decided 2026-09-21: use the webview's own
+   DevTools (F12 / Ctrl+Shift+I) rather than an external proxy.* Caveat: the Network tab only sees the
+   frontend's requests. Everything the Rust side sends (downloads, `launcher-meta`, the GitHub version
+   check, Discord, Java and jar downloads) never shows up there, so that half is covered by reading
+   the `reqwest` call sites and, where a runtime check is wanted, `RUST_LOG` HTTP client logging.
+   From both, write `docs/NETWORK.md`: one row per host, with the reason it is contacted and whether it
+   is opt-in.
 7. **Add a guard so it stays clean.** A CI check (script in `scripts/`) that fails when a hostname
    appears in the app's source, config or CSP that is not in the `docs/NETWORK.md` allowlist, and
    the CSP is tightened to exactly those hosts (except `img-src`, above).
@@ -548,7 +557,23 @@ Known tradeoffs and notes:
   modals, the WebView2 error dialog in `main.rs`) are a separate rebrand pass and are not part of
   this goal, except where they are a live request.
 
-Not started. Scoped 2026-09-21.
+**Progress (started 2026-09-21), uncommitted until hand-tested:**
+
+- **Phase 1, launch-time frontend requests: code done.** Removed from `App.vue` the Modrinth Servers
+  and billing prefetches, the `tally.so` script from `index.html`, and the GeoIP lookup (the user
+  country is now a fixed `US`; the only consumer is Imgur proxying in rendered descriptions, so the cost
+  is that Imgur images are never proxied for users in regions that block it). Also removed two calls
+  to functions that no longer exist: `fetchCredentials()` (it threw a `ReferenceError` in `setupApp`,
+  after the opening-command handler and before skin-preview generation) and the modal
+  `onShow`/`onHide` ads-window hold (it threw whenever a modal opened). `vue-tsc` and ESLint are clean;
+  hand-testing in the app is still to do.
+- Two findings the static audit missed, added to the list above: **Inter**, the main UI font
+  (`packages/assets/styles/inter.scss`), also loads from `cdn-raw.modrinth.com` (covered by the
+  allowed-host decision in item 2), and `apps/app/build.rs` still declares an inlined `ads` plugin whose
+  commands (`init_ads_window`, `update_ads_window_hold`, the consent-UI ones) no longer exist in Rust,
+  along with its capability grants. That goes in the dormant-code removal.
+- Still to do: items 2-7 and the rest of item 1 (account-only Rust and frontend, the Servers install
+  flow, CSP, config/env, dependencies, settings columns).
 
 ### 8. Launcher backgrounds, with per-instance overrides
 
@@ -713,7 +738,7 @@ Last reviewed 2026-09-21.
 | 4 | Update notifications | Done — Modrinth's updater disabled 2026-09-04; self-updater built 2026-09-14, replaced by a download-link version check 2026-09-21; release-pipeline fixes 2026-09-16/17. Self-updater leftovers not yet cleaned up |
 | 5 | Windows installer trust warning | **Partly done** — CI fallback fix and installer metadata landed 2026-09-13; installer is still unsigned, SignPath application not yet submitted |
 | 6 | Migrate-from-Modrinth-App import | Done (2026-09-16), pending real-world Windows validation |
-| 7 | Network & tracking audit | **Not started** — scoped 2026-09-21; static audit done, traffic capture and cleanup outstanding |
+| 7 | Network & tracking audit | **In progress** — scoped 2026-09-21; phase 1 (launch-time frontend requests) coded, rest outstanding |
 | 8 | Launcher backgrounds + per-instance overrides | Done (2026-09-21) — backend, rendering, global and per-instance UI, hand-tested in the real app |
 | 9 | Instance comparison | **Not started** — scoped 2026-09-21 (metadata + content only in v1) |
 
@@ -747,12 +772,12 @@ section above for the full phase breakdown and [goal-6-import-design.md](goal-6-
 for the detailed writeup. No known gaps remain beyond real-world Windows validation, which this
 fork's other machine should pick up next.
 
-Goals 7-9 were added on 2026-09-21 after a scoping discussion with the user, none implemented yet.
-Goal 7 is a follow-up to goal 3: a code audit found leftover Modrinth Servers/billing prefetches, a
-GeoIP lookup, a third-party avatar service, the download-attribution header and dead Stripe/account
-plumbing (see its findings list). Whether the always-on version check from goal 4 should get an off
-switch is a decision item inside goal 7. Goal 8 (backgrounds) is scoped to user-supplied images and colours/gradients with
-translucent-panel legibility controls; goal 9 (instance comparison) to metadata and content in v1.
+Goals 7-9 were added on 2026-09-21 after a scoping discussion with the user. Goal 7 is a follow-up to
+goal 3: a code audit found leftover Modrinth Servers/billing prefetches, a GeoIP lookup, a third-party
+avatar service, the download-attribution header and dead Stripe/account plumbing (see its findings
+list); it is in progress, and the version check from goal 4 is to get an off switch (default on).
+Goal 8 (backgrounds) is done; goal 9 (instance comparison) is scoped to metadata and content in v1
+and not started.
 
 This document should be updated as scope changes — treat it as the source of truth for what this fork
 is trying to do, ahead of any individual issue or PR.

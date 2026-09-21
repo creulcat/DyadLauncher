@@ -40,7 +40,7 @@ import {
 	useDebugLogger,
 	useVIntl,
 } from '@modrinth/ui'
-import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import { useQuery } from '@tanstack/vue-query'
 import { getVersion } from '@tauri-apps/api/app'
 import { convertFileSrc, invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
@@ -210,8 +210,6 @@ providePageContext({
 })
 provideModalBehavior({
 	noblur: computed(() => !appTheme.advancedRendering),
-	onShow: () => take_ads_window_hold(),
-	onHide: () => release_ads_window_hold(),
 })
 
 const creationIconEditorModal = ref(null)
@@ -229,13 +227,8 @@ const {
 	setModpackAlreadyInstalledModal,
 	handleModpackDuplicateCreateAnyway,
 	handleModpackDuplicateGoToInstance,
-} = setupProviders(
-	tauriApiClient,
-	notificationManager,
-	popupNotificationManager,
-	appEvents,
-	(iconPath) =>
-		creationGeneratedIcon.value?.path === iconPath ? creationGeneratedIcon.value.config : null,
+} = setupProviders(notificationManager, popupNotificationManager, appEvents, (iconPath) =>
+	creationGeneratedIcon.value?.path === iconPath ? creationGeneratedIcon.value.config : null,
 )
 
 async function randomizeCreationIcon() {
@@ -458,7 +451,6 @@ async function setupApp() {
 	}
 
 	get_opening_command().then(handleCommand)
-	fetchCredentials()
 
 	try {
 		const skins = (await get_available_skins()) ?? []
@@ -540,8 +532,6 @@ function onSuspenseResolve() {
 	}
 }
 
-const queryClient = useQueryClient()
-
 watch(stateInitialized, (ready) => {
 	if (ready) {
 		report_launcher_page(route.path)
@@ -553,39 +543,6 @@ watch(stateInitialized, (ready) => {
 			loading.end(routerToken)
 			routerToken = null
 		}
-
-		queryClient.prefetchQuery({
-			queryKey: ['servers'],
-			queryFn: async () => {
-				const response = await tauriApiClient.archon.servers_v0.list({ limit: 100 })
-				const hasMedalServers = response.servers.some((s) => s.is_medal)
-				if (hasMedalServers) {
-					const subscriptions = await tauriApiClient.labrinth.billing_internal.getSubscriptions()
-					for (const server of response.servers) {
-						if (server.is_medal) {
-							const sub = subscriptions.find((s) => s.metadata?.id === server.server_id)
-							if (sub) {
-								server.medal_expires = new Date(
-									new Date(sub.created).getTime() + 5 * 86400000,
-								).toISOString()
-							}
-						}
-					}
-				}
-				return response
-			},
-			staleTime: 30_000,
-		})
-		queryClient.prefetchQuery({
-			queryKey: ['billing', 'subscriptions'],
-			queryFn: () => tauriApiClient.labrinth.billing_internal.getSubscriptions(),
-			staleTime: 30_000,
-		})
-		queryClient.prefetchQuery({
-			queryKey: ['billing', 'payments'],
-			queryFn: () => tauriApiClient.labrinth.billing_internal.getPayments(),
-			staleTime: 30_000,
-		})
 	}
 })
 

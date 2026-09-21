@@ -1,4 +1,3 @@
-import type { AbstractModrinthClient } from '@modrinth/api-client'
 import type { AbstractPopupNotificationManager, AbstractWebNotificationManager } from '@modrinth/ui'
 
 import type { InstanceIconConfig } from '@/helpers/types'
@@ -14,13 +13,12 @@ import { setupTagsProvider } from './setup/tags'
 import { setupUserCountryProvider } from './setup/user-country'
 
 export function setupProviders(
-	client: AbstractModrinthClient,
 	notificationManager: AbstractWebNotificationManager,
 	_popupNotificationManager: AbstractPopupNotificationManager,
 	_appEvents: AppEvents,
 	getGeneratedIconConfig?: (iconPath: string) => InstanceIconConfig | null,
 ) {
-	setupUserCountryProvider(client)
+	setupUserCountryProvider()
 	setupTagsProvider(notificationManager)
 	setupFileDropProvider()
 	setupFilePickerProvider()
