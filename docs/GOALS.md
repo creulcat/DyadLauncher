@@ -647,11 +647,12 @@ Known tradeoffs and notes:
    browser pane with the real instance settings modal over a stubbed instance API (preview, Reset,
    both guards, failed and successful save, reopening from the saved value), and the patch
    semantics (absent / null / value, sanitising) are covered by Rust unit tests.
-5. **Testing in the real app — outstanding.** Everything above was verified in a browser with a
-   stubbed Tauri bridge, plus Rust unit tests. Still to do by hand in the running app: pick a real
-   photo through the native file dialog, judge legibility over real page content (cards, tables,
-   the instance page) in dark and light themes, check WebView2 blur speed with a large image, and
-   confirm the tuned defaults (dim 40, blur 8, panel opacity 40-95%) feel right.
+5. **Testing in the real app — done (2026-09-21).** Built and checked in a browser with a stubbed Tauri
+   bridge plus Rust unit tests, then hand-tested in the running app by the fork's owner (real image
+   through the native file dialog, real page content, per-instance overrides), who found it good and
+   committed it. Two visual defects found on the way (the squared-off top-left content corner and the
+   opaque window-control block over a background) were fixed before the commit. Small polish items
+   are being collected separately as "nitpicks".
 
 ### 9. Instance comparison
 
@@ -713,7 +714,7 @@ Last reviewed 2026-09-21.
 | 5 | Windows installer trust warning | **Partly done** — CI fallback fix and installer metadata landed 2026-09-13; installer is still unsigned, SignPath application not yet submitted |
 | 6 | Migrate-from-Modrinth-App import | Done (2026-09-16), pending real-world Windows validation |
 | 7 | Network & tracking audit | **Not started** — scoped 2026-09-21; static audit done, traffic capture and cleanup outstanding |
-| 8 | Launcher backgrounds + per-instance overrides | **In progress** — fully implemented 2026-09-21 (backend, rendering, global and per-instance UI); pending hand-testing in the real app |
+| 8 | Launcher backgrounds + per-instance overrides | Done (2026-09-21) — backend, rendering, global and per-instance UI, hand-tested in the real app |
 | 9 | Instance comparison | **Not started** — scoped 2026-09-21 (metadata + content only in v1) |
 
 Goals 1-3 were agreed direction as of 2026-09-02; goal 4 was added on 2026-09-04. Goal 1
