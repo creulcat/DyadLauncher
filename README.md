@@ -37,8 +37,9 @@ This fork's focus is entirely the desktop launcher (`apps/app`, `apps/app-fronte
 2. **Debloating** — strip telemetry/analytics, account/login promos & ads, and news/social panels
    from the desktop app, while keeping (and tuning) Discord Rich Presence, which is now Dyad-branded,
    opt-in (off by default), and can be hidden per instance.
-3. **Auto-updates** — Modrinth's own update checks are disabled for this fork; a fork-owned,
-   opt-in updater backed by GitHub Releases replaces them.
+3. **Update notifications** — Modrinth's own update checks are disabled for this fork; Dyad checks
+   its own GitHub Releases and shows a banner with a download link when a new version is out. It
+   doesn't update itself in place.
 4. **Import from Modrinth App** — bring existing instances and selected settings over from an
    official Modrinth App install, with per-instance and per-category control.
 
