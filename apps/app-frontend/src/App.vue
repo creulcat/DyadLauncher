@@ -52,6 +52,7 @@ import { RouterView, useRoute, useRouter } from 'vue-router'
 
 import AccountsCard from '@/components/ui/AccountsCard.vue'
 import AppActionBar from '@/components/ui/AppActionBar.vue'
+import AppBackground from '@/components/ui/AppBackground.vue'
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue'
 import ErrorModal from '@/components/ui/ErrorModal.vue'
 import AddServerToInstanceModal from '@/components/ui/install_flow/AddServerToInstanceModal.vue'
@@ -73,6 +74,7 @@ import WindowControls from '@/components/ui/WindowControls.vue'
 import { useCheckDisableMouseover } from '@/composables/macCssFix.js'
 import { useAppEvent } from '@/composables/use-app-event'
 import { useAppSettings } from '@/composables/use-app-settings.ts'
+import { setGlobalBackground, useEffectiveBackground } from '@/composables/use-background'
 import { useError } from '@/composables/use-error.js'
 import { useInstanceMetadataRefresh } from '@/composables/use-instance-metadata-refresh'
 import { useTheme } from '@/composables/use-theme.ts'
@@ -114,6 +116,7 @@ import { appSettingsModalOpenSyncedOptionsKey } from './providers/app-settings-m
 const appSettings = useAppSettings()
 const { updateAvailable: appUpdateBannerVisible, latestVersion: appLatestVersion } = appUpdateCheck
 const appTheme = useTheme()
+const background = useEffectiveBackground()
 const router = useRouter()
 const route = useRoute()
 const { channel: appEventChannel, events: appEvents } = setupAppEventsProvider()
@@ -418,6 +421,7 @@ async function setupApp() {
 		toggle_sidebar,
 		developer_mode,
 		feature_flags,
+		background: globalBackground,
 	} = await getSettings()
 
 	// Initialize locale from saved settings
@@ -435,6 +439,7 @@ async function setupApp() {
 
 	appTheme.preferred = theme
 	appTheme.advancedRendering = advanced_rendering
+	setGlobalBackground(globalBackground)
 	appSettings.hideNametagSkinsPage = hide_nametag_skins_page
 	appSettings.toggleSidebar = toggle_sidebar
 	appSettings.devMode = developer_mode
@@ -911,6 +916,12 @@ async function openUpdateDownload() {
 		class="app-grid-layout relative"
 		:class="{ 'disable-advanced-rendering': !appTheme.advancedRendering }"
 	>
+		<AppBackground
+			v-if="background.active.value"
+			:config="background.config.value"
+			:image-url="background.imageUrl.value"
+			:blur="background.blur.value"
+		/>
 		<Suspense>
 			<AppSettingsModal ref="appSettingsModal" />
 		</Suspense>

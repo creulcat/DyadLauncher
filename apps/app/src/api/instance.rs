@@ -133,6 +133,7 @@ pub struct Instance {
     pub visible_tabs: InstanceTabVisibility,
     pub allow_concurrent_launches: bool,
     pub hide_from_discord: bool,
+    pub background: Option<BackgroundConfig>,
 }
 
 #[derive(Serialize, Debug, Clone)]
@@ -276,6 +277,12 @@ pub struct EditInstance {
     pub visible_tabs: Option<InstanceTabVisibility>,
     pub allow_concurrent_launches: Option<bool>,
     pub hide_from_discord: Option<bool>,
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        with = "serde_with::rust::double_option"
+    )]
+    pub background: Option<Option<BackgroundConfig>>,
 }
 
 impl From<InstanceMetadata> for Instance {
@@ -319,6 +326,7 @@ impl From<InstanceMetadata> for Instance {
                 .launch_overrides
                 .allow_concurrent_launches,
             hide_from_discord: metadata.launch_overrides.hide_from_discord,
+            background: metadata.launch_overrides.background,
         }
     }
 }
@@ -490,6 +498,7 @@ fn edit_to_core(edit_instance: EditInstance) -> Result<CoreEditInstance> {
             visible_tabs: edit_instance.visible_tabs,
             allow_concurrent_launches: edit_instance.allow_concurrent_launches,
             hide_from_discord: edit_instance.hide_from_discord,
+            background: edit_instance.background,
         }),
         content_set_patch: Some(AppliedContentSetPatch {
             source_kind: None,

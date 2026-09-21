@@ -561,12 +561,16 @@ one is the real work.
   `bg-bg-raised` surfaces, so an image would only show in the nav and status bars unless panels get
   a translucent mode. Those tokens live in `packages/ui`, which the website shares, so the
   translucency is scoped to a `.has-background` class set by the app and the website is untouched.
-- `.app-contents { filter: brightness(1.1) }` in `App.vue` creates a backdrop root, which stops
-  `backdrop-filter` blur from working on descendants. It has to be removed or moved when a background
-  is active.
 - Blur over large surfaces can be slow in WebView2, so the existing **Advanced rendering** setting
   (`advancedRendering`) is respected: with it off, blur is disabled and the background falls back to
   a plain dim.
+- The scoping originally expected a `filter: brightness(1.1)` on `.app-contents` to block
+  `backdrop-filter`. It isn't there any more (the only `brightness` in `App.vue` is a hover state), so
+  nothing needed moving. Blur is applied to the background image layer instead of as a
+  `backdrop-filter` on the panels: `backdrop-filter` on `.app-contents` would make it the containing
+  block for its `position: fixed` children (the border overlay and loading bar) and shift them, and one
+  static blurred layer is much cheaper than blurring behind every panel. The tradeoff is that panels
+  are translucent over an already blurred image rather than individually frosted.
 
 **Decided approach (2026-09-21):**
 
@@ -601,7 +605,53 @@ Known tradeoffs and notes:
   when building it.
 - Fully local: this feature makes no network calls.
 
-Not started. Scoped 2026-09-21.
+**Status (2026-09-21): in progress.** Built in phases:
+
+1. **Backend — done.** `BackgroundConfig` (`source` = none/colour/gradient/image, plus `dim` 0-100
+   and `blur` 0-32, sanitised on every write) lives on `Settings` (new `background` column,
+   migration `20260921130000`) and on the instance launch overrides (`background`, `None` =
+   inherit). `api::background::cache_image` decodes PNG/JPEG/WebP only, downscales to 2560px and
+   re-encodes (JPEG for opaque images, PNG when transparency is used) into
+   `caches/backgrounds/<sha1>.<ext>`. `collect_garbage` deletes files nothing refers to, on
+   startup and after a settings save, instance background edit or instance removal; files picked
+   but not yet saved are protected until the next restart. Exposed to the UI as
+   `plugin:background|background_cache_image`; asset-protocol scope added in `tauri.conf.json`.
+2. **Rendering — done (2026-09-21).** `AppBackground.vue` draws the source plus a dim overlay in the
+   theme's own background colour, so dimming works in every theme. While a background shows,
+   `html.has-background` (set by `use-background.ts`) makes `assets/stylesheets/background.scss`
+   redefine the `--surface-*` variables as translucent inside the app shell only; teleported modals and
+   menus stay opaque. Panel opacity runs from 40% at dim 0 to 95% at dim 100. The instance override
+   applies on `/instance/…` routes and follows edits live through the existing instance query cache.
+   With Advanced rendering off there's no blur, only the dim. An unreadable image counts as no
+   background. Checked in the browser pane with a stubbed Tauri bridge: dark and light themes, blur and
+   no blur, instance gradient override, "none" override, broken image. Not yet checked against real page
+   content (cards, tables, the instance page) in the real app.
+3. **Global settings UI — done (2026-09-21).** A Background section at the bottom of Settings →
+   Appearance (`BackgroundEditor.vue`, embedded in `AppearanceSettings.vue`): a type picker (None,
+   Image, Color, Gradient), a native file dialog for images (`plugin:dialog`, filtered to PNG/JPEG/WebP)
+   that runs the pick through `background_cache_image`, colour pickers, an angle slider, Dim and Blur
+   sliders, and a preview with a sample panel. It follows the page's existing Save/Reset flow, and the
+   launcher behind the dialog previews changes live, reverting on Reset or when the tab closes
+   unsaved. Blur is disabled with a hint when Advanced rendering is off. The editor takes a `sources`
+   prop so phase 4 can reuse it for instances. Checked in the browser pane with a stubbed Tauri bridge
+   (choose image, save payload, gradient, reset); the real native file dialog is untested.
+4. **Per-instance settings UI — done (2026-09-21).** A Background control in each instance's
+   Settings → General (`background-setting.vue`): *Use launcher background* (stored as `null`),
+   *None*, or *Custom*, which reuses `BackgroundEditor` without the None type and starts as a copy of
+   the launcher background (or the brand gradient when there is none). Like the global settings it
+   uses a Save / Reset bar (`use-unsaved-changes-bar.ts` wires the same `UnsavedChangesPopup` into
+   the instance settings modal; it was first built as autosave, which matched the other instance
+   tabs but not its global twin). Edits are only previewed, live, on that instance's pages until
+   Save, which stores one `background` patch. Closing the dialog or switching tabs with unsaved
+   edits is refused and nudges the bar; a failed save keeps the edits and the bar. Checked in the
+   browser pane with the real instance settings modal over a stubbed instance API (preview, Reset,
+   both guards, failed and successful save, reopening from the saved value), and the patch
+   semantics (absent / null / value, sanitising) are covered by Rust unit tests.
+5. **Testing in the real app — outstanding.** Everything above was verified in a browser with a
+   stubbed Tauri bridge, plus Rust unit tests. Still to do by hand in the running app: pick a real
+   photo through the native file dialog, judge legibility over real page content (cards, tables,
+   the instance page) in dark and light themes, check WebView2 blur speed with a large image, and
+   confirm the tuned defaults (dim 40, blur 8, panel opacity 40-95%) feel right.
 
 ### 9. Instance comparison
 
@@ -663,7 +713,7 @@ Last reviewed 2026-09-21.
 | 5 | Windows installer trust warning | **Partly done** — CI fallback fix and installer metadata landed 2026-09-13; installer is still unsigned, SignPath application not yet submitted |
 | 6 | Migrate-from-Modrinth-App import | Done (2026-09-16), pending real-world Windows validation |
 | 7 | Network & tracking audit | **Not started** — scoped 2026-09-21; static audit done, traffic capture and cleanup outstanding |
-| 8 | Launcher backgrounds + per-instance overrides | **Not started** — scoped 2026-09-21 |
+| 8 | Launcher backgrounds + per-instance overrides | **In progress** — fully implemented 2026-09-21 (backend, rendering, global and per-instance UI); pending hand-testing in the real app |
 | 9 | Instance comparison | **Not started** — scoped 2026-09-21 (metadata + content only in v1) |
 
 Goals 1-3 were agreed direction as of 2026-09-02; goal 4 was added on 2026-09-04. Goal 1

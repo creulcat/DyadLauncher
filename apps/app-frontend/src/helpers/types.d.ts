@@ -50,6 +50,22 @@ export type GameInstance = {
 	}
 	allow_concurrent_launches: boolean
 	hide_from_discord: boolean
+	/** Unset inherits the global background; a config with source `none` shows no background. */
+	background?: BackgroundConfig | null
+}
+
+export type BackgroundSource =
+	| { type: 'none' }
+	| { type: 'color'; color: string }
+	| { type: 'gradient'; from: string; to: string; angle: number }
+	| { type: 'image'; path: string }
+
+export type BackgroundConfig = {
+	source: BackgroundSource
+	/** 0-100 */
+	dim: number
+	/** px, 0-32 */
+	blur: number
 }
 
 export type IconBackground =

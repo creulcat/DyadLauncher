@@ -297,6 +297,14 @@ fn main() {
                     ),
             )
             .plugin(
+                "background",
+                InlinedPlugin::new()
+                    .commands(&["background_cache_image"])
+                    .default_permission(
+                        DefaultPermissionRule::AllowAllCommands,
+                    ),
+            )
+            .plugin(
                 "discord",
                 InlinedPlugin::new()
                     .commands(&["discord_set_launcher_activity"])

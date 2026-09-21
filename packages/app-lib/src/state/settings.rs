@@ -1,5 +1,6 @@
 //! Theseus settings file
 
+use super::BackgroundConfig;
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Sqlite};
 use std::collections::HashMap;
@@ -21,6 +22,8 @@ pub struct Settings {
     pub toggle_sidebar: bool,
     pub sync_theme_across_devices: bool,
     pub sync_behavior_across_devices: bool,
+    #[serde(default)]
+    pub background: BackgroundConfig,
 
     pub discord_rpc: bool,
 
@@ -95,6 +98,7 @@ impl Settings {
                 skipped_update, pending_update_toast_for_version, auto_download_updates,
                 sync_theme_across_devices, sync_behavior_across_devices,
                 check_for_updates,
+                background,
                 version
             FROM settings
             "
@@ -154,6 +158,12 @@ impl Settings {
             sync_theme_across_devices: res.sync_theme_across_devices == 1,
             sync_behavior_across_devices: res.sync_behavior_across_devices == 1,
             check_for_updates: res.check_for_updates == 1,
+            background: res
+                .background
+                .as_ref()
+                .and_then(|x| serde_json::from_str::<BackgroundConfig>(x).ok())
+                .unwrap_or_default()
+                .sanitized(),
             version: res.version as usize,
         })
     }
@@ -169,6 +179,8 @@ impl Settings {
         let extra_launch_args = serde_json::to_string(&self.extra_launch_args)?;
         let custom_env_vars = serde_json::to_string(&self.custom_env_vars)?;
         let feature_flags = serde_json::to_string(&self.feature_flags)?;
+        let background =
+            serde_json::to_string(&self.background.clone().sanitized())?;
         let version = self.version as i64;
 
         sqlx::query!(
@@ -217,7 +229,9 @@ impl Settings {
 
                 check_for_updates = $32,
 
-                version = $33
+                background = $33,
+
+                version = $34
             ",
             max_concurrent_writes,
             max_concurrent_downloads,
@@ -251,6 +265,7 @@ impl Settings {
             self.sync_theme_across_devices,
             self.sync_behavior_across_devices,
             self.check_for_updates,
+            background,
             version,
         )
         .execute(exec)

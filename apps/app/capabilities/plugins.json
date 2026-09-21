@@ -96,6 +96,7 @@
 			]
 		},
 		"auth:default",
+		"background:default",
 		"discord:default",
 		"import:default",
 		"jre:default",

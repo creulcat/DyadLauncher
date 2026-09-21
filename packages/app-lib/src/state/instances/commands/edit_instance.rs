@@ -4,8 +4,8 @@ use crate::state::instances::{
     adapters::sqlite::{content_rows, instance_rows},
 };
 use crate::state::{
-    Hooks, InstanceInstallStage, LauncherFeatureVersion, MemorySettings,
-    ModLoader, ReleaseChannel, WindowSize,
+    BackgroundConfig, Hooks, InstanceInstallStage, LauncherFeatureVersion,
+    MemorySettings, ModLoader, ReleaseChannel, WindowSize,
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -85,6 +85,12 @@ pub struct InstanceLaunchOverridesPatch {
     pub visible_tabs: Option<InstanceTabVisibility>,
     pub allow_concurrent_launches: Option<bool>,
     pub hide_from_discord: Option<bool>,
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        with = "serde_with::rust::double_option"
+    )]
+    pub background: Option<Option<BackgroundConfig>>,
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -300,6 +306,83 @@ fn apply_launch_overrides_patch(
     if let Some(hide_from_discord) = patch.hide_from_discord {
         overrides.hide_from_discord = hide_from_discord;
     }
+    if let Some(background) = patch.background {
+        overrides.background = background.map(BackgroundConfig::sanitized);
+    }
 
     overrides
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::state::BackgroundSource;
+
+    fn custom_background() -> BackgroundConfig {
+        BackgroundConfig {
+            source: BackgroundSource::Color {
+                color: "#54ff54".to_string(),
+            },
+            dim: 30,
+            blur: 4,
+        }
+    }
+
+    fn patch_from_json(json: &str) -> InstanceLaunchOverridesPatch {
+        serde_json::from_str(json).unwrap()
+    }
+
+    #[test]
+    fn background_patch_distinguishes_absent_null_and_value() {
+        let absent = patch_from_json("{}");
+        assert!(absent.background.is_none());
+
+        let inherit = patch_from_json(r#"{"background": null}"#);
+        assert_eq!(inherit.background, Some(None));
+
+        let custom = patch_from_json(
+            r##"{"background": {"source": {"type": "color", "color": "#54ff54"}, "dim": 30, "blur": 4}}"##,
+        );
+        assert_eq!(custom.background, Some(Some(custom_background())));
+    }
+
+    #[test]
+    fn background_patch_sets_clears_and_leaves_overrides_alone() {
+        let mut overrides = InstanceLaunchOverrides::empty("id".to_string());
+        assert!(overrides.background.is_none());
+
+        overrides = apply_launch_overrides_patch(
+            overrides,
+            patch_from_json(
+                r##"{"background": {"source": {"type": "color", "color": "#54ff54"}, "dim": 30, "blur": 4}}"##,
+            ),
+        );
+        assert_eq!(overrides.background, Some(custom_background()));
+
+        overrides = apply_launch_overrides_patch(
+            overrides,
+            patch_from_json(r#"{"hide_from_discord": true}"#),
+        );
+        assert_eq!(overrides.background, Some(custom_background()));
+
+        overrides = apply_launch_overrides_patch(
+            overrides,
+            patch_from_json(r#"{"background": null}"#),
+        );
+        assert!(overrides.background.is_none());
+    }
+
+    #[test]
+    fn background_patch_is_sanitized() {
+        let overrides = apply_launch_overrides_patch(
+            InstanceLaunchOverrides::empty("id".to_string()),
+            patch_from_json(
+                r#"{"background": {"source": {"type": "color", "color": "url(evil)"}, "dim": 250, "blur": 250}}"#,
+            ),
+        );
+        let background = overrides.background.unwrap();
+        assert_eq!(background.source, BackgroundSource::None);
+        assert_eq!(background.dim, 100);
+        assert_eq!(background.blur, 32);
+    }
 }

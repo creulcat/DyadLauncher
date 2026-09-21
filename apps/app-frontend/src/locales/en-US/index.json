@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Downloading Java {version}"
   },
-  "app.action-bar.downloading-update": {
-    "message": "Downloading update"
-  },
   "app.action-bar.downloads": {
     "message": "Downloads"
   },
@@ -107,9 +104,6 @@
   "app.action-bar.primary-instance": {
     "message": "Primary instance"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "Reload to update"
-  },
   "app.action-bar.show-downloads": {
     "message": "Show active downloads"
   },
@@ -118,9 +112,6 @@
   },
   "app.action-bar.stop-instance": {
     "message": "Stop instance"
-  },
-  "app.action-bar.update": {
-    "message": "Update"
   },
   "app.action-bar.view-active-downloads": {
     "message": "View active downloads"
@@ -191,12 +182,6 @@
   "app.auth-servers.unreachable.header": {
     "message": "Cannot reach authentication servers"
   },
-  "app.behavior-settings.check-for-updates.description": {
-    "message": "Periodically check GitHub for new Dyad Launcher releases, and offer to download and install them. Off by default."
-  },
-  "app.behavior-settings.check-for-updates.title": {
-    "message": "Check for updates"
-  },
   "app.behavior-settings.confirmations.title": {
     "message": "Confirmations"
   },
@@ -220,9 +205,6 @@
   },
   "app.behavior-settings.startup-and-navigation.title": {
     "message": "Startup and navigation"
-  },
-  "app.behavior-settings.updates.title": {
-    "message": "Updates"
   },
   "app.browse.add-servers-to-instance": {
     "message": "Adding server to instance"
@@ -1238,9 +1220,6 @@
   "app.quick-instance-switcher.view-instance": {
     "message": "View instance"
   },
-  "app.restarting": {
-    "message": "Restarting..."
-  },
   "app.screenshots.copied": {
     "message": "Copied"
   },
@@ -1397,6 +1376,90 @@
   "app.settings.app-version": {
     "message": "Dyad Launcher {version}"
   },
+  "app.settings.background.blur": {
+    "message": "Blur"
+  },
+  "app.settings.background.blur-description": {
+    "message": "Softens the background image."
+  },
+  "app.settings.background.blur-disabled-description": {
+    "message": "Turn on advanced rendering to blur the background."
+  },
+  "app.settings.background.change-image": {
+    "message": "Change image…"
+  },
+  "app.settings.background.choose-image": {
+    "message": "Choose image…"
+  },
+  "app.settings.background.color": {
+    "message": "Color"
+  },
+  "app.settings.background.description": {
+    "message": "Show your own image, color or gradient behind the launcher. Each instance can override this in its own settings."
+  },
+  "app.settings.background.dim": {
+    "message": "Dim"
+  },
+  "app.settings.background.dim-description": {
+    "message": "Darkens the background and makes panels more solid, so text is easier to read."
+  },
+  "app.settings.background.gradient-angle": {
+    "message": "Angle"
+  },
+  "app.settings.background.gradient-from": {
+    "message": "From"
+  },
+  "app.settings.background.gradient-to": {
+    "message": "To"
+  },
+  "app.settings.background.image-hint": {
+    "message": "PNG, JPEG or WebP. The image is copied into the launcher, so moving or deleting the original will not affect it."
+  },
+  "app.settings.background.preview": {
+    "message": "Preview"
+  },
+  "app.settings.background.sample-panel": {
+    "message": "Panels look like this"
+  },
+  "app.settings.background.source": {
+    "message": "Background type"
+  },
+  "app.settings.background.source.color": {
+    "message": "Color"
+  },
+  "app.settings.background.source.gradient": {
+    "message": "Gradient"
+  },
+  "app.settings.background.source.image": {
+    "message": "Image"
+  },
+  "app.settings.background.source.none": {
+    "message": "None"
+  },
+  "app.settings.background.title": {
+    "message": "Background"
+  },
+  "app.settings.check-for-updates": {
+    "message": "Check for updates"
+  },
+  "app.settings.check-for-updates.checking": {
+    "message": "Checking..."
+  },
+  "app.settings.check-for-updates.download": {
+    "message": "Download"
+  },
+  "app.settings.check-for-updates.link-copied.text": {
+    "message": "The link was copied to your clipboard instead - paste it into a browser."
+  },
+  "app.settings.check-for-updates.link-copied.title": {
+    "message": "Could not open the download link"
+  },
+  "app.settings.check-for-updates.up-to-date": {
+    "message": "You're up to date"
+  },
+  "app.settings.check-for-updates.update-available": {
+    "message": "v{version} is available"
+  },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "Environment variables set when launching an instance."
   },
@@ -1486,9 +1549,6 @@
   },
   "app.settings.developer-mode-enabled": {
     "message": "Developer mode enabled."
-  },
-  "app.settings.downloading": {
-    "message": "Downloading v{version}"
   },
   "app.settings.java-installations.location.title": {
     "message": "Java {version, number} location"
@@ -1642,6 +1702,9 @@
   },
   "app.sidebar.playing-as": {
     "message": "Playing as"
+  },
+  "app.sidebar.update-available": {
+    "message": "New update available v{version} - download now"
   },
   "app.skins.add-button": {
     "message": "Add skin"
@@ -1805,35 +1868,11 @@
   "app.skins.toggle-ears-features-on": {
     "message": "Toggle on"
   },
-  "app.update-popup.body.download-complete": {
-    "message": "Dyad Launcher v{version} has finished downloading. Reload to update now, or automatically when you close Dyad Launcher."
+  "app.update.link-copied.text": {
+    "message": "The link was copied to your clipboard instead - paste it into a browser."
   },
-  "app.update-popup.body.metered": {
-    "message": "Dyad Launcher v{version} is available now! Since you're on a metered network, we didn't automatically download it."
-  },
-  "app.update-popup.changelog": {
-    "message": "Changelog"
-  },
-  "app.update-popup.download": {
-    "message": "Download ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "Download complete"
-  },
-  "app.update-popup.reload": {
-    "message": "Reload to update"
-  },
-  "app.update-popup.title": {
-    "message": "Update available"
-  },
-  "app.update.complete-toast.text": {
-    "message": "Click here to view the changelog."
-  },
-  "app.update.complete-toast.title": {
-    "message": "Version {version} was successfully installed!"
-  },
-  "app.update.download-error.missing-version": {
-    "message": "Failed to download update: no version available"
+  "app.update.link-copied.title": {
+    "message": "Could not open the download link"
   },
   "app.user.project.install-to-instance": {
     "message": "Install to instance"
@@ -2239,6 +2278,21 @@
   },
   "instance.settings.tabs.general.allow-concurrent-launches.description": {
     "message": "Lets this instance be launched more than once at a time, each under a different account, all pointed at this same instance folder. Known tradeoff: logs/latest.log, usercache.json, and crash reports can be overwritten or interleaved between the running copies, and a world open in more than one copy at once can corrupt. Only enable this if you understand and accept that risk."
+  },
+  "instance.settings.tabs.general.background": {
+    "message": "Background"
+  },
+  "instance.settings.tabs.general.background.description": {
+    "message": "Choose the background shown on this instance's pages. This does not change the game."
+  },
+  "instance.settings.tabs.general.background.mode.custom": {
+    "message": "Custom"
+  },
+  "instance.settings.tabs.general.background.mode.inherit": {
+    "message": "Use launcher background"
+  },
+  "instance.settings.tabs.general.background.mode.none": {
+    "message": "None"
   },
   "instance.settings.tabs.general.delete": {
     "message": "Delete instance"

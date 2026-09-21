@@ -30,6 +30,7 @@ import { edit, edit_icon, getInstanceIconUrl, remove } from '@/helpers/instance'
 import type { GameInstance, InstanceIconConfig } from '@/helpers/types'
 
 import { instanceKeys } from '../../query-options'
+import BackgroundSetting from './background-setting.vue'
 import { injectInstanceSettings } from './instance-settings-context'
 
 const { handleError } = injectNotificationManager()
@@ -511,6 +512,8 @@ const messages = defineMessages({
 				{{ formatMessage(messages.showInDiscordDescription) }}
 			</p>
 		</div>
+
+		<BackgroundSetting class="mt-6" />
 
 		<div class="flex flex-col gap-2.5 mt-6">
 			<h2 id="delete-instance-label" class="m-0 text-lg font-semibold text-contrast block">

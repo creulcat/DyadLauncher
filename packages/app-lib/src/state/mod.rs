@@ -17,6 +17,9 @@ pub use self::instance_types::*;
 pub(crate) mod instances;
 pub use self::instances::*;
 
+mod background;
+pub use self::background::*;
+
 mod settings;
 pub use self::settings::*;
 
@@ -160,6 +163,8 @@ impl State {
             if let Err(e) = crate::api::instance::migrate_legacy_icons().await {
                 tracing::error!("Error migrating legacy instance icons: {e}");
             }
+
+            crate::api::background::collect_garbage().await;
 
             let res = tokio::try_join!(
                 state.discord_rpc.refresh(true),

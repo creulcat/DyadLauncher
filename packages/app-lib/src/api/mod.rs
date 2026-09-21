@@ -1,4 +1,5 @@
 //! API for interacting with Theseus
+pub mod background;
 pub mod cache;
 pub mod discord;
 pub mod handler;
@@ -20,8 +21,9 @@ pub mod worlds;
 
 pub mod data {
     pub use crate::state::{
-        AppliedContentSetPatch, CacheBehaviour, CacheValueType, ContentFile,
-        ContentItem, ContentItemOwner, ContentItemProject, ContentItemVersion,
+        AppliedContentSetPatch, BackgroundConfig, BackgroundSource,
+        CacheBehaviour, CacheValueType, ContentFile, ContentItem,
+        ContentItemOwner, ContentItemProject, ContentItemVersion,
         CreateInstance, Credentials, Dependency, DirectoryInfo, EditInstance,
         Hooks, InstanceIconBackground, InstanceIconConfig,
         InstanceInstallCandidate, InstanceInstallTarget,
@@ -42,7 +44,7 @@ pub mod data {
 
 pub mod prelude {
     pub use crate::{
-        State,
+        State, background,
         data::*,
         discord,
         event::CommandPayload,

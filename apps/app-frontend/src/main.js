@@ -1,5 +1,6 @@
 import 'floating-vue/dist/style.css'
 import 'overlayscrollbars/overlayscrollbars.css'
+import '@/assets/stylesheets/background.scss'
 
 import { VueScanPlugin } from '@taijased/vue-render-tracker'
 import { VueQueryPlugin } from '@tanstack/vue-query'

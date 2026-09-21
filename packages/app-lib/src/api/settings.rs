@@ -17,9 +17,14 @@ pub async fn get() -> crate::Result<Settings> {
 #[tracing::instrument]
 pub async fn set(settings: Settings) -> crate::Result<()> {
     let state = State::get().await?;
-    let discord_rpc_changed =
-        Settings::get(&state.pool).await?.discord_rpc != settings.discord_rpc;
+    let previous = Settings::get(&state.pool).await?;
+    let discord_rpc_changed = previous.discord_rpc != settings.discord_rpc;
+    let background_changed = previous.background != settings.background;
     settings.update(&state.pool).await?;
+
+    if background_changed {
+        crate::api::background::collect_garbage().await;
+    }
 
     // Apply the Rich Presence toggle right away instead of waiting for the next launch/exit event
     if discord_rpc_changed && let Err(e) = state.discord_rpc.refresh(true).await

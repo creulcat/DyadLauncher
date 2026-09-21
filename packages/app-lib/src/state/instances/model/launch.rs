@@ -1,5 +1,6 @@
 use crate::state::{
-    ContentSet, Hooks, Instance, InstanceLink, MemorySettings, WindowSize,
+    BackgroundConfig, ContentSet, Hooks, Instance, InstanceLink,
+    MemorySettings, WindowSize,
 };
 use serde::{Deserialize, Serialize};
 
@@ -37,6 +38,9 @@ pub struct InstanceLaunchOverrides {
     /// Opt-out: keep this instance out of Discord Rich Presence entirely. It is stored as a
     /// "hide" flag (rather than "show") so instances that predate it keep being shown.
     pub hide_from_discord: bool,
+    /// Background for this instance's own pages. `None` inherits the global background, a
+    /// config with no source shows no background, anything else is a custom background.
+    pub background: Option<BackgroundConfig>,
 }
 
 impl InstanceLaunchOverrides {
@@ -57,6 +61,7 @@ impl InstanceLaunchOverrides {
             visible_tabs: InstanceTabVisibility::default(),
             allow_concurrent_launches: false,
             hide_from_discord: false,
+            background: None,
         }
     }
 }
@@ -83,6 +88,8 @@ pub(crate) struct InstanceLaunchOverridesData {
     pub allow_concurrent_launches: bool,
     #[serde(default)]
     pub hide_from_discord: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub background: Option<BackgroundConfig>,
 }
 
 impl InstanceLaunchOverridesData {
@@ -102,6 +109,7 @@ impl InstanceLaunchOverridesData {
             visible_tabs: self.visible_tabs,
             allow_concurrent_launches: self.allow_concurrent_launches,
             hide_from_discord: self.hide_from_discord,
+            background: self.background,
         }
     }
 }
@@ -119,6 +127,7 @@ impl From<&InstanceLaunchOverrides> for InstanceLaunchOverridesData {
             visible_tabs: overrides.visible_tabs,
             allow_concurrent_launches: overrides.allow_concurrent_launches,
             hide_from_discord: overrides.hide_from_discord,
+            background: overrides.background.clone(),
         }
     }
 }

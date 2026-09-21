@@ -513,6 +513,7 @@ pub fn launch_overrides_patch(
         visible_tabs: None,
         allow_concurrent_launches: None,
         hide_from_discord: None,
+        background: None,
     }
 }
 
@@ -787,6 +788,7 @@ mod tests {
         assert!(patch.visible_tabs.is_none());
         assert!(patch.allow_concurrent_launches.is_none());
         assert!(patch.hide_from_discord.is_none());
+        assert!(patch.background.is_none());
     }
 
     #[test]

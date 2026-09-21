@@ -7,12 +7,14 @@ import {
 	defineMessage,
 	TabbedModal,
 	type TabbedModalTab,
+	UnsavedChangesPopup,
 	useVIntl,
 } from '@modrinth/ui'
 import type { PlatformTag } from '@modrinth/utils'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, nextTick, ref, watch } from 'vue'
 
+import { useUnsavedChangesBar } from '@/composables/use-unsaved-changes-bar'
 import { get_project_v3 } from '@/helpers/cache'
 import { get_linked_modpack_info, getInstanceIconUrl } from '@/helpers/instance'
 import { get_loader_versions } from '@/helpers/metadata'
@@ -27,6 +29,7 @@ import SyncedOptionsSettings from './synced-options-settings.vue'
 
 const { formatMessage } = useVIntl()
 const queryClient = useQueryClient()
+const unsavedChanges = useUnsavedChangesBar()
 
 const props = defineProps<{
 	instance: GameInstance
@@ -52,6 +55,7 @@ provideInstanceSettings({
 	isMinecraftServer,
 	onUnlinked: handleUnlinked,
 	closeModal: hide,
+	registerUnsavedChangesController: unsavedChanges.register,
 })
 
 watch(
@@ -166,6 +170,9 @@ defineExpose({ show, hide })
 		:tabs="tabs"
 		:max-width="'min(928px, calc(95vw - 10rem))'"
 		:width="'min(928px, calc(95vw - 10rem))'"
+		:before-hide="unsavedChanges.canLeave"
+		:before-tab-change="unsavedChanges.canLeave"
+		:floating-action-bar-shown="unsavedChanges.shown.value"
 	>
 		<template #title>
 			<span class="flex items-center gap-2 text-lg font-semibold text-primary">
@@ -180,6 +187,17 @@ defineExpose({ show, hide })
 					formatMessage(commonMessages.settingsLabel)
 				}}</span>
 			</span>
+		</template>
+		<template #floating-action-bar>
+			<UnsavedChangesPopup
+				:ref="unsavedChanges.popup"
+				:original="unsavedChanges.original.value"
+				:modified="unsavedChanges.modified.value"
+				:saving="unsavedChanges.saving.value"
+				inline
+				@reset="unsavedChanges.reset"
+				@save="unsavedChanges.save"
+			/>
 		</template>
 	</TabbedModal>
 </template>

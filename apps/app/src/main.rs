@@ -203,6 +203,7 @@ fn main() {
 
     builder = builder
         .plugin(api::auth::init())
+        .plugin(api::background::init())
         .plugin(api::discord::init())
         .plugin(api::import::init())
         .plugin(api::install::init())
