@@ -15,7 +15,6 @@ import {
 	ImagesIcon,
 	PlayIcon,
 	PlusIcon,
-	RefreshCwIcon,
 	RightArrowIcon,
 	SettingsIcon,
 	ShirtIcon,
@@ -39,7 +38,6 @@ import {
 	providePopupNotificationManager,
 	TextLogo,
 	useDebugLogger,
-	useFormatBytes,
 	useVIntl,
 } from '@modrinth/ui'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
@@ -49,7 +47,6 @@ import { listen } from '@tauri-apps/api/event'
 import { getCurrentWindow } from '@tauri-apps/api/window'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { type } from '@tauri-apps/plugin-os'
-import { saveWindowState, StateFlags } from '@tauri-apps/plugin-window-state'
 import { computed, onMounted, onUnmounted, provide, ref, watch } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 
@@ -86,36 +83,20 @@ import { report_launcher_page } from '@/helpers/discord.ts'
 import { install_create_modpack_instance, install_get_modpack_preview } from '@/helpers/install'
 import { get as getInstance, get_global_synced_options, run } from '@/helpers/instance'
 import { mergeUrlQuery, parseModrinthLink } from '@/helpers/project-links.ts'
-import { get as getSettings, set as setSettings } from '@/helpers/settings.ts'
+import { get as getSettings } from '@/helpers/settings.ts'
 import { get_opening_command, initialize_state } from '@/helpers/state'
 import { parse_modrinth_user_link } from '@/helpers/users'
-import {
-	areUpdatesEnabled,
-	enqueueUpdateForInstallation,
-	getOS,
-	getUpdateSize,
-	isDev,
-	isNetworkMetered,
-	setRestartAfterPendingUpdate,
-} from '@/helpers/utils.js'
+import { copyToClipboard, getOS, isDev } from '@/helpers/utils.js'
 import { start_join_server, start_join_singleplayer_world } from '@/helpers/worlds.ts'
 import i18n from '@/i18n.config'
 import {
-	appUpdateState,
-	downloadAvailableAppUpdate,
-	getNextAppUpdatePopupTime,
-	installAvailableAppUpdate,
-	markAppUpdateActionable,
-	markAppUpdatePopupShown,
-	openAppUpdateChangelog,
-	setAppUpdateActions,
+	appUpdateCheck,
+	RELEASES_PAGE_URL,
+	startAppUpdateChecks,
+	stopAppUpdateChecks,
 } from '@/providers/app-update.ts'
 import { createBreadcrumbManager, provideBreadcrumbManager } from '@/providers/breadcrumbs'
 import { createContentInstall, provideContentInstall } from '@/providers/content-install'
-import {
-	provideAppUpdateDownloadProgress,
-	subscribeToDownloadProgress,
-} from '@/providers/download-progress.ts'
 import { createServerInstall, provideServerInstall } from '@/providers/server-install'
 import { setupProviders } from '@/providers/setup'
 import { setupAppEventsProvider } from '@/providers/setup/app-events'
@@ -131,6 +112,7 @@ import { AppPopupNotificationManager } from './providers/app-popup-notifications
 import { appSettingsModalOpenSyncedOptionsKey } from './providers/app-settings-modal'
 
 const appSettings = useAppSettings()
+const { updateAvailable: appUpdateBannerVisible, latestVersion: appLatestVersion } = appUpdateCheck
 const appTheme = useTheme()
 const router = useRouter()
 const route = useRoute()
@@ -361,7 +343,7 @@ onMounted(async () => {
 	document.querySelector('body').addEventListener('auxclick', handleAuxClick)
 	document.querySelector('body').addEventListener('contextmenu', handleContextMenu)
 
-	checkUpdates()
+	startAppUpdateChecks()
 })
 
 onUnmounted(async () => {
@@ -369,30 +351,27 @@ onUnmounted(async () => {
 	document.querySelector('body').removeEventListener('auxclick', handleAuxClick)
 	document.querySelector('body').removeEventListener('contextmenu', handleContextMenu)
 	unlistenEditMenu?.()
-	clearDelayedUpdatePopup()
-
-	await unlistenUpdateDownload?.()
+	stopAppUpdateChecks()
 })
 
 const { formatMessage } = useVIntl()
-const formatBytes = useFormatBytes()
 
 const messages = defineMessages({
 	warning: { id: 'app.notification.warning', defaultMessage: 'Warning' },
 	goBack: { id: 'app.navigation.go-back', defaultMessage: 'Go back' },
 	goForward: { id: 'app.navigation.go-forward', defaultMessage: 'Go forward' },
 	nextImage: { id: 'app.navigation.next-image', defaultMessage: 'Next image' },
-	updateDownloadMissingVersion: {
-		id: 'app.update.download-error.missing-version',
-		defaultMessage: 'Failed to download update: no version available',
+	updateAvailable: {
+		id: 'app.sidebar.update-available',
+		defaultMessage: 'New update available v{version} - download now',
 	},
-	updateInstalledToastTitle: {
-		id: 'app.update.complete-toast.title',
-		defaultMessage: 'Version {version} was successfully installed!',
+	updateLinkCopiedTitle: {
+		id: 'app.update.link-copied.title',
+		defaultMessage: 'Could not open the download link',
 	},
-	updateInstalledToastText: {
-		id: 'app.update.complete-toast.text',
-		defaultMessage: 'Click here to view the changelog.',
+	updateLinkCopiedText: {
+		id: 'app.update.link-copied.text',
+		defaultMessage: 'The link was copied to your clipboard instead - paste it into a browser.',
 	},
 	authUnreachableHeader: {
 		id: 'app.auth-servers.unreachable.header',
@@ -414,10 +393,6 @@ const messages = defineMessages({
 	createNewInstance: {
 		id: 'app.nav.create-new-instance',
 		defaultMessage: 'Create new instance',
-	},
-	restarting: {
-		id: 'app.restarting',
-		defaultMessage: 'Restarting...',
 	},
 	playingAs: {
 		id: 'app.sidebar.playing-as',
@@ -443,8 +418,6 @@ async function setupApp() {
 		toggle_sidebar,
 		developer_mode,
 		feature_flags,
-		pending_update_toast_for_version,
-		check_for_updates,
 	} = await getSettings()
 
 	// Initialize locale from saved settings
@@ -465,7 +438,6 @@ async function setupApp() {
 	appSettings.hideNametagSkinsPage = hide_nametag_skins_page
 	appSettings.toggleSidebar = toggle_sidebar
 	appSettings.devMode = developer_mode
-	appSettings.checkForUpdates = check_for_updates
 	stateInitialized.value = true
 
 	await getCurrentWindow().onResized(async () => {
@@ -490,12 +462,6 @@ async function setupApp() {
 	} catch (error) {
 		console.warn('Failed to generate skin previews in app setup.', error)
 	}
-
-	if (pending_update_toast_for_version !== null) {
-		const settings = await getSettings()
-		settings.pending_update_toast_for_version = null
-		await setSettings(settings)
-	}
 }
 
 const stateFailed = ref(false)
@@ -512,11 +478,6 @@ initialize_state(appEventChannel)
 		console.error('Failed to initialize app', err)
 		error.showError(err, null, false, 'state_init')
 	})
-
-const handleClose = async () => {
-	await saveWindowState(StateFlags.ALL)
-	await getCurrentWindow().close()
-}
 
 const loading = setupLoadingStateProvider()
 loading.setEnabled(false)
@@ -829,281 +790,6 @@ async function handleCommand(e) {
 	}
 }
 
-const appUpdateDownload = {
-	progress: appUpdateState.progress,
-	version: ref(),
-}
-let unlistenUpdateDownload
-
-const {
-	metered,
-	finishedDownloading,
-	downloading,
-	restarting,
-	availableUpdate,
-	updateSize,
-	updatesEnabled,
-} = appUpdateState
-let delayedUpdatePopupTimeout = null
-
-const updatePopupMessages = defineMessages({
-	updateAvailable: {
-		id: 'app.update-popup.title',
-		defaultMessage: 'Update available',
-	},
-	downloadComplete: {
-		id: 'app.update-popup.download-complete',
-		defaultMessage: 'Download complete',
-	},
-	meteredBody: {
-		id: 'app.update-popup.body.metered',
-		defaultMessage: `Dyad Launcher v{version} is available now! Since you're on a metered network, we didn't automatically download it.`,
-	},
-	downloadedBody: {
-		id: 'app.update-popup.body.download-complete',
-		defaultMessage: `Dyad Launcher v{version} has finished downloading. Reload to update now, or automatically when you close Dyad Launcher.`,
-	},
-	reload: {
-		id: 'app.update-popup.reload',
-		defaultMessage: 'Reload to update',
-	},
-	download: {
-		id: 'app.update-popup.download',
-		defaultMessage: 'Download ({size})',
-	},
-	changelog: {
-		id: 'app.update-popup.changelog',
-		defaultMessage: 'Changelog',
-	},
-})
-
-function clearDelayedUpdatePopup() {
-	if (delayedUpdatePopupTimeout !== null) {
-		clearTimeout(delayedUpdatePopupTimeout)
-		delayedUpdatePopupTimeout = null
-	}
-}
-
-function getCurrentUpdatePromptStage() {
-	return finishedDownloading.value ? 'downloaded' : 'available'
-}
-
-function scheduleDelayedUpdatePopup() {
-	clearDelayedUpdatePopup()
-
-	const version = availableUpdate.value?.version
-	if (!version) {
-		return
-	}
-
-	const nextPopupTime = getNextAppUpdatePopupTime(version, getCurrentUpdatePromptStage())
-	if (nextPopupTime === null) {
-		return
-	}
-
-	const delay = nextPopupTime - Date.now()
-	if (delay <= 0) {
-		showDelayedUpdatePopup()
-		return
-	}
-
-	delayedUpdatePopupTimeout = setTimeout(showDelayedUpdatePopup, Math.min(delay, 2_147_483_647))
-}
-
-function showDelayedUpdatePopup() {
-	const update = availableUpdate.value
-	if (!update) {
-		return
-	}
-
-	const stage = getCurrentUpdatePromptStage()
-	const nextPopupTime = getNextAppUpdatePopupTime(update.version, stage)
-	if (nextPopupTime === null) {
-		return
-	}
-
-	if (Date.now() < nextPopupTime) {
-		scheduleDelayedUpdatePopup()
-		return
-	}
-
-	if (metered.value && !finishedDownloading.value) {
-		addPopupNotification({
-			contentType: 'standard',
-			title: formatMessage(updatePopupMessages.updateAvailable),
-			text: formatMessage(updatePopupMessages.meteredBody, { version: update.version }),
-			type: 'info',
-			autoCloseMs: null,
-			buttons: [
-				{
-					label: formatMessage(updatePopupMessages.download, {
-						size: formatBytes(updateSize.value ?? 0),
-					}),
-					action: () => downloadAvailableAppUpdate(),
-					color: 'brand',
-				},
-				{
-					label: formatMessage(updatePopupMessages.changelog),
-					action: () => openAppUpdateChangelog(),
-					keepOpen: true,
-				},
-			],
-		})
-	} else if (finishedDownloading.value) {
-		addPopupNotification({
-			contentType: 'standard',
-			title: formatMessage(updatePopupMessages.downloadComplete),
-			text: formatMessage(updatePopupMessages.downloadedBody, {
-				version: update.version,
-			}),
-			type: 'success',
-			autoCloseMs: null,
-			buttons: [
-				{
-					label: formatMessage(updatePopupMessages.reload),
-					action: () => installAvailableAppUpdate(),
-					color: 'brand',
-				},
-				{
-					label: formatMessage(updatePopupMessages.changelog),
-					action: () => openAppUpdateChangelog(),
-					keepOpen: true,
-				},
-			],
-		})
-	} else {
-		scheduleDelayedUpdatePopup()
-		return
-	}
-
-	markAppUpdatePopupShown(update.version, stage)
-}
-
-async function checkUpdates() {
-	if (!(await areUpdatesEnabled())) {
-		console.log('Skipping update check as updates are disabled in this build or environment')
-		updatesEnabled.value = false
-		return
-	}
-
-	if (!appSettings.checkForUpdates) {
-		console.log('Skipping update check as the user has not opted in')
-		updatesEnabled.value = false
-		return
-	}
-
-	async function performCheck() {
-		const update = await invoke('plugin:updater|check')
-		if (!update) {
-			console.log('No update available')
-			return
-		}
-
-		const isExistingUpdate = update.version === availableUpdate.value?.version
-
-		if (isExistingUpdate) {
-			console.log('Update is already known')
-			scheduleDelayedUpdatePopup()
-			return
-		}
-
-		appUpdateDownload.progress.value = 0
-		finishedDownloading.value = false
-		downloading.value = false
-		updateSize.value = null
-		availableUpdate.value = update
-
-		console.log(`Update ${update.version} is available.`)
-
-		metered.value = await isNetworkMetered()
-		if (!metered.value) {
-			console.log('Starting download of update')
-			downloadUpdate(update)
-		} else {
-			console.log(`Metered connection detected, not auto-downloading update.`)
-			markAppUpdateActionable(update.version)
-			scheduleDelayedUpdatePopup()
-		}
-
-		getUpdateSize(update.rid).then((size) => (updateSize.value = size))
-	}
-
-	await performCheck()
-	setTimeout(
-		() => {
-			checkUpdates()
-		},
-		5 /* min */ * 60 /* sec */ * 1000 /* ms */,
-	)
-}
-
-async function downloadAvailableUpdate() {
-	return downloadUpdate(availableUpdate.value)
-}
-
-async function downloadUpdate(versionToDownload) {
-	if (!versionToDownload) {
-		handleError(formatMessage(messages.updateDownloadMissingVersion))
-		return
-	}
-
-	if (downloading.value || appUpdateDownload.progress.value !== 0) {
-		console.error(`Update ${versionToDownload.version} already downloading`)
-		return
-	}
-
-	console.log(`Downloading update ${versionToDownload.version}`)
-	downloading.value = true
-
-	try {
-		enqueueUpdateForInstallation(versionToDownload.rid)
-			.then(() => {
-				downloading.value = false
-				finishedDownloading.value = true
-				unlistenUpdateDownload?.()
-				unlistenUpdateDownload = null
-				console.log('Finished downloading!')
-				markAppUpdateActionable(versionToDownload.version, 'downloaded')
-				scheduleDelayedUpdatePopup()
-			})
-			.catch((e) => {
-				downloading.value = false
-				appUpdateDownload.progress.value = 0
-				handleError(e)
-			})
-		unlistenUpdateDownload = await subscribeToDownloadProgress(
-			appEvents,
-			appUpdateDownload,
-			versionToDownload.version,
-		)
-	} catch (e) {
-		downloading.value = false
-		appUpdateDownload.progress.value = 0
-		handleError(e)
-	}
-}
-
-async function installUpdate() {
-	restarting.value = true
-
-	try {
-		await setRestartAfterPendingUpdate(true)
-	} catch (e) {
-		restarting.value = false
-		handleError(e)
-		return
-	}
-	setTimeout(async () => {
-		await handleClose()
-	}, 250)
-}
-
-setAppUpdateActions({
-	download: downloadAvailableUpdate,
-	install: installUpdate,
-	changelog: () => openUrl('https://modrinth.com/news/changelog?filter=app'),
-})
-
 async function openModrinthProjectLinkInApp(parsed) {
 	const { slug, pathSuffix, url } = parsed
 	const loadToken = loading.begin()
@@ -1195,7 +881,26 @@ function handleContextMenu(event) {
 	event.preventDefault()
 }
 
-provideAppUpdateDownloadProgress(appUpdateDownload)
+async function openUpdateDownload() {
+	const target = appUpdateCheck.downloadUrl.value ?? RELEASES_PAGE_URL
+	console.log('Opening app update download URL:', target)
+	try {
+		await openUrl(target)
+		console.log('openUrl resolved without throwing for:', target)
+	} catch (error) {
+		console.error('openUrl failed for update download:', target, error)
+		try {
+			await copyToClipboard(target)
+			addNotification({
+				title: formatMessage(messages.updateLinkCopiedTitle),
+				text: formatMessage(messages.updateLinkCopiedText),
+				type: 'info',
+			})
+		} catch {
+			handleError(error)
+		}
+	}
+}
 </script>
 
 <template>
@@ -1206,21 +911,6 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 		class="app-grid-layout relative"
 		:class="{ 'disable-advanced-rendering': !appTheme.advancedRendering }"
 	>
-		<Transition name="fade">
-			<div
-				v-if="restarting"
-				data-tauri-drag-region
-				class="inset-0 fixed bg-black/80 backdrop-blur z-[200] flex items-center justify-center"
-			>
-				<span
-					data-tauri-drag-region
-					class="flex items-center gap-4 text-contrast font-semibold text-xl select-none cursor-default"
-				>
-					<RefreshCwIcon data-tauri-drag-region class="animate-spin w-6 h-6" />
-					{{ formatMessage(messages.restarting) }}
-				</span>
-			</div>
-		</Transition>
 		<Suspense>
 			<AppSettingsModal ref="appSettingsModal" />
 		</Suspense>
@@ -1416,6 +1106,14 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 					</div>
 				</div>
 			</div>
+			<button
+				v-if="appUpdateBannerVisible"
+				type="button"
+				class="app-update-banner"
+				@click="openUpdateDownload"
+			>
+				{{ formatMessage(messages.updateAvailable, { version: appLatestVersion }) }}
+			</button>
 		</div>
 	</div>
 	<I18nDebugPanel />
@@ -1562,6 +1260,29 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 
 .app-sidebar.has-plus::after {
 	display: none;
+}
+
+.app-update-banner {
+	position: absolute;
+	z-index: 3;
+	bottom: 0.75rem;
+	right: 0.75rem;
+	left: 0.75rem;
+	padding: 0.5rem 0.75rem;
+	border: none;
+	border-radius: var(--radius-lg);
+	background-color: var(--color-brand);
+	color: var(--color-accent-contrast);
+	font-size: 0.8rem;
+	font-weight: 600;
+	text-align: left;
+	cursor: pointer;
+	transition: filter 0.15s ease;
+}
+
+.app-update-banner:hover,
+.app-update-banner:focus-visible {
+	filter: brightness(1.1);
 }
 
 .disable-advanced-rendering {

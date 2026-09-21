@@ -37,7 +37,6 @@ const appSettings = reactive({
 	hideNametagSkinsPage: false,
 	toggleSidebar: false,
 	devMode: false,
-	checkForUpdates: false,
 	featureFlags,
 	getFeatureFlag,
 })

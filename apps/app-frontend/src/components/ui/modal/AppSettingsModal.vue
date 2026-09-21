@@ -11,16 +11,18 @@ import {
 	ToggleRightIcon,
 } from '@modrinth/assets'
 import {
+	Button,
 	commonMessages,
 	commonSettingsMessages,
 	defineMessage,
 	defineMessages,
-	ProgressBar,
+	injectNotificationManager,
 	TabbedModal,
 	UnsavedChangesPopup,
 	useVIntl,
 } from '@modrinth/ui'
 import { getVersion } from '@tauri-apps/api/app'
+import { openUrl } from '@tauri-apps/plugin-opener'
 import { platform as getOsPlatform, version as getOsVersion } from '@tauri-apps/plugin-os'
 import { computed, provide, ref, watch } from 'vue'
 
@@ -34,11 +36,12 @@ import MigrateModrinthAppSettings from '@/components/ui/settings/instances/Migra
 import ResourceManagementSettings from '@/components/ui/settings/instances/ResourceManagementSettings.vue'
 import { useAppSettings } from '@/composables/use-app-settings.ts'
 import { get, set } from '@/helpers/settings.ts'
+import { copyToClipboard } from '@/helpers/utils.js'
 import {
 	appSettingsModalContextKey,
 	type UnsavedChangesController,
 } from '@/providers/app-settings-modal'
-import { injectAppUpdateDownloadProgress } from '@/providers/download-progress.ts'
+import { appUpdateCheck, checkForAppUpdate, RELEASES_PAGE_URL } from '@/providers/app-update.ts'
 
 // TODO: Apply COMPONENT_STRUCTURE.md here and extract out common setting option components
 const appSettings = useAppSettings()
@@ -216,7 +219,30 @@ function showSyncedOptions(): void {
 
 defineExpose({ show, showFeatureFlags, showSyncedOptions })
 
-const { progress, version: downloadingVersion } = injectAppUpdateDownloadProgress()
+const { handleError, addNotification } = injectNotificationManager()
+
+const { checking, updateAvailable, latestVersion, downloadUrl, lastCheckedAt } = appUpdateCheck
+
+async function openUpdateDownload() {
+	const target = downloadUrl.value ?? RELEASES_PAGE_URL
+	console.log('Opening app update download URL:', target)
+	try {
+		await openUrl(target)
+		console.log('openUrl resolved without throwing for:', target)
+	} catch (error) {
+		console.error('openUrl failed for update download:', target, error)
+		try {
+			await copyToClipboard(target)
+			addNotification({
+				title: formatMessage(messages.linkCopiedTitle),
+				text: formatMessage(messages.linkCopiedText),
+				type: 'info',
+			})
+		} catch {
+			handleError(error)
+		}
+	}
+}
 
 const version = await getVersion()
 const osPlatform = getOsPlatform()
@@ -248,10 +274,6 @@ function devModeCount() {
 }
 
 const messages = defineMessages({
-	downloading: {
-		id: 'app.settings.downloading',
-		defaultMessage: 'Downloading v{version}',
-	},
 	appVersion: {
 		id: 'app.settings.app-version',
 		defaultMessage: 'Dyad Launcher {version}',
@@ -263,6 +285,34 @@ const messages = defineMessages({
 	developerModeButtonLabel: {
 		id: 'app.settings.developer-mode-button.label',
 		defaultMessage: 'Toggle developer mode',
+	},
+	checkForUpdates: {
+		id: 'app.settings.check-for-updates',
+		defaultMessage: 'Check for updates',
+	},
+	checking: {
+		id: 'app.settings.check-for-updates.checking',
+		defaultMessage: 'Checking...',
+	},
+	upToDate: {
+		id: 'app.settings.check-for-updates.up-to-date',
+		defaultMessage: "You're up to date",
+	},
+	updateAvailable: {
+		id: 'app.settings.check-for-updates.update-available',
+		defaultMessage: 'v{version} is available',
+	},
+	download: {
+		id: 'app.settings.check-for-updates.download',
+		defaultMessage: 'Download',
+	},
+	linkCopiedTitle: {
+		id: 'app.settings.check-for-updates.link-copied.title',
+		defaultMessage: 'Could not open the download link',
+	},
+	linkCopiedText: {
+		id: 'app.settings.check-for-updates.link-copied.text',
+		defaultMessage: 'The link was copied to your clipboard instead - paste it into a browser.',
 	},
 })
 </script>
@@ -293,14 +343,6 @@ const messages = defineMessages({
 		</template>
 		<template #footer>
 			<div class="mt-auto text-secondary text-sm">
-				<div class="mb-3">
-					<template v-if="progress > 0 && progress < 1">
-						<p class="m-0 mb-2">
-							{{ formatMessage(messages.downloading, { version: downloadingVersion }) }}
-						</p>
-						<ProgressBar :progress="progress" />
-					</template>
-				</div>
 				<p v-if="appSettings.devMode" class="text-brand font-semibold m-0 mb-2">
 					{{ formatMessage(developerModeEnabled) }}
 				</p>
@@ -326,6 +368,23 @@ const messages = defineMessages({
 							{{ osVersion }}
 						</p>
 					</div>
+				</div>
+				<div class="mt-3 flex items-center gap-2">
+					<template v-if="updateAvailable">
+						<span class="text-brand font-medium">
+							{{ formatMessage(messages.updateAvailable, { version: latestVersion }) }}
+						</span>
+						<Button type="colored" color="brand" size="sm" @click="openUpdateDownload">
+							{{ formatMessage(messages.download) }}
+						</Button>
+					</template>
+					<template v-else>
+						<span v-if="checking">{{ formatMessage(messages.checking) }}</span>
+						<span v-else-if="lastCheckedAt">{{ formatMessage(messages.upToDate) }}</span>
+						<Button type="outlined" size="sm" :disabled="checking" @click="checkForAppUpdate">
+							{{ formatMessage(messages.checkForUpdates) }}
+						</Button>
+					</template>
 				</div>
 			</div>
 		</template>

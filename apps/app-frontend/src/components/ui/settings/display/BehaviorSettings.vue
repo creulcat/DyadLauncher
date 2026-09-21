@@ -62,19 +62,6 @@ const messages = defineMessages({
 		defaultMessage:
 			'Show Dyad Launcher as your current activity on Discord. This does not affect Rich Presence added to instances by mods. Off by default.',
 	},
-	updatesTitle: {
-		id: 'app.behavior-settings.updates.title',
-		defaultMessage: 'Updates',
-	},
-	checkForUpdatesTitle: {
-		id: 'app.behavior-settings.check-for-updates.title',
-		defaultMessage: 'Check for updates',
-	},
-	checkForUpdatesDescription: {
-		id: 'app.behavior-settings.check-for-updates.description',
-		defaultMessage:
-			'Periodically check GitHub for new Dyad Launcher releases, and offer to download and install them. Off by default.',
-	},
 	minimizeLauncherTitle: {
 		id: 'app.appearance-settings.minimize-launcher.title',
 		defaultMessage: 'Minimize app',
@@ -162,7 +149,6 @@ type BehaviorSettingsState = {
 	hideNametag: boolean
 	warnOnUnknownModpacks: boolean
 	skipNonEssentialWarnings: boolean
-	checkForUpdates: boolean
 	discordRichPresence: boolean
 }
 
@@ -195,7 +181,6 @@ function getBehaviorSettingsState(
 		skipNonEssentialWarnings:
 			settings.feature_flags[skipNonEssentialWarningsFlag] ??
 			DEFAULT_FEATURE_FLAGS[skipNonEssentialWarningsFlag],
-		checkForUpdates: settings.check_for_updates,
 		discordRichPresence: settings.discord_rpc,
 	}
 }
@@ -218,7 +203,6 @@ const { saved, current, changes, saving, hasChanges, reset, save } = useSavable(
 				[skipUnknownPackWarningFlag]: !value.warnOnUnknownModpacks,
 				[skipNonEssentialWarningsFlag]: value.skipNonEssentialWarnings,
 			},
-			check_for_updates: value.checkForUpdates,
 			discord_rpc: value.discordRichPresence,
 		}
 
@@ -243,7 +227,6 @@ const { saved, current, changes, saving, hasChanges, reset, save } = useSavable(
 		appSettings.featureFlags[showPlayTimeFlag] = value.showPlayTime
 		appSettings.featureFlags[skipUnknownPackWarningFlag] = !value.warnOnUnknownModpacks
 		appSettings.featureFlags[skipNonEssentialWarningsFlag] = value.skipNonEssentialWarnings
-		appSettings.checkForUpdates = value.checkForUpdates
 	},
 )
 
@@ -408,23 +391,6 @@ onBeforeUnmount(() => {
 					<p class="m-0 mt-1">{{ formatMessage(messages.discordRichPresenceDescription) }}</p>
 				</div>
 				<Toggle id="discord-rich-presence" v-model="current.discordRichPresence" />
-			</div>
-		</div>
-	</section>
-
-	<section class="mt-8 border-0 border-t border-solid border-divider pt-6">
-		<h2 class="m-0 text-xl font-semibold text-contrast">
-			{{ formatMessage(messages.updatesTitle) }}
-		</h2>
-		<div class="mt-4 flex flex-col gap-6">
-			<div class="flex items-center justify-between gap-4">
-				<div>
-					<h3 class="m-0 text-lg font-semibold text-contrast">
-						{{ formatMessage(messages.checkForUpdatesTitle) }}
-					</h3>
-					<p class="m-0 mt-1">{{ formatMessage(messages.checkForUpdatesDescription) }}</p>
-				</div>
-				<Toggle id="check-for-updates" v-model="current.checkForUpdates" />
 			</div>
 		</div>
 	</section>

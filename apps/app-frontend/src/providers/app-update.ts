@@ -1,171 +1,121 @@
+import { getVersion } from '@tauri-apps/api/app'
+import { fetch } from '@tauri-apps/plugin-http'
+import { arch as getArch, platform as getPlatform } from '@tauri-apps/plugin-os'
 import { computed, ref } from 'vue'
 
-export const APP_UPDATE_POPUP_DELAY_MS = 24 * 60 * 60 * 1000
+const UPDATES_MANIFEST_URL =
+	'https://github.com/creulcat/DyadLauncher/releases/latest/download/updates.json'
+export const RELEASES_PAGE_URL = 'https://github.com/creulcat/DyadLauncher/releases/latest'
+const CHECK_INTERVAL_MS = 60 * 60 * 1000
 
-const UPDATE_PROMPT_STORAGE_KEY = 'modrinth-app-update-prompt-state'
+interface UpdateManifestPlatform {
+	url: string
+	signature: string
+	install_urls: string[]
+}
 
-export interface AppUpdate {
-	rid: number
+interface UpdateManifest {
 	version: string
-	currentVersion?: string
+	notes: string
+	pub_date: string
+	platforms: Record<string, UpdateManifestPlatform>
 }
 
-interface UpdatePromptState {
-	version: string
-	stage: AppUpdatePromptStage
-	actionableSince: number
-	lastUserActionAt?: number
-	popupShownAt?: number
-}
+const currentVersion = ref<string | null>(null)
+const latestVersion = ref<string | null>(null)
+const releaseNotes = ref<string | null>(null)
+const downloadUrl = ref<string | null>(null)
+const checking = ref(false)
+const lastCheckedAt = ref<number | null>(null)
+const checkError = ref<string | null>(null)
 
-export type AppUpdatePromptStage = 'available' | 'downloaded'
+let intervalHandle: ReturnType<typeof setInterval> | null = null
 
-interface AppUpdateActions {
-	download?: () => Promise<void> | void
-	install?: () => Promise<void> | void
-	changelog?: () => Promise<void> | void
-}
-
-const progress = ref(0)
-const metered = ref(true)
-const finishedDownloading = ref(false)
-const downloading = ref(false)
-const restarting = ref(false)
-const availableUpdate = ref<AppUpdate | null>(null)
-const updateSize = ref<number | null>(null)
-const updatesEnabled = ref(true)
-
-let actions: AppUpdateActions = {}
-
-function getCurrentAppUpdatePromptStage(): AppUpdatePromptStage {
-	return finishedDownloading.value ? 'downloaded' : 'available'
-}
-
-export const appUpdateState = {
-	progress,
-	metered,
-	finishedDownloading,
-	downloading,
-	restarting,
-	availableUpdate,
-	updateSize,
-	updatesEnabled,
-	downloadProgress: computed(() => progress.value),
-	downloadPercent: computed(() => Math.trunc(progress.value * 100)),
-	isVisible: computed(() => !!availableUpdate.value && !restarting.value && updatesEnabled.value),
-}
-
-function readPromptState(): UpdatePromptState | null {
-	try {
-		const raw = localStorage.getItem(UPDATE_PROMPT_STORAGE_KEY)
-		if (!raw) {
-			return null
-		}
-
-		const parsed = JSON.parse(raw) as Partial<UpdatePromptState>
-		if (!parsed.version || typeof parsed.actionableSince !== 'number') {
-			return null
-		}
-
-		return {
-			...parsed,
-			stage: parsed.stage ?? 'available',
-		} as UpdatePromptState
-	} catch {
-		return null
+function isNewerVersion(latest: string, current: string): boolean {
+	const parse = (v: string) => v.split('.').map((n) => Number.parseInt(n, 10) || 0)
+	const latestParts = parse(latest)
+	const currentParts = parse(current)
+	for (let i = 0; i < Math.max(latestParts.length, currentParts.length); i++) {
+		const l = latestParts[i] ?? 0
+		const c = currentParts[i] ?? 0
+		if (l !== c) return l > c
 	}
+	return false
 }
 
-function writePromptState(state: UpdatePromptState): void {
+async function resolvePlatformKey(): Promise<string | null> {
+	const platform = await getPlatform()
+	if (platform === 'macos') {
+		const arch = await getArch()
+		return arch === 'aarch64' ? 'darwin-aarch64' : 'darwin-x86_64'
+	}
+	if (platform === 'linux') return 'linux-x86_64'
+	if (platform === 'windows') return 'windows-x86_64'
+	return null
+}
+
+export const appUpdateCheck = {
+	currentVersion,
+	latestVersion,
+	releaseNotes,
+	downloadUrl,
+	checking,
+	lastCheckedAt,
+	checkError,
+	updateAvailable: computed(
+		() =>
+			!!latestVersion.value &&
+			!!currentVersion.value &&
+			isNewerVersion(latestVersion.value, currentVersion.value),
+	),
+}
+
+export async function checkForAppUpdate(): Promise<void> {
+	if (checking.value) return
+	checking.value = true
+	checkError.value = null
 	try {
-		localStorage.setItem(UPDATE_PROMPT_STORAGE_KEY, JSON.stringify(state))
+		if (!currentVersion.value) {
+			currentVersion.value = await getVersion()
+		}
+
+		const response = await fetch(UPDATES_MANIFEST_URL, { method: 'GET' })
+		if (!response.ok) {
+			throw new Error(`Failed to fetch update manifest: ${response.status}`)
+		}
+		const manifest = (await response.json()) as UpdateManifest
+
+		latestVersion.value = manifest.version
+		releaseNotes.value = manifest.notes ?? null
+
+		const platformKey = await resolvePlatformKey()
+		const platformInfo = platformKey ? manifest.platforms[platformKey] : undefined
+		downloadUrl.value = platformInfo?.install_urls?.[0] ?? null
+		console.log('App update check resolved:', {
+			currentVersion: currentVersion.value,
+			latestVersion: latestVersion.value,
+			platformKey,
+			availablePlatformKeys: Object.keys(manifest.platforms),
+			downloadUrl: downloadUrl.value,
+		})
 	} catch (error) {
-		console.warn('Failed to persist update prompt state:', error)
+		console.warn('Failed to check for app updates:', error)
+		checkError.value = error instanceof Error ? error.message : String(error)
+	} finally {
+		checking.value = false
+		lastCheckedAt.value = Date.now()
 	}
 }
 
-export function markAppUpdateActionable(
-	version: string,
-	stage: AppUpdatePromptStage = 'available',
-	now = Date.now(),
-): void {
-	const existing = readPromptState()
-	if (existing?.version === version && existing.stage === stage) {
-		return
+export function startAppUpdateChecks(): void {
+	if (intervalHandle !== null) return
+	void checkForAppUpdate()
+	intervalHandle = setInterval(() => void checkForAppUpdate(), CHECK_INTERVAL_MS)
+}
+
+export function stopAppUpdateChecks(): void {
+	if (intervalHandle !== null) {
+		clearInterval(intervalHandle)
+		intervalHandle = null
 	}
-
-	writePromptState({
-		version,
-		stage,
-		actionableSince: now,
-	})
-}
-
-export function recordAppUpdateUserAction(
-	version = availableUpdate.value?.version,
-	stage: AppUpdatePromptStage = getCurrentAppUpdatePromptStage(),
-): void {
-	if (!version) {
-		return
-	}
-
-	const now = Date.now()
-	const existing = readPromptState()
-	const isSamePrompt = existing?.version === version && existing.stage === stage
-	writePromptState({
-		version,
-		stage,
-		actionableSince: isSamePrompt ? existing.actionableSince : now,
-		lastUserActionAt: now,
-		popupShownAt: isSamePrompt ? existing.popupShownAt : undefined,
-	})
-}
-
-export function markAppUpdatePopupShown(
-	version: string,
-	stage: AppUpdatePromptStage = 'available',
-	now = Date.now(),
-): void {
-	const existing = readPromptState()
-	const isSamePrompt = existing?.version === version && existing.stage === stage
-	writePromptState({
-		version,
-		stage,
-		actionableSince: isSamePrompt ? existing.actionableSince : now,
-		lastUserActionAt: isSamePrompt ? existing.lastUserActionAt : undefined,
-		popupShownAt: now,
-	})
-}
-
-export function getNextAppUpdatePopupTime(
-	version: string,
-	stage: AppUpdatePromptStage = 'available',
-): number | null {
-	const existing = readPromptState()
-	if (existing?.version !== version || existing.stage !== stage || existing.popupShownAt) {
-		return null
-	}
-
-	return (
-		Math.max(existing.actionableSince, existing.lastUserActionAt ?? 0) + APP_UPDATE_POPUP_DELAY_MS
-	)
-}
-
-export function setAppUpdateActions(nextActions: AppUpdateActions): void {
-	actions = nextActions
-}
-
-export async function downloadAvailableAppUpdate(): Promise<void> {
-	recordAppUpdateUserAction(undefined, 'available')
-	await actions.download?.()
-}
-
-export async function installAvailableAppUpdate(): Promise<void> {
-	recordAppUpdateUserAction(undefined, 'downloaded')
-	await actions.install?.()
-}
-
-export async function openAppUpdateChangelog(): Promise<void> {
-	recordAppUpdateUserAction()
-	await actions.changelog?.()
 }
