@@ -40,7 +40,7 @@ import {
 	useDebugLogger,
 	useVIntl,
 } from '@modrinth/ui'
-import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import { useQuery } from '@tanstack/vue-query'
 import { getVersion } from '@tauri-apps/api/app'
 import { convertFileSrc, invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
@@ -104,7 +104,6 @@ import { setupProviders } from '@/providers/setup'
 import { setupAppEventsProvider } from '@/providers/setup/app-events'
 import { setupAuthProvider } from '@/providers/setup/auth'
 import { setupLoadingStateProvider } from '@/providers/setup/loading-state'
-import { setupAppUserPreferencesProvider } from '@/providers/setup/user-preferences.ts'
 import { appMessages } from '@/utils/app-messages'
 
 import { generateSkinPreviews } from './helpers/rendering/batch-skin-renderer'
@@ -172,10 +171,8 @@ const { addPopupNotification } = popupNotificationManager
 
 const appVersion = getVersion()
 const tauriApiClient = new TauriModrinthClient({
-	userAgent: async () => `modrinth/theseus/${await appVersion} (support@modrinth.com)`,
+	userAgent: async () => `DyadLauncher/${await appVersion} (github.com/creulcat/DyadLauncher)`,
 	labrinthBaseUrl: config.labrinthBaseUrl,
-	archonBaseUrl: config.archonBaseUrl,
-	sharedInstancesBaseUrl: config.sharedInstancesBaseUrl,
 	features: [
 		new NodeAuthFeature({
 			getAuth: () => nodeAuthState.getAuth?.() ?? null,
@@ -210,8 +207,6 @@ providePageContext({
 })
 provideModalBehavior({
 	noblur: computed(() => !appTheme.advancedRendering),
-	onShow: () => take_ads_window_hold(),
-	onHide: () => release_ads_window_hold(),
 })
 
 const creationIconEditorModal = ref(null)
@@ -229,13 +224,8 @@ const {
 	setModpackAlreadyInstalledModal,
 	handleModpackDuplicateCreateAnyway,
 	handleModpackDuplicateGoToInstance,
-} = setupProviders(
-	tauriApiClient,
-	notificationManager,
-	popupNotificationManager,
-	appEvents,
-	(iconPath) =>
-		creationGeneratedIcon.value?.path === iconPath ? creationGeneratedIcon.value.config : null,
+} = setupProviders(notificationManager, popupNotificationManager, appEvents, (iconPath) =>
+	creationGeneratedIcon.value?.path === iconPath ? creationGeneratedIcon.value.config : null,
 )
 
 async function randomizeCreationIcon() {
@@ -346,7 +336,10 @@ onMounted(async () => {
 	document.querySelector('body').addEventListener('auxclick', handleAuxClick)
 	document.querySelector('body').addEventListener('contextmenu', handleContextMenu)
 
-	startAppUpdateChecks()
+	const { check_for_updates } = await getSettings()
+	if (check_for_updates) {
+		startAppUpdateChecks()
+	}
 })
 
 onUnmounted(async () => {
@@ -458,7 +451,6 @@ async function setupApp() {
 	}
 
 	get_opening_command().then(handleCommand)
-	fetchCredentials()
 
 	try {
 		const skins = (await get_available_skins()) ?? []
@@ -540,8 +532,6 @@ function onSuspenseResolve() {
 	}
 }
 
-const queryClient = useQueryClient()
-
 watch(stateInitialized, (ready) => {
 	if (ready) {
 		report_launcher_page(route.path)
@@ -553,39 +543,6 @@ watch(stateInitialized, (ready) => {
 			loading.end(routerToken)
 			routerToken = null
 		}
-
-		queryClient.prefetchQuery({
-			queryKey: ['servers'],
-			queryFn: async () => {
-				const response = await tauriApiClient.archon.servers_v0.list({ limit: 100 })
-				const hasMedalServers = response.servers.some((s) => s.is_medal)
-				if (hasMedalServers) {
-					const subscriptions = await tauriApiClient.labrinth.billing_internal.getSubscriptions()
-					for (const server of response.servers) {
-						if (server.is_medal) {
-							const sub = subscriptions.find((s) => s.metadata?.id === server.server_id)
-							if (sub) {
-								server.medal_expires = new Date(
-									new Date(sub.created).getTime() + 5 * 86400000,
-								).toISOString()
-							}
-						}
-					}
-				}
-				return response
-			},
-			staleTime: 30_000,
-		})
-		queryClient.prefetchQuery({
-			queryKey: ['billing', 'subscriptions'],
-			queryFn: () => tauriApiClient.labrinth.billing_internal.getSubscriptions(),
-			staleTime: 30_000,
-		})
-		queryClient.prefetchQuery({
-			queryKey: ['billing', 'payments'],
-			queryFn: () => tauriApiClient.labrinth.billing_internal.getPayments(),
-			staleTime: 30_000,
-		})
 	}
 })
 
@@ -688,41 +645,9 @@ watch(incompatibilityWarningModal, (modal) => {
 	}
 })
 
-const authProvider = setupAuthProvider(credentials, () => {
+setupAuthProvider(credentials, () => {
 	// Signing into a Modrinth account is not supported in this fork.
 })
-
-const userPreferences = setupAppUserPreferencesProvider(authProvider, notificationManager)
-let userPreferencesSync = Promise.resolve()
-
-watch(
-	[userPreferences.preferences, stateInitialized],
-	([preferences, initialized]) => {
-		if (!preferences || !initialized) return
-
-		userPreferencesSync = userPreferencesSync
-			.then(async () => {
-				const settings = await getSettings()
-				const locale = preferences.localization.locale
-				let settingsChanged = false
-
-				if (i18n.global.locale.value !== locale) {
-					i18n.global.locale.value = locale
-				}
-
-				if (settings.locale !== locale) {
-					settings.locale = locale
-					settingsChanged = true
-				}
-
-				if (settingsChanged) {
-					await setSettings(settings)
-				}
-			})
-			.catch(handleError)
-	},
-	{ immediate: true },
-)
 
 onMounted(() => {
 	invoke('show_window')

@@ -109,51 +109,6 @@ pub async fn get_user_collections(user_id: &str) -> crate::Result<Value> {
     .await
 }
 
-#[tracing::instrument]
-pub async fn get_user_preferences(user_id: &str) -> crate::Result<Value> {
-    let state = State::get().await?;
-    let user_id = urlencoding::encode(user_id);
-
-    fetch_json(
-        Method::GET,
-        &format!(
-            "{}user/{}/preferences",
-            env!("MODRINTH_API_URL_V3"),
-            user_id
-        ),
-        None,
-        None,
-        Some("/v3/user/:id/preferences"),
-        &state.api_semaphore,
-        &state.pool,
-    )
-    .await
-}
-
-#[tracing::instrument(skip(preferences))]
-pub async fn patch_user_preferences(
-    user_id: &str,
-    preferences: Value,
-) -> crate::Result<Value> {
-    let state = State::get().await?;
-    let user_id = urlencoding::encode(user_id);
-
-    fetch_json(
-        Method::PATCH,
-        &format!(
-            "{}user/{}/preferences",
-            env!("MODRINTH_API_URL_V3"),
-            user_id
-        ),
-        None,
-        Some(preferences),
-        Some("/v3/user/:id/preferences"),
-        &state.api_semaphore,
-        &state.pool,
-    )
-    .await
-}
-
 #[tracing::instrument(skip(patch))]
 pub async fn patch_user(user_id: &str, patch: Value) -> crate::Result<()> {
     let state = State::get().await?;
@@ -164,7 +119,6 @@ pub async fn patch_user(user_id: &str, patch: Value) -> crate::Result<()> {
         &format!("{}user/{}", env!("MODRINTH_API_URL"), user_id),
         None,
         Some(patch),
-        None,
         None,
         None,
         Some("/v2/user/:id"),
@@ -217,7 +171,6 @@ pub async fn delete_user_avatar(user_id: &str) -> crate::Result<()> {
         None,
         None,
         None,
-        None,
         Some("/v2/user/:id/icon"),
         &state.api_semaphore,
         &state.pool,
@@ -239,7 +192,6 @@ pub async fn block_user(user_id: &str) -> crate::Result<()> {
         None,
         None,
         None,
-        None,
         Some("/v3/block/:id"),
         &state.api_semaphore,
         &state.pool,
@@ -257,7 +209,6 @@ pub async fn unblock_user(user_id: &str) -> crate::Result<()> {
     fetch_advanced(
         Method::DELETE,
         &format!("{}block/{}", env!("MODRINTH_API_URL_V3"), user_id),
-        None,
         None,
         None,
         None,

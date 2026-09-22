@@ -182,6 +182,12 @@
   "app.auth-servers.unreachable.header": {
     "message": "Cannot reach authentication servers"
   },
+  "app.behavior-settings.check-for-updates.description": {
+    "message": "Periodically check github.com for a new Dyad Launcher release. You can still check manually below. On by default."
+  },
+  "app.behavior-settings.check-for-updates.title": {
+    "message": "Check for updates automatically"
+  },
   "app.behavior-settings.confirmations.title": {
     "message": "Confirmations"
   },
@@ -205,6 +211,9 @@
   },
   "app.behavior-settings.startup-and-navigation.title": {
     "message": "Startup and navigation"
+  },
+  "app.behavior-settings.updates.title": {
+    "message": "Updates"
   },
   "app.browse.add-servers-to-instance": {
     "message": "Adding server to instance"

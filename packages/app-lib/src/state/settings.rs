@@ -20,8 +20,6 @@ pub struct Settings {
     pub advanced_rendering: bool,
     pub native_decorations: bool,
     pub toggle_sidebar: bool,
-    pub sync_theme_across_devices: bool,
-    pub sync_behavior_across_devices: bool,
     #[serde(default)]
     pub background: BackgroundConfig,
 
@@ -45,8 +43,8 @@ pub struct Settings {
     pub skipped_update: Option<String>,
     pub pending_update_toast_for_version: Option<String>,
     pub auto_download_updates: Option<bool>,
-    /// Opt-in (off by default) toggle for checking for app updates at all. Independent of
-    /// whether the `updater` Cargo feature is compiled in -- this is the user-facing consent
+    /// Toggle for whether the launcher checks for app updates at all (on by default). Independent
+    /// of whether the `updater` Cargo feature is compiled in -- this is the user-facing consent
     /// gate on top of that build-time switch.
     pub check_for_updates: bool,
 
@@ -96,7 +94,6 @@ impl Settings {
                 hook_pre_launch, hook_wrapper, hook_post_exit,
                 custom_dir, prev_custom_dir, migrated, json(feature_flags) feature_flags, toggle_sidebar,
                 skipped_update, pending_update_toast_for_version, auto_download_updates,
-                sync_theme_across_devices, sync_behavior_across_devices,
                 check_for_updates,
                 background,
                 version
@@ -155,8 +152,6 @@ impl Settings {
             pending_update_toast_for_version: res
                 .pending_update_toast_for_version,
             auto_download_updates: res.auto_download_updates.map(|x| x == 1),
-            sync_theme_across_devices: res.sync_theme_across_devices == 1,
-            sync_behavior_across_devices: res.sync_behavior_across_devices == 1,
             check_for_updates: res.check_for_updates == 1,
             background: res
                 .background
@@ -224,14 +219,11 @@ impl Settings {
                 pending_update_toast_for_version = $28,
                 auto_download_updates = $29,
 
-                sync_theme_across_devices = $30,
-                sync_behavior_across_devices = $31,
+                check_for_updates = $30,
 
-                check_for_updates = $32,
+                background = $31,
 
-                background = $33,
-
-                version = $34
+                version = $32
             ",
             max_concurrent_writes,
             max_concurrent_downloads,
@@ -262,8 +254,6 @@ impl Settings {
             self.skipped_update,
             self.pending_update_toast_for_version,
             self.auto_download_updates,
-            self.sync_theme_across_devices,
-            self.sync_behavior_across_devices,
             self.check_for_updates,
             background,
             version,

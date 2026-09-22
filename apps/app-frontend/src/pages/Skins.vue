@@ -14,8 +14,6 @@ import {
 	commonMessages,
 	ConfirmModal,
 	defineMessages,
-	injectAuth,
-	injectModrinthClient,
 	injectNotificationManager,
 	SkinPreviewRenderer,
 	Toggle,
@@ -57,7 +55,6 @@ import {
 	save_custom_skin,
 	set_custom_skin_order,
 } from '@/helpers/skins.ts'
-import { hasPride26Badge } from '@/helpers/user-campaigns.ts'
 import { useRootBreadcrumb } from '@/providers/breadcrumbs'
 import { appMessages } from '@/utils/app-messages'
 
@@ -213,8 +210,6 @@ const skinSectionList = useTemplateRef<VirtualSkinSectionListExpose>('skinSectio
 const { formatMessage } = useVIntl()
 const notifications = injectNotificationManager()
 const { addNotification, handleError } = notifications
-const auth = injectAuth()
-const client = injectModrinthClient()
 
 const appSettings = useAppSettings()
 const skins = ref<Skin[]>([])
@@ -271,19 +266,8 @@ const authServerQuery = useQuery({
 	retry: false,
 	refetchOnWindowFocus: false,
 })
-const { data: modrinthUser } = useQuery({
-	queryKey: computed(() => ['authenticated-user', 'campaigns', auth.user.value?.id]),
-	queryFn: () => client.labrinth.users_v3.getAuthenticated(),
-	enabled: () => !!auth.session_token.value,
-	retry: false,
-})
-const hasModrinthPrideCampaign = computed(
-	() => !!auth.session_token.value && hasPride26Badge(modrinthUser.value?.campaigns?.pride_26),
-)
 const defaultSkins = computed(() =>
-	filterDefaultSkins(skins.value).filter(
-		(skin) => skin.section !== 'Modrinth Pride' || hasModrinthPrideCampaign.value,
-	),
+	filterDefaultSkins(skins.value).filter((skin) => skin.section !== 'Modrinth Pride'),
 )
 const defaultSkinSections = computed(() => {
 	const sections = new Map<string, Skin[]>()

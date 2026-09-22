@@ -44,8 +44,6 @@ export type AppSettings = {
 	advanced_rendering: boolean
 	native_decorations: boolean
 	toggle_sidebar: boolean
-	sync_theme_across_devices: boolean
-	sync_behavior_across_devices: boolean
 	background: BackgroundConfig
 
 	discord_rpc: boolean

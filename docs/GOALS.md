@@ -187,8 +187,9 @@ release manifest and points the user at the download.
   "Check for updates" button. Both open the platform's installer link (the manifest's `install_urls`
   entry) in the system browser, falling back to the GitHub releases page, and to copying the link to
   the clipboard if the browser can't be opened. The user runs the installer themselves.
-- The check is **unconditional**: there is no toggle, and it runs at every launch and hourly
-  after. Whether to add an off switch is an open item in goal 7 (item 5).
+- **Toggleable as of 2026-09-22 (goal 7, item 5):** a "Check for updates automatically" setting in
+  Settings → Behavior, on by default, gates the launch-time and hourly checks. The manual "Check for
+  updates" button in the Settings footer always works regardless of the toggle.
 - No Tauri updater plugin is compiled in or configured any more (no `updater` Cargo feature or
   capability, no `plugins.updater` block or public key). The app never downloads or runs anything
   itself, so there is nothing for it to verify: the only network request is a read of the manifest
@@ -238,8 +239,9 @@ day in favor of dropping the self-updater altogether.
 - A stale comment in `theseus-build.yml` still describes the manifest as "the updater feed configured
   in tauri-release.conf.json".
 - The `check_for_updates` setting (migration `20260914120000_add-check-for-updates-setting.sql`, the
-  Rust field in `state/settings.rs`, the type in `helpers/settings.ts`) has no UI and nothing reads
-  it. Its toggle in Behavior settings was removed in `9500ef50d`.
+  Rust field in `state/settings.rs`, the type in `helpers/settings.ts`) had no UI and nothing read it
+  from `9500ef50d` (when its Behavior-settings toggle was removed along with the self-updater) until
+  goal 7 gave it a new toggle and wired it up on 2026-09-22 — see goal 7, item 5.
 - `@tauri-apps/plugin-updater` is still listed in `apps/app-frontend/package.json`.
 - If a real in-place updater is wanted again later, it means building that back properly, including
   uploading the signed bundles the manifest points to.
@@ -437,7 +439,8 @@ Goal 3 removed the telemetry, ads and account systems it knew about, but a code 
 found that a fair amount of Modrinth-, Stripe- and third-party-bound traffic and dead plumbing is
 still left. This goal finishes the job and then makes it stay finished.
 
-**Audit findings (static, from reading the code — not yet confirmed by capturing real traffic):**
+**Audit findings (static, from reading the code — later confirmed/corrected by item 6's real-traffic
+pass, see the Progress log below and [NETWORK.md](NETWORK.md) for what actually held up):**
 
 *Fires at every launch, without any user action:*
 
@@ -497,14 +500,21 @@ still left. This goal finishes the job and then makes it stay finished.
 
 **Deliberately kept (not bloat, documented as allowed hosts):**
 
-- Modrinth's content API and CDN (browsing/searching/downloading, per goal 3).
+- Modrinth's content API and CDN (browsing/searching/downloading, per goal 3). That includes the
+  static assets on `cdn-raw.modrinth.com` (Minecraft and Inter fonts) and `launcher-files.modrinth.com`
+  (fallback images); see item 2.
 - **`launcher-meta.modrinth.com`** — Modrinth's mirror of the Minecraft and loader version
   manifests, which the launcher needs in order to create and launch instances. Replacing it would
   mean talking to Mojang, Fabric, Forge, Quilt and NeoForge directly, which is a large separate
   project. Decided 2026-09-21: keep it and document it; it is not tracking.
 - Mojang/Microsoft/Xbox authentication and skins, Minecraft textures, and Azul Java downloads.
-- Discord Rich Presence (opt-in, goal 3), `mclo.gs` log sharing (only when the user clicks it), and
-  the PaperMC/Purpur jar downloads.
+- Discord Rich Presence (opt-in, goal 3) and `mclo.gs` log sharing (explicit click only). **History:**
+  mclo.gs also did automatic crash analysis until 2026-09-22 — discovered during item 6 to fire with
+  no confirmation prompt (opening the Logs page for a stopped instance, or a game process finishing),
+  contradicting this list's original "only when the user clicks it" claim; removed outright per user
+  decision rather than kept as a documented opt-out, since only the explicit "Share" click is wanted.
+  The PaperMC/Purpur jar downloads that used to be listed here were not actually a live feature — zero
+  code called into them — and their CSP entries were removed as dead weight (item 6).
 - `img-src https:` in the CSP stays, because project descriptions render arbitrary remote images.
   That is an accepted tradeoff of anonymous browsing: an image host can see the request.
 
@@ -517,23 +527,30 @@ still left. This goal finishes the job and then makes it stay finished.
    Removing the Servers install flow touches `Browse.vue` and `project/Index.vue`, which are also the
    main content-browsing path, so that part is done carefully and checked against the browse and
    project pages.
-2. **Bundle what can be bundled.** Ship the Minecraft fonts and the fallback images inside the app
-   instead of fetching them from Modrinth's CDN, and render account heads locally from the skin
-   texture the launcher already has (there is already a `helpers/storage/head-storage.ts`) rather
-   than sending the UUID to `mc-heads.net`. Only the account avatar needs the skin data; if a head
-   can't be rendered offline, show a default instead of making a third-party request.
+2. **Stop the third-party avatar lookups.** Render account heads locally from the skin texture the
+   launcher already has (there is already a `helpers/storage/head-storage.ts`) rather than sending the
+   UUID to `mc-heads.net`. Only the account avatar needs the skin data; if a head can't be rendered
+   offline, show a default instead of making a third-party request. *Decided 2026-09-21: the Minecraft
+   and Inter fonts and the fallback images (`cdn-raw.modrinth.com`, `launcher-files.modrinth.com`) are
+   **not** bundled. The Minecraft fonts are Mojang-derived and the user doesn't want to redistribute
+   them from this repo; static assets from Modrinth's CDN are fine, they are not tracking or ads. Both
+   hosts go on the allowed list instead.*
 3. **Drop the `modrinth-download-meta` header** and its `DownloadMeta` plumbing.
 4. **Rebrand the User-Agent** to something like `DyadLauncher/<version> (github.com/creulcat/DyadLauncher)`
    in both Rust and TypeScript.
-5. **Version check opt-out (open, needs a decision):** goal 4 now documents the check as it is —
-   always on, no toggle. Either accept that (it is one read of a public file on github.com, no
-   identifiers sent beyond the User-Agent from item 4) or add an off switch in Settings, wired to the
-   existing but currently unused `check_for_updates` setting, so the launcher can be made completely
-   silent toward the network. If a switch is added, goal 4 needs a matching update.
-6. **Verify with real traffic, not just code reading.** Run a fresh profile through a proxy
-   (mitmproxy or Fiddler) for a full session: startup, browsing, installing a mod, launching, signing
-   in. From that, write `docs/NETWORK.md`: one row per host, with the reason it is contacted and
-   whether it is opt-in.
+5. **Version check off switch (decided 2026-09-21: add it, default on):** a Settings toggle wired to
+   the existing but currently unused `check_for_updates` setting, so the launcher can be made
+   completely silent toward the network. When it is off, the launch and hourly checks
+   never fire; the Settings footer's manual "Check for updates" button still works, since that is a
+   deliberate click. Goal 4 (the lines describing the check as unconditional) needs a matching update
+   when this lands.
+6. **Verify with real traffic, not just code reading.** *Decided 2026-09-21: use the webview's own
+   DevTools (F12 / Ctrl+Shift+I) rather than an external proxy.* Caveat: the Network tab only sees the
+   frontend's requests. Everything the Rust side sends (downloads, `launcher-meta`, the GitHub version
+   check, Discord, Java and jar downloads) never shows up there, so that half is covered by reading
+   the `reqwest` call sites and, where a runtime check is wanted, `RUST_LOG` HTTP client logging.
+   From both, write `docs/NETWORK.md`: one row per host, with the reason it is contacted and whether it
+   is opt-in.
 7. **Add a guard so it stays clean.** A CI check (script in `scripts/`) that fails when a hostname
    appears in the app's source, config or CSP that is not in the `docs/NETWORK.md` allowlist, and
    the CSP is tightened to exactly those hosts (except `img-src`, above).
@@ -548,7 +565,221 @@ Known tradeoffs and notes:
   modals, the WebView2 error dialog in `main.rs`) are a separate rebrand pass and are not part of
   this goal, except where they are a live request.
 
-Not started. Scoped 2026-09-21.
+**Progress (started 2026-09-21):**
+
+- **Phase 1, launch-time frontend requests — done, committed (`7333656f1`).** Removed from `App.vue`
+  the Modrinth Servers and billing prefetches, the `tally.so` script from `index.html`, and the GeoIP
+  lookup (the user country is now a fixed `US`; the only consumer is Imgur proxying in rendered
+  descriptions, so the cost is that Imgur images are never proxied for users in regions that block
+  it). Also removed two calls to functions that no longer exist: `fetchCredentials()` (it threw a
+  `ReferenceError` in `setupApp`, after the opening-command handler and before skin-preview
+  generation) and the modal `onShow`/`onHide` ads-window hold (it threw whenever a modal opened).
+- Two findings the static audit missed, added to the list above: **Inter**, the main UI font
+  (`packages/assets/styles/inter.scss`), also loads from `cdn-raw.modrinth.com` (covered by the
+  allowed-host decision in item 2), and `apps/app/build.rs` still declared an inlined `ads` plugin
+  whose commands (`init_ads_window`, `update_ads_window_hold`, the consent-UI ones) no longer existed
+  in Rust and had no capability grant referencing it either — pure orphaned codegen metadata. Removed
+  2026-09-22, while doing this same documentation pass (see the Progress log's last entry).
+- **Item 2 (third-party avatar lookups) — done 2026-09-22.** `AccountsCard.vue` no longer calls
+  `mc-heads.net`. The active account's avatar renders from the skin texture the launcher already has
+  locally (`getPlayerHeadUrl`/`headUrlCache`, unchanged from the existing skin-preview pipeline); every
+  other case (other accounts, or before the local render resolves) falls back to the existing default
+  head asset on `launcher-files.modrinth.com` instead of a network request, per the decided approach —
+  the launcher has no locally-cached skin texture for accounts that aren't the active one, so those
+  stay on the default rather than adding a new per-account Mojang lookup.
+- **Item 3 (`modrinth-download-meta` header) — done 2026-09-22.** Removed `DownloadMeta`, the
+  `modrinth-download-meta` header constant, and the header-attachment logic from
+  `packages/app-lib/src/util/fetch.rs`, along with the `download_meta`/`Option<&DownloadMeta>`
+  parameter threaded through every `fetch*`/`fetch_mirrors*` function and its ~15 call sites across
+  `list_content.rs`, `apply_content_install.rs`, `install_mrpack.rs`, `install_from.rs`, and
+  `synced_servers/modpack.rs`. `DownloadReason` itself (the `reason` parameter) is kept — it's still a
+  real Tauri command parameter (`instance_add_project_from_version` and others) and removing it would
+  mean touching the frontend call sites too, which is out of scope for "drop the header"; where a
+  `reason` (or a `content_set`/`metadata` lookup that only existed to build the header) is now
+  genuinely unused inside a specific `pub(crate)` function, it's prefixed `_` rather than threaded
+  further. Verified with `cargo build`/`cargo test` under `RUSTFLAGS=-Dwarnings` (matching CI).
+- **Item 4 (User-Agent rebrand) — done 2026-09-22.** Both the Rust `launcher_user_agent()`
+  (`packages/app-lib/src/lib.rs`) and the frontend `TauriModrinthClient` (`App.vue`) now send
+  `DyadLauncher/<version> (<os>; github.com/creulcat/DyadLauncher)` instead of
+  `modrinth/theseus/<version> (...; support@modrinth.com)`.
+- **Item 5 (version-check off switch) — done 2026-09-22.** A "Check for updates automatically" toggle
+  in Settings → Behavior (`BehaviorSettings.vue`), wired to the existing `check_for_updates` setting.
+  Turning it off stops the launch-time and hourly GitHub checks immediately (`stopAppUpdateChecks()`),
+  turning it on starts them immediately, and `App.vue`'s startup check is now gated on the setting
+  instead of running unconditionally. The manual "Check for updates" button in the Settings footer is
+  unaffected either way, as decided. Migration `20260922120000_check-for-updates-on-by-default.sql`
+  flips existing installs' stored value to on, since the column previously existed unused and
+  defaulted off from when it briefly gated the dropped self-updater (see goal 4) — without the
+  backfill, upgrading would have silently gone from "always checks" to "never checks" for every
+  existing install, the opposite of the decided default.
+- **Item 1, CSP/config/deps/settings-columns slice — done 2026-09-22** (the account-only Rust/
+  frontend dead code and the decision on the Servers install flow are separate, later entries in this
+  same log).
+  - **CSP tightened** in `apps/app/tauri.conf.json`: removed the Stripe entries (`js.stripe.com`,
+    `*.stripe.com`, `wss://*.stripe.com`, `hooks.stripe.com`) from `connect-src`/`script-src`/
+    `frame-src`, the Tailscale dev-node entries (`*.taila228c5.ts.net`), `*.nodes.modrinth.com`
+    (http+wss), and the stale `$DATA/ModrinthApp/caches/icons/*` asset-protocol scope entry.
+  - **Dead config/env removed**: `stripePublishableKey`, `archonBaseUrl` and `sharedInstancesBaseUrl`
+    from `apps/app-frontend/src/config.ts` (confirmed dead — `App.vue`'s `TauriModrinthClient` never
+    registers an Archon or SharedInstances feature, so nothing ever dereferenced these), the matching
+    `MODRINTH_ARCHON_BASE_URL`/`SHARED_INSTANCES_API_BASE_URL`/`MODRINTH_SOCKET_URL` env vars from all
+    `packages/app-lib/.env*` files, and the now-pointless `SHARED_INSTANCES_` entry from
+    `vite.config.ts`'s `envPrefix`. `.env.prod-with-staging-archon` (a whole file that existed only to
+    vary the now-dead archon URL) was deleted, along with its `prod-with-staging-archon` option in
+    `theseus-build.yml`'s `workflow_dispatch` input and the **live** Stripe publishable key
+    (`VITE_STRIPE_PUBLISHABLE_KEY`) that was sitting in that same workflow's env block.
+  - **Unused dependency removed**: `@tauri-apps/plugin-updater` from `apps/app-frontend/package.json`
+    (confirmed no source references; the self-updater it belonged to was already gone).
+  - **`sync_theme_across_devices`/`sync_behavior_across_devices` settings columns dropped** — dead
+    since goal 3 removed the Modrinth-account-based settings-sync feature they existed for. Removed
+    from `Settings` in `settings.rs` (struct fields, the `SELECT`/`UPDATE` queries — renumbering the
+    `UPDATE`'s positional binds — and the sqlx offline query cache, regenerated via
+    `cargo sqlx prepare`), from `helpers/settings.ts`, and from the separate `AppSettings` type in
+    `helpers/types.d.ts`. Migration `20260922130000_drop-cross-device-sync-settings.sql` does the
+    `ALTER TABLE ... DROP COLUMN`s; verified against a fresh in-memory DB.
+  - **Checked, not applicable**: the workspace `async-stripe`/`sentry` crates and the
+    `strip = false # Keep debug symbols for Sentry` profile setting only apply to `apps/labrinth`'s own
+    `[profile.release-labrinth]` — they never reach the desktop build, so there was nothing to remove
+    there. `@stripe/stripe-js` stays in `packages/ui` for the same reason (shared with the website).
+  - Verified with `cargo build`/`apps/app` build under `RUSTFLAGS=-Dwarnings` (matching CI), `vue-tsc`,
+    ESLint, and a migration test against a fresh in-memory DB.
+- **Item 1, account-only dead code — done 2026-09-22, narrower than originally scoped.** The original
+  audit finding called `api/users.rs`/`api/reports.rs` "account-dependent Rust" wholesale; closer
+  reading before deleting anything showed that wasn't quite right:
+  - **`api/reports.rs` (both the `packages/app-lib` module and the `apps/app` Tauri plugin/command) —
+    fully removed.** `helpers/reports.ts`'s `create_report` had zero call sites anywhere in the
+    frontend, and the one plausible trigger (the "Report" action on a user's profile) opens
+    `modrinth.com/report` in the system browser instead (`User.vue` passes `external-navigation` to
+    the shared profile layout), so the in-app report command was never reachable. Also dropped its
+    `apps/app/build.rs` inline-plugin entry and `"reports:default"` from `capabilities/plugins.json`.
+  - **`api/users.rs` — partially removed, not deleted.** `search_user`, `get_user_profile`,
+    `get_user_projects`, `get_user_organizations`, `get_user_collections` back `pages/User.vue`, a
+    live, reachable page (viewing another Modrinth user's public profile/projects while browsing
+    anonymously — the same anonymous-browsing surface goal 3 explicitly kept) and were **not**
+    touched. `patch_user`, `change_user_avatar`, `delete_user_avatar`, `block_user`, `unblock_user`
+    and `get_blocked_users` are structurally unreachable in the app (they only ever fire when
+    `auth.user.value` matches the viewed profile or `variant === 'web'`, and `App.vue`'s
+    `credentials` ref is permanently `null` since goal 3 removed Modrinth sign-in) but were also
+    **not** touched, because `packages/ui`'s shared `UserProfileContext` type (used by both this app
+    and the website) requires real implementations for all of them — removing the Rust/Tauri side
+    would just move the dead end from the backend into a frontend stub, for no real reduction in
+    reachable surface. Only `get_user_preferences`/`patch_user_preferences` were removed from
+    `api/users.rs` (Rust and the Tauri command list in `apps/app/src/api/users.rs` and
+    `apps/app/build.rs`): confirmed dead on their own terms — their only consumer,
+    `helpers/user-preferences.ts` via `providers/setup/user-preferences.ts` (both deleted), fed a
+    `useQuery` in `packages/ui` gated on `enabled: Boolean(userId.value)` where `userId` comes from
+    the same permanently-null `auth.user`, so the query never ran and `updatePreferences` was a
+    no-op. The `App.vue` call site (a locale-sync watcher whose body could only ever be reached with
+    `preferences` already `undefined`) is also removed — it called an unimported `setSettings`, a
+    latent `ReferenceError` that could never actually fire, the same class of bug phase 1 found in
+    `fetchCredentials()` and the ads-window hold.
+  - **`helpers/user-campaigns.ts` and the `Skins.vue` campaigns query — removed.** The query that fed
+    `hasPride26Badge` was gated on `!!auth.session_token.value`, permanently false for the same
+    reason, so the "Modrinth Pride" skin section was already unconditionally filtered out; the filter
+    is now written that way directly instead of through a dead auth-gated query. `injectAuth`/
+    `injectModrinthClient` in `Skins.vue` were only used for this and are removed too.
+  - Verified with `cargo build` for both Rust crates under `RUSTFLAGS=-Dwarnings`, `vue-tsc`, and
+    ESLint.
+- **Hand-tested in the real app — done 2026-09-22.** Everything landed so far this session (items 2-5
+  and item 1 except the Servers flow) checked out: the Skins page, a live user profile page, app
+  startup/locale, the Settings → Behavior "Check for updates" toggle, and a settings save round-trip
+  all work. Also specifically verified the CSP `frame-src` trim didn't break embedded project-
+  description videos, using `cobblemon-fabric`'s real YouTube `<iframe>` trailer as a live test case.
+- **The Modrinth Servers "install to server" flow — deliberately deprioritized 2026-09-22, not a
+  scope cut.** Scoped before touching anything: `server-install-content.ts` is unconditionally
+  instantiated by both `Browse.vue` and `project/Index.vue`, and its `isServerContext` flag branches
+  through roughly 15 separate conditionals in *each* file (filters, tabs, install-button state,
+  badges, the install flow itself). It is gated entirely on a `?sid=` URL query param that only ever
+  gets set by linking in from Modrinth's server-hosting management pages — which don't exist in Dyad
+  any more (goal 3 removed hosting/billing). So `isServerContext` is always `false`: this code makes
+  no network requests and renders no UI, ever, in this fork. Unlike the rest of item 1, removing it
+  would be pure code-cleanliness with no behavior change, at the cost of a wide, high-blast-radius
+  refactor across the two most-used pages in the app (Browse and the project detail page), each
+  needing careful hand-testing afterward. Decided not worth that risk/reward trade right now; left in
+  place as documented, confirmed-inert dead code, revisitable later with dedicated testing time.
+- **Item 6 (real traffic capture and `docs/NETWORK.md`) — done 2026-09-22.** See
+  [NETWORK.md](NETWORK.md) for the full per-host writeup. Compiled by reading every `reqwest`/
+  `fetch`/`invoke` call site across all three crates/packages, cross-checked against the CSP
+  allowlist and against the CSP `frame-src` fix verified live earlier in this pass (the
+  `cobblemon-fabric` YouTube embed). Two corrections to the original audit fell out of doing this
+  properly instead of trusting the existing findings list:
+  - `fill.papermc.io`/`api.purpurmc.org` were listed as a deliberately-kept live feature (PaperMC/
+    Purpur server-jar downloads); they're actually the same "always in the CSP, never actually
+    called" dead weight as Archon/shared-instances, confirmed by zero call sites anywhere in
+    `apps/app-frontend` or `packages/app-lib`. Removed from the CSP.
+  - mclo.gs crash analysis (`api.mclo.gs`) was documented as "only when the user clicks it"; it
+    actually fires **automatically** — opening the Logs page for a stopped instance, and whenever a
+    game process finishes — with no confirmation prompt. Documented accurately in NETWORK.md, but
+    **not changed** as part of this item (item 6 is about documenting current behavior); worth a
+    separate, deliberate decision on whether to gate it.
+  - Also found and removed while in `config.ts`: an unused `siteUrl` field (and the `MODRINTH_URL`
+    env var feeding it) — the one place that needed a "link to modrinth.com" already hardcodes the
+    literal string instead.
+- **Item 7 (CI allowlist guard) — done 2026-09-22.** `scripts/check-network-allowlist.ts`
+  (`pnpm run network:check-allowlist`, wired into `turbo-ci.yml` after the intl:extract check) scans
+  every `.rs`/`.ts`/`.vue`/`.js`/`.json`/`.html`/`.scss`/`.env*` file under `packages/app-lib`,
+  `apps/app` and `apps/app-frontend` for literal `http(s)://`/`ws(s)://` hostnames, and fails if one
+  isn't backtick-quoted somewhere in `docs/NETWORK.md` (a `*.example.com` entry there covers its
+  subdomains). Verified it actually catches a new host, and that it passes cleanly against the
+  current tree. Same caveat NETWORK.md already states: this is a hardcoded-hostname text check, not a
+  runtime one — it can't catch a URL built dynamically from an API response.
+  - **Finding while wiring this up: a second, separate allowlist had the same dead hosts.**
+    `apps/app/capabilities/plugins.json`'s `http:default` permission scope — which gates
+    `@tauri-apps/plugin-http`, the transport `packages/api-client`'s Tauri platform actually uses for
+    every `TauriModrinthClient` request, not just the version check — still allowed
+    `*.nodes.modrinth.com`, `*.taila228c5.ts.net`, `fill.papermc.io` and `api.purpurmc.org`. The CSP
+    fix earlier in this pass only touched the webview's own CSP, which doesn't cover plugin-http
+    calls at all; this permission scope is a completely separate enforcement point. All four removed
+    from it now; see [NETWORK.md](NETWORK.md) for the detail.
+  - **Also found while re-verifying User-Agent strings for NETWORK.md: a second hardcoded
+    "Modrinth App" identity that goal 7 item 4 missed.** `minecraft_auth.rs`'s
+    `MINECRAFT_SERVICES_USER_AGENT` — sent with every Mojang/`api.minecraftservices.com` request for
+    profile/skin/cape operations, separate from the general `launcher_user_agent()` item 4 already
+    rebranded — still said `"Modrinth App (support@modrinth.com; https://modrinth.com/app)"`.
+    Rebranded to match.
+
+**Follow-up findings from hand-testing — done 2026-09-22.** Testing the finished goal in the real
+app surfaced two more items, reported via the browser console on a fresh launch, no user action
+needed:
+
+- **`@taijased/vue-render-tracker` removed entirely** (`apps/app-frontend/src/main.js`,
+  `package.json`). A Vue render-performance overlay tool, inherited from upstream Modrinth
+  (introduced in `d1bc65c26`, long before this fork), installed unconditionally via `app.use(vueScan)`
+  even with its own `enabled: false` config — its `install()` hook still tried to hook into a global
+  Vue instance and errored (in Russian) every launch, since `withGlobalTauri: false` means Vue isn't
+  exposed globally. A dev-only debugging tool that had no business being wired into every user's
+  production build.
+- **`@stripe/stripe-js` no longer reaches the app bundle — the "and only needs to stop reaching the
+  app bundle" item flagged but not finished earlier in this goal.** `packages/ui/src/composables/
+  stripe.ts` and `.../components/billing/AddPaymentMethod.vue` had static top-level
+  `import { loadStripe } from '@stripe/stripe-js'`; that package injects a `<script src="js.stripe.
+  com/...">` tag as a side effect of merely being imported, independent of whether `loadStripe` is
+  ever called. Before this pass's CSP fix, `js.stripe.com` was still CSP-allowed, so this loaded
+  silently and successfully on every launch; after the CSP fix it started failing loudly (a `Refused
+  to load` console error) instead — confirming the dead-weight import was real, not just a
+  theoretical risk the original audit flagged. Fixed properly: both files now do
+  `const { loadStripe } = await import('@stripe/stripe-js')` inside the function that actually needs
+  it. Verified in the built `apps/app-frontend/dist` output: `@stripe/stripe-js`, `loadStripe`,
+  `AddPaymentMethod`, and `ModrinthServersPurchaseModal` no longer appear anywhere in it at all —
+  nothing in the app's reachable component tree ever renders that billing UI, so once the import
+  stopped being eager, Rollup's tree-shaking dropped the whole subtree rather than just deferring it
+  to a lazy chunk. `packages/ui`/the website are unaffected (still a real, working static-turned-
+  dynamic import, just deferred to when the component actually mounts).
+- **Automatic mclo.gs crash analysis removed per user decision, 2026-09-22.** Once the automatic-vs-
+  opt-in finding above was confirmed precisely (two triggers, zero confirmation, on every stopped-
+  instance Logs-page visit and every game exit — not just crashes), the fork's owner decided against
+  keeping it in any form: no setting, no confirmation prompt, just gone. Removed `analyseForCrash()`
+  and both its auto-invocations from `pages/instance/logs/index.vue`, along with the now-pointless
+  `crashAnalysis`/`onDismissCrash` context fields it populated (optional in
+  `ConsoleManagerContext`, so the crash-analysis panel in the shared console layout simply stops
+  rendering — no change needed there, and the website's own hosting console is unaffected). The
+  separate "Share" button (`logs_v1.create`, a real explicit click) is untouched — that's the only
+  remaining way this app reaches `api.mclo.gs`. See [NETWORK.md](NETWORK.md) for the up-to-date entry.
+- **Loose end from phase 1 closed while reviewing these docs, 2026-09-22.** Phase 1's own notes above
+  flagged `apps/app/build.rs`'s inlined `ads` Tauri plugin (commands like `init_ads_window`,
+  `update_ads_window_hold`, the consent-UI ones) as dead codegen metadata needing removal, but it was
+  never actually done. Confirmed none of its commands exist as real `#[tauri::command]`s and no
+  capability file grants `ads:*` either, then removed the block; `apps/app` still builds clean.
 
 ### 8. Launcher backgrounds, with per-instance overrides
 
@@ -703,7 +934,7 @@ Not started. Scoped 2026-09-21.
 
 ## Status
 
-Last reviewed 2026-09-21.
+Last reviewed 2026-09-22.
 
 | # | Goal | Status |
 |---|---|---|
@@ -713,7 +944,7 @@ Last reviewed 2026-09-21.
 | 4 | Update notifications | Done — Modrinth's updater disabled 2026-09-04; self-updater built 2026-09-14, replaced by a download-link version check 2026-09-21; release-pipeline fixes 2026-09-16/17. Self-updater leftovers not yet cleaned up |
 | 5 | Windows installer trust warning | **Partly done** — CI fallback fix and installer metadata landed 2026-09-13; installer is still unsigned, SignPath application not yet submitted |
 | 6 | Migrate-from-Modrinth-App import | Done (2026-09-16), pending real-world Windows validation |
-| 7 | Network & tracking audit | **Not started** — scoped 2026-09-21; static audit done, traffic capture and cleanup outstanding |
+| 7 | Network & tracking audit | Done (2026-09-22) — see [docs/NETWORK.md](NETWORK.md) for the full per-host writeup and `scripts/check-network-allowlist.ts` for the CI guard. Item 1's Servers install flow is deliberately left as documented, confirmed-inert dead code rather than a risky refactor of the two main browsing pages |
 | 8 | Launcher backgrounds + per-instance overrides | Done (2026-09-21) — backend, rendering, global and per-instance UI, hand-tested in the real app |
 | 9 | Instance comparison | **Not started** — scoped 2026-09-21 (metadata + content only in v1) |
 
@@ -747,12 +978,30 @@ section above for the full phase breakdown and [goal-6-import-design.md](goal-6-
 for the detailed writeup. No known gaps remain beyond real-world Windows validation, which this
 fork's other machine should pick up next.
 
-Goals 7-9 were added on 2026-09-21 after a scoping discussion with the user, none implemented yet.
-Goal 7 is a follow-up to goal 3: a code audit found leftover Modrinth Servers/billing prefetches, a
-GeoIP lookup, a third-party avatar service, the download-attribution header and dead Stripe/account
-plumbing (see its findings list). Whether the always-on version check from goal 4 should get an off
-switch is a decision item inside goal 7. Goal 8 (backgrounds) is scoped to user-supplied images and colours/gradients with
-translucent-panel legibility controls; goal 9 (instance comparison) to metadata and content in v1.
+Goals 7-9 were added on 2026-09-21 after a scoping discussion with the user. Goal 7 is a follow-up to
+goal 3: a code audit found leftover Modrinth Servers/billing prefetches, a GeoIP lookup, a third-party
+avatar service, the download-attribution header and dead Stripe/account plumbing (see its findings
+list). As of 2026-09-22 all seven items are done: the launch-time frontend prefetches (phase 1 of
+item 1), the third-party avatar lookups (item 2), the download-attribution header (item 3), the
+User-Agent rebrand (item 4, later found to have missed a second hardcoded identity, fixed during item
+7), the version-check off switch (item 5, default on), item 1 (CSP tightening, dead config/env, an
+unused dependency, the cross-device-sync settings columns, and the account-only Rust/frontend dead
+code — narrower than first scoped, since some of `api/users.rs` turned out to back a live
+anonymous-profile-viewing page and a shared cross-app component contract; the Servers install flow
+was left in place as documented, confirmed-inert dead code rather than risk a wide refactor of
+Browse.vue/project/Index.vue for no behavior change), item 6 (the network audit doc, which corrected
+two things the original static audit got wrong — see [NETWORK.md](NETWORK.md)), and item 7 (the CI
+allowlist guard, which found and closed a second, separate allowlist — the `plugin-http` permission
+scope — carrying the same dead hosts the CSP fix had already removed from the webview side).
+Hand-testing the finished goal then surfaced three more items, fixed the same day: an unconditionally-
+installed Vue dev tool throwing console errors on every launch (removed), `@stripe/stripe-js` still
+reaching the app bundle as an import-time side effect despite being flagged earlier in the goal as
+unresolved (fixed with a dynamic import), and mclo.gs crash analysis firing automatically with no
+confirmation prompt, which the fork's owner decided to remove outright rather than keep in any
+gated form. A last loose end from phase 1 — a dead inlined `ads` Tauri plugin in `build.rs`, flagged
+back then but never actually removed — was also closed while writing up this summary. Goal 8
+(backgrounds) is done; goal 9 (instance comparison) is scoped to metadata and content in v1 and not
+started.
 
 This document should be updated as scope changes — treat it as the source of truth for what this fork
 is trying to do, ahead of any individual issue or PR.

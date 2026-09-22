@@ -242,8 +242,6 @@ type AppSettings = {
 	advanced_rendering: boolean
 	native_decorations: boolean
 	worlds_in_home: boolean
-	sync_theme_across_devices: boolean
-	sync_behavior_across_devices: boolean
 
 	discord_rpc: boolean
 	developer_mode: boolean

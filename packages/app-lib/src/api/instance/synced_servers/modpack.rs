@@ -5,7 +5,7 @@ use super::operations::{compose_instance, effective};
 use super::storage::{load_local, write_local_rows};
 use super::types::{LocalServer, ServerSource};
 use crate::state::{CachedEntry, InstanceLink, InstanceMetadata};
-use crate::util::fetch::{DownloadMeta, DownloadReason, fetch_mirrors};
+use crate::util::fetch::fetch_mirrors;
 use crate::{ErrorKind, State};
 use async_zip::base::read::seek::ZipFileReader;
 use quartz_nbt::NbtCompound;
@@ -151,16 +151,9 @@ pub(super) async fn reconstruct_modpack_servers(
                 "Modpack version {version_id} has no downloadable file"
             ))
         })?;
-    let download_meta = DownloadMeta {
-        reason: DownloadReason::Modpack,
-        game_version: metadata.applied_content_set.game_version.clone(),
-        loader: metadata.applied_content_set.loader.as_str().to_string(),
-        dependent_on: Some(version_id.to_string()),
-    };
     let mrpack = fetch_mirrors(
         &[&primary_file.url],
         primary_file.hashes.get("sha1").map(String::as_str),
-        Some(&download_meta),
         None,
         &state.api_semaphore,
         &state.pool,

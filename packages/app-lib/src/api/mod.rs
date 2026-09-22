@@ -12,7 +12,6 @@ pub mod minecraft_auth;
 pub mod minecraft_skins;
 pub mod pack;
 pub mod process;
-pub mod reports;
 pub mod server_address;
 pub mod settings;
 pub mod tags;

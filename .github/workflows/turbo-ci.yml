@@ -179,3 +179,6 @@ jobs:
           pnpm turbo run intl:extract --force
           pnpm scripts i18n-icu-contract prune-local --check
           git diff --exit-code --color */*/src/locales/*/index.json
+
+      - name: Verify Dyad Launcher network allowlist (goal 7)
+        run: pnpm run network:check-allowlist

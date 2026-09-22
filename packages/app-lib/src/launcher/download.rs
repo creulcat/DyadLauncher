@@ -158,8 +158,7 @@ async fn fetch_minecraft_file(
     }
 
     let Some(progress) = progress else {
-        return fetch(url, sha1, None, None, &st.fetch_semaphore, &st.pool)
-            .await;
+        return fetch(url, sha1, None, &st.fetch_semaphore, &st.pool).await;
     };
 
     let last_downloaded = Arc::new(AtomicU64::new(0));
@@ -181,7 +180,6 @@ async fn fetch_minecraft_file(
         Method::GET,
         url,
         sha1,
-        None,
         None,
         None,
         None,
@@ -897,7 +895,6 @@ pub async fn download_libraries(
                     // See DEV-479.
                     match fetch(
                         &url,
-                        None,
                         None,
                         None,
                         &st.fetch_semaphore,
