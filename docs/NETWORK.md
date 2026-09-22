@@ -6,9 +6,13 @@ to item 7's guard script (item 7), which fails CI when a hostname shows up in so
 CSP that isn't listed here.
 
 Compiled by reading every `reqwest`/`fetch`/`invoke` call site in `packages/app-lib`, `apps/app` and
-`apps/app-frontend` (2026-09-22), cross-checked against the CSP allowlist in
-`apps/app/tauri.conf.json`, and against real traffic in the webview's own DevTools (Ctrl+Shift+I) —
-per the decided approach, this only shows the frontend's own requests; everything the Rust side sends
+`apps/app-frontend` (2026-09-22), cross-checked against **two** separate allowlists — the webview CSP
+in `apps/app/tauri.conf.json` (what the webview's own `fetch`/`<img>`/`<iframe>`/etc. may load) and
+the `http:default` permission scope in `apps/app/capabilities/plugins.json` (what
+`@tauri-apps/plugin-http`'s `fetch` may target — used by `packages/api-client`'s Tauri platform for
+every `TauriModrinthClient` request, i.e. all of the frontend's Modrinth/mclogs API calls, not just
+the version check) — and against real traffic in the webview's own DevTools (Ctrl+Shift+I) per the
+decided approach, this only shows the frontend's own requests; everything the Rust side sends
 (downloads, `launcher-meta`, the GitHub version check, Discord, Java and jar downloads) is covered by
 reading the `reqwest` call sites instead. This list is a snapshot, not a promise — a host built
 entirely at runtime from an API response (e.g. a mod's own download URL) won't show up as a literal
@@ -32,7 +36,7 @@ string anywhere, and the CI guard in item 7 can only catch hardcoded hostnames, 
 
 | Host | Reason | When |
 |---|---|---|
-| `login.live.com`, `*.xboxlive.com` (`auth`, `device.auth`, `user.auth`, `sisu`, `xsts`), `xboxlive.com` | Microsoft/Xbox OAuth device-code flow for signing in a Minecraft account. This is the Minecraft account needed to launch the game, unrelated to the Modrinth account system goal 3 removed. | Only when signing in a Minecraft account, or silently refreshing an existing session before launch. |
+| `login.live.com`, `xboxlive.com`, `auth.xboxlive.com`, `device.auth.xboxlive.com`, `user.auth.xboxlive.com`, `sisu.xboxlive.com`, `xsts.auth.xboxlive.com` | Microsoft/Xbox OAuth device-code flow for signing in a Minecraft account. This is the Minecraft account needed to launch the game, unrelated to the Modrinth account system goal 3 removed. | Only when signing in a Minecraft account, or silently refreshing an existing session before launch. |
 | `api.minecraftservices.com` | Minecraft profile/entitlement/skin API (own profile, skins, capes). | On login and periodic profile refresh. |
 | `sessionserver.mojang.com` | Mojang session-server profile lookups (used for other accounts' public profile data, e.g. rendering skins). | As needed when resolving another account's profile. |
 | `textures.minecraft.net` | Mojang's skin/cape texture CDN. | Whenever a skin/cape texture is displayed and can't be rendered from an already-local source. |
@@ -57,12 +61,22 @@ Minecraft account" features, which are the launcher's job, not tracking.
 
 ## Findings from this pass (2026-09-22)
 
-- **`fill.papermc.io` and `api.purpurmc.org` were dead CSP entries, now removed.** They're part of
-  `packages/api-client`'s always-present `paper`/`purpur` client modules (used by the website's server
-  hosting features), but zero code in `apps/app-frontend` or `packages/app-lib` ever calls into them —
-  the same "allowed but never actually reachable" pattern goal 7 already found and removed for Archon
-  and shared-instances. The previous audit had listed these as a deliberately-kept live feature; that
-  was wrong, and the CSP entries are gone as of this pass.
+- **A second, separate allowlist had the same dead hosts the CSP did, and had one CSP never caught:
+  `apps/app/capabilities/plugins.json`'s `http:default` permission scope.** This gates
+  `@tauri-apps/plugin-http`'s `fetch`, which is what `packages/api-client`'s Tauri platform actually
+  uses for every `TauriModrinthClient` request — the CSP alone doesn't cover this, since plugin-http
+  calls don't go through the webview's own fetch. It still allowed `https://*.nodes.modrinth.com/*`
+  and `http://*.taila228c5.ts.net`/`https://*.taila228c5.ts.net` (the same Tailscale-dev-node/hosting
+  leftovers goal 7 item 1 already removed from the CSP, apparently missed there) and
+  `https://fill.papermc.io/*`/`https://api.purpurmc.org/*` (see next finding) — all removed now. The
+  `github.com/creulcat/DyadLauncher/releases/*`, `modrinth.com`/`*.modrinth.com`, `api.mclo.gs`, and
+  the two `localhost:8000`/`127.0.0.1:8000` dev-server entries are genuinely used and stay.
+- **`fill.papermc.io` and `api.purpurmc.org` were dead in both allowlists, now removed from both.**
+  They're part of `packages/api-client`'s always-present `paper`/`purpur` client modules (used by the
+  website's server hosting features), but zero code in `apps/app-frontend` or `packages/app-lib` ever
+  calls into them — the same "allowed but never actually reachable" pattern goal 7 already found and
+  removed for Archon and shared-instances. The previous audit had listed these as a deliberately-kept
+  live feature; that was wrong.
 - **mclo.gs crash analysis is not opt-in.** The previous audit's "mclo.gs log sharing (only when the
   user clicks it)" undersold it: analysis fires automatically on two triggers (opening the Logs page
   for a stopped instance, and a game process finishing), sending log content to `api.mclo.gs` with no
@@ -73,8 +87,29 @@ Minecraft account" features, which are the launcher's job, not tracking.
 - `config.ts`'s unused `siteUrl` field (and the `MODRINTH_URL` env var feeding it) were dead — nothing
   ever read `config.siteUrl` (the one place that needed a "link to modrinth.com" already hardcodes the
   literal string instead). Removed along with the CSP fixes above.
-- Excluded from the tables above: URLs that appear only in code comments or doc-links (source
-  attribution for bundled default skins, PNG/XML spec references, Apple's plist DTD), and hrefs in
-  error-message text that open in the user's own system browser rather than being fetched by the app
-  (the Xbox/Microsoft support links in `minecraft-auth-errors.ts`) — the app itself never contacts
-  these.
+- **A second hardcoded "Modrinth App" User-Agent, missed by goal 7 item 4.** Item 4 rebranded
+  `launcher_user_agent()` (`packages/app-lib/src/lib.rs`), used for Modrinth/general HTTP requests, but
+  `minecraft_auth.rs`'s separate `MINECRAFT_SERVICES_USER_AGENT` constant — sent with every request to
+  `api.minecraftservices.com` and Mojang's session server for profile/skin/cape operations — still said
+  `"Modrinth App (support@modrinth.com; https://modrinth.com/app)"`. Rebranded to match, as part of
+  this pass.
+
+## Non-network hostnames that appear in source
+
+These show up as literal text somewhere in the codebase but are never contacted by the app itself —
+listed here so the item 7 guard script doesn't flag them as new, undocumented hosts.
+
+| Host | Where it appears | Why it's not a real request |
+|---|---|---|
+| `www.w3.org` | `background.rs` (writes a literal `xmlns='http://www.w3.org/2000/svg'` into a generated SVG file), doc comments in `png_util.rs` citing the PNG spec | XML namespace value and spec citations, not a fetched URL. |
+| `www.apple.com` | `App.entitlements`, `Info.plist`, `apps/app/src/api/shortcuts/macos.rs` | The standard plist `<!DOCTYPE>` declaration every macOS plist file carries, not a fetched URL. |
+| `web.archive.org`, `community-content-assets-cms.minecraft.net`, `www.minecraft.net`, `minecraft.wiki` | Doc comments in `default_skins.rs` citing where each bundled default skin's texture originally came from | Source-attribution comments; the skins themselves are bundled in the binary, not downloaded. |
+| `support.xbox.com`, `www.xbox.com`, `help.minecraft.net`, `account.microsoft.com` | `<a href>` links inside error-message text in `minecraft-auth-errors.ts` | Opened in the user's own system browser when clicked; the app itself never fetches these. |
+| `support.modrinth.com` | The WebView2-corrupted-install error dialog in `apps/app/src/main.rs` | Text of a native dialog, opened in the user's own browser if they type/click it; not fetched by the app. Cosmetic "Modrinth App" wording in this dialog is a known, separately-tracked rebrand item (see GOALS.md goal 7's "Known tradeoffs" note), not part of this goal. |
+| `asset.localhost` | `apps/app/src/api/utils.rs`, the asset-protocol `img-src`/`connect-src` CSP entries | Tauri's internal `asset://`/`http://asset.localhost` protocol for serving local files (icons, backgrounds) to the webview — not an external network host. |
+| `tauri.localhost` | `App.vue` (checking `target.href` before intercepting link clicks) | Tauri's internal production webview origin, not an external host. |
+| `ipc.localhost` | The CSP's `connect-src` | Tauri's internal frontend-to-Rust IPC bridge, not an external host. |
+| `localhost`, `127.0.0.1` | `vite.config.ts`'s dev server, `.env.local`'s local-labrinth URLs, the matching entries in `capabilities/plugins.json`'s `http:default` scope | Only reachable when running a local dev build against a locally-run `labrinth`; never a real external host. |
+| `vitejs.dev`, `v2.tauri.app` | Doc-comment links in `vite.config.ts` | Comments pointing at Vite/Tauri's own documentation, not a fetched URL. |
+| `schema.tauri.app` | The `$schema` key at the top of every `tauri*.conf.json` | Editor tooling (JSON schema validation), not fetched at runtime. |
+| `clientauth.one.digicert.com`, `timestamp.sectigo.com`, `timestamp.digicert.com` | `apps/app/tauri-release.conf.json`'s Windows code-signing (`jsign`) configuration | Contacted by the CI signing step (`jsign`) at build time, on Windows tag/release builds only when signing credentials are present (goal 5) — never by the running app. |

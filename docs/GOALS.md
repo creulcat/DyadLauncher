@@ -710,7 +710,28 @@ Known tradeoffs and notes:
   - Also found and removed while in `config.ts`: an unused `siteUrl` field (and the `MODRINTH_URL`
     env var feeding it) — the one place that needed a "link to modrinth.com" already hardcodes the
     literal string instead.
-- Still to do: item 7 (the CI allowlist guard).
+- **Item 7 (CI allowlist guard) — done 2026-09-22.** `scripts/check-network-allowlist.ts`
+  (`pnpm run network:check-allowlist`, wired into `turbo-ci.yml` after the intl:extract check) scans
+  every `.rs`/`.ts`/`.vue`/`.js`/`.json`/`.html`/`.scss`/`.env*` file under `packages/app-lib`,
+  `apps/app` and `apps/app-frontend` for literal `http(s)://`/`ws(s)://` hostnames, and fails if one
+  isn't backtick-quoted somewhere in `docs/NETWORK.md` (a `*.example.com` entry there covers its
+  subdomains). Verified it actually catches a new host, and that it passes cleanly against the
+  current tree. Same caveat NETWORK.md already states: this is a hardcoded-hostname text check, not a
+  runtime one — it can't catch a URL built dynamically from an API response.
+  - **Finding while wiring this up: a second, separate allowlist had the same dead hosts.**
+    `apps/app/capabilities/plugins.json`'s `http:default` permission scope — which gates
+    `@tauri-apps/plugin-http`, the transport `packages/api-client`'s Tauri platform actually uses for
+    every `TauriModrinthClient` request, not just the version check — still allowed
+    `*.nodes.modrinth.com`, `*.taila228c5.ts.net`, `fill.papermc.io` and `api.purpurmc.org`. The CSP
+    fix earlier in this pass only touched the webview's own CSP, which doesn't cover plugin-http
+    calls at all; this permission scope is a completely separate enforcement point. All four removed
+    from it now; see [NETWORK.md](NETWORK.md) for the detail.
+  - **Also found while re-verifying User-Agent strings for NETWORK.md: a second hardcoded
+    "Modrinth App" identity that goal 7 item 4 missed.** `minecraft_auth.rs`'s
+    `MINECRAFT_SERVICES_USER_AGENT` — sent with every Mojang/`api.minecraftservices.com` request for
+    profile/skin/cape operations, separate from the general `launcher_user_agent()` item 4 already
+    rebranded — still said `"Modrinth App (support@modrinth.com; https://modrinth.com/app)"`.
+    Rebranded to match.
 
 ### 8. Launcher backgrounds, with per-instance overrides
 
@@ -875,7 +896,7 @@ Last reviewed 2026-09-22.
 | 4 | Update notifications | Done — Modrinth's updater disabled 2026-09-04; self-updater built 2026-09-14, replaced by a download-link version check 2026-09-21; release-pipeline fixes 2026-09-16/17. Self-updater leftovers not yet cleaned up |
 | 5 | Windows installer trust warning | **Partly done** — CI fallback fix and installer metadata landed 2026-09-13; installer is still unsigned, SignPath application not yet submitted |
 | 6 | Migrate-from-Modrinth-App import | Done (2026-09-16), pending real-world Windows validation |
-| 7 | Network & tracking audit | **In progress** — scoped 2026-09-21; items 1-6 done as of 2026-09-22 (item 1's Servers install flow deliberately left as documented, confirmed-inert dead code; item 6 is [docs/NETWORK.md](NETWORK.md)); item 7 (CI allowlist guard) outstanding |
+| 7 | Network & tracking audit | Done (2026-09-22) — see [docs/NETWORK.md](NETWORK.md) for the full per-host writeup and `scripts/check-network-allowlist.ts` for the CI guard. Item 1's Servers install flow is deliberately left as documented, confirmed-inert dead code rather than a risky refactor of the two main browsing pages |
 | 8 | Launcher backgrounds + per-instance overrides | Done (2026-09-21) — backend, rendering, global and per-instance UI, hand-tested in the real app |
 | 9 | Instance comparison | **Not started** — scoped 2026-09-21 (metadata + content only in v1) |
 
@@ -912,18 +933,20 @@ fork's other machine should pick up next.
 Goals 7-9 were added on 2026-09-21 after a scoping discussion with the user. Goal 7 is a follow-up to
 goal 3: a code audit found leftover Modrinth Servers/billing prefetches, a GeoIP lookup, a third-party
 avatar service, the download-attribution header and dead Stripe/account plumbing (see its findings
-list). As of 2026-09-22 the launch-time frontend prefetches (phase 1 of item 1), the third-party
-avatar lookups (item 2), the download-attribution header (item 3), the User-Agent rebrand (item 4),
-the version-check off switch (item 5, default on), and item 1 (CSP tightening, dead config/env, an
+list). As of 2026-09-22 all seven items are done: the launch-time frontend prefetches (phase 1 of
+item 1), the third-party avatar lookups (item 2), the download-attribution header (item 3), the
+User-Agent rebrand (item 4, later found to have missed a second hardcoded identity, fixed during item
+7), the version-check off switch (item 5, default on), item 1 (CSP tightening, dead config/env, an
 unused dependency, the cross-device-sync settings columns, and the account-only Rust/frontend dead
 code — narrower than first scoped, since some of `api/users.rs` turned out to back a live
 anonymous-profile-viewing page and a shared cross-app component contract; the Servers install flow
 was left in place as documented, confirmed-inert dead code rather than risk a wide refactor of
-Browse.vue/project/Index.vue for no behavior change), and item 6 (the network audit doc, which
-corrected two things the original static audit got wrong — see [NETWORK.md](NETWORK.md)) are done;
-the CI allowlist guard (item 7) is still outstanding. Goal 8 (backgrounds) is done; goal 9
-(instance comparison) is scoped to
-metadata and content in v1 and not started.
+Browse.vue/project/Index.vue for no behavior change), item 6 (the network audit doc, which corrected
+two things the original static audit got wrong — see [NETWORK.md](NETWORK.md)), and item 7 (the CI
+allowlist guard, which found and closed a second, separate allowlist — the `plugin-http` permission
+scope — carrying the same dead hosts the CSP fix had already removed from the webview side). Goal 8
+(backgrounds) is done; goal 9 (instance comparison) is scoped to metadata and content in v1 and not
+started.
 
 This document should be updated as scope changes — treat it as the source of truth for what this fork
 is trying to do, ahead of any individual issue or PR.
