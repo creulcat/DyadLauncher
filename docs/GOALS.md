@@ -672,6 +672,11 @@ Known tradeoffs and notes:
     `injectModrinthClient` in `Skins.vue` were only used for this and are removed too.
   - Verified with `cargo build` for both Rust crates under `RUSTFLAGS=-Dwarnings`, `vue-tsc`, and
     ESLint.
+- **Hand-tested in the real app — done 2026-09-22.** Everything landed so far this session (items 2-5
+  and item 1 except the Servers flow) checked out: the Skins page, a live user profile page, app
+  startup/locale, the Settings → Behavior "Check for updates" toggle, and a settings save round-trip
+  all work. Also specifically verified the CSP `frame-src` trim didn't break embedded project-
+  description videos, using `cobblemon-fabric`'s real YouTube `<iframe>` trailer as a live test case.
 - Still to do: the Modrinth Servers "install to server" flow
   (`providers/setup/server-install-content.ts`, wired into `Browse.vue` and `project/Index.vue` —
   needs hand-testing against those pages afterward), item 6 (real traffic capture and
