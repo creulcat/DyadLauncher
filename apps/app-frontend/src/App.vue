@@ -174,8 +174,6 @@ const appVersion = getVersion()
 const tauriApiClient = new TauriModrinthClient({
 	userAgent: async () => `DyadLauncher/${await appVersion} (github.com/creulcat/DyadLauncher)`,
 	labrinthBaseUrl: config.labrinthBaseUrl,
-	archonBaseUrl: config.archonBaseUrl,
-	sharedInstancesBaseUrl: config.sharedInstancesBaseUrl,
 	features: [
 		new NodeAuthFeature({
 			getAuth: () => nodeAuthState.getAuth?.() ?? null,

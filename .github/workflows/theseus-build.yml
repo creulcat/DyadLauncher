@@ -27,7 +27,6 @@ on:
         options:
           - prod
           - staging
-          - prod-with-staging-archon
         default: prod
         required: false
       app-version-override:
@@ -43,7 +42,6 @@ jobs:
   build:
     name: Build
     env:
-      VITE_STRIPE_PUBLISHABLE_KEY: pk_live_51JbFxJJygY5LJFfKLVVldb10HlLt24p421OWRsTOWc5sXYFOnFUXWieSc6HD3PHo25ktx8db1WcHr36XGFvZFVUz00V9ixrCs5
       RUSTC_WRAPPER: 'sccache'
       # secrets can't be referenced directly in a step's `if:` (GitHub Actions rejects that at
       # parse time), so resolve it into a plain env var here instead.

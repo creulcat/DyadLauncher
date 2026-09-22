@@ -605,9 +605,42 @@ Known tradeoffs and notes:
   defaulted off from when it briefly gated the dropped self-updater (see goal 4) — without the
   backfill, upgrading would have silently gone from "always checks" to "never checks" for every
   existing install, the opposite of the decided default.
-- Still to do: the rest of item 1 (account-only Rust and frontend, the Servers install flow, CSP,
-  config/env, dependencies, settings columns), item 6 (real traffic capture and `docs/NETWORK.md`),
-  and item 7 (the CI allowlist guard).
+- **Item 1, CSP/config/deps/settings-columns slice — done 2026-09-22 (the account-only Rust/frontend
+  and the Servers install flow are still outstanding, see below).**
+  - **CSP tightened** in `apps/app/tauri.conf.json`: removed the Stripe entries (`js.stripe.com`,
+    `*.stripe.com`, `wss://*.stripe.com`, `hooks.stripe.com`) from `connect-src`/`script-src`/
+    `frame-src`, the Tailscale dev-node entries (`*.taila228c5.ts.net`), `*.nodes.modrinth.com`
+    (http+wss), and the stale `$DATA/ModrinthApp/caches/icons/*` asset-protocol scope entry.
+  - **Dead config/env removed**: `stripePublishableKey`, `archonBaseUrl` and `sharedInstancesBaseUrl`
+    from `apps/app-frontend/src/config.ts` (confirmed dead — `App.vue`'s `TauriModrinthClient` never
+    registers an Archon or SharedInstances feature, so nothing ever dereferenced these), the matching
+    `MODRINTH_ARCHON_BASE_URL`/`SHARED_INSTANCES_API_BASE_URL`/`MODRINTH_SOCKET_URL` env vars from all
+    `packages/app-lib/.env*` files, and the now-pointless `SHARED_INSTANCES_` entry from
+    `vite.config.ts`'s `envPrefix`. `.env.prod-with-staging-archon` (a whole file that existed only to
+    vary the now-dead archon URL) was deleted, along with its `prod-with-staging-archon` option in
+    `theseus-build.yml`'s `workflow_dispatch` input and the **live** Stripe publishable key
+    (`VITE_STRIPE_PUBLISHABLE_KEY`) that was sitting in that same workflow's env block.
+  - **Unused dependency removed**: `@tauri-apps/plugin-updater` from `apps/app-frontend/package.json`
+    (confirmed no source references; the self-updater it belonged to was already gone).
+  - **`sync_theme_across_devices`/`sync_behavior_across_devices` settings columns dropped** — dead
+    since goal 3 removed the Modrinth-account-based settings-sync feature they existed for. Removed
+    from `Settings` in `settings.rs` (struct fields, the `SELECT`/`UPDATE` queries — renumbering the
+    `UPDATE`'s positional binds — and the sqlx offline query cache, regenerated via
+    `cargo sqlx prepare`), from `helpers/settings.ts`, and from the separate `AppSettings` type in
+    `helpers/types.d.ts`. Migration `20260922130000_drop-cross-device-sync-settings.sql` does the
+    `ALTER TABLE ... DROP COLUMN`s; verified against a fresh in-memory DB.
+  - **Checked, not applicable**: the workspace `async-stripe`/`sentry` crates and the
+    `strip = false # Keep debug symbols for Sentry` profile setting only apply to `apps/labrinth`'s own
+    `[profile.release-labrinth]` — they never reach the desktop build, so there was nothing to remove
+    there. `@stripe/stripe-js` stays in `packages/ui` for the same reason (shared with the website).
+  - Verified with `cargo build`/`apps/app` build under `RUSTFLAGS=-Dwarnings` (matching CI), `vue-tsc`,
+    ESLint, and a migration test against a fresh in-memory DB.
+- Still to do: the rest of item 1 — account-only Rust (`api/users.rs`, `api/reports.rs` and their
+  Tauri commands) and frontend (`helpers/user-preferences.ts`, `helpers/user-campaigns.ts`, the
+  `Skins.vue` campaigns query) dead-code removal, and the Modrinth Servers "install to server" flow
+  (`providers/setup/server-install-content.ts`, wired into `Browse.vue` and `project/Index.vue` —
+  needs hand-testing against those pages afterward) — plus item 6 (real traffic capture and
+  `docs/NETWORK.md`) and item 7 (the CI allowlist guard).
 
 ### 8. Launcher backgrounds, with per-instance overrides
 
@@ -772,7 +805,7 @@ Last reviewed 2026-09-22.
 | 4 | Update notifications | Done — Modrinth's updater disabled 2026-09-04; self-updater built 2026-09-14, replaced by a download-link version check 2026-09-21; release-pipeline fixes 2026-09-16/17. Self-updater leftovers not yet cleaned up |
 | 5 | Windows installer trust warning | **Partly done** — CI fallback fix and installer metadata landed 2026-09-13; installer is still unsigned, SignPath application not yet submitted |
 | 6 | Migrate-from-Modrinth-App import | Done (2026-09-16), pending real-world Windows validation |
-| 7 | Network & tracking audit | **In progress** — scoped 2026-09-21; items 1 (phase 1 only), 2, 3, 4, 5 done as of 2026-09-22; items 1 (rest), 6, 7 outstanding |
+| 7 | Network & tracking audit | **In progress** — scoped 2026-09-21; items 2-5 and most of item 1 (CSP/config/deps/settings-columns) done as of 2026-09-22; item 1's account-only dead code and Servers install flow, plus items 6-7, outstanding |
 | 8 | Launcher backgrounds + per-instance overrides | Done (2026-09-21) — backend, rendering, global and per-instance UI, hand-tested in the real app |
 | 9 | Instance comparison | **Not started** — scoped 2026-09-21 (metadata + content only in v1) |
 
@@ -811,9 +844,11 @@ goal 3: a code audit found leftover Modrinth Servers/billing prefetches, a GeoIP
 avatar service, the download-attribution header and dead Stripe/account plumbing (see its findings
 list). As of 2026-09-22 the launch-time frontend prefetches (phase 1 of item 1), the third-party
 avatar lookups (item 2), the download-attribution header (item 3), the User-Agent rebrand (item 4),
-and the version-check off switch (item 5, default on) are done; the rest of item 1's dormant-code
-removal, the real-traffic capture and `docs/NETWORK.md` (item 6), and the CI allowlist guard (item 7)
-are still outstanding. Goal 8 (backgrounds) is done; goal 9 (instance comparison) is scoped to
+the version-check off switch (item 5, default on), and most of item 1 (CSP tightening, dead
+config/env, an unused dependency, and the cross-device-sync settings columns) are done; item 1's
+account-only Rust/frontend dead code and the Modrinth Servers install flow, the real-traffic capture
+and `docs/NETWORK.md` (item 6), and the CI allowlist guard (item 7) are still outstanding. Goal 8
+(backgrounds) is done; goal 9 (instance comparison) is scoped to
 metadata and content in v1 and not started.
 
 This document should be updated as scope changes — treat it as the source of truth for what this fork
