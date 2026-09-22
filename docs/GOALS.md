@@ -677,10 +677,20 @@ Known tradeoffs and notes:
   startup/locale, the Settings → Behavior "Check for updates" toggle, and a settings save round-trip
   all work. Also specifically verified the CSP `frame-src` trim didn't break embedded project-
   description videos, using `cobblemon-fabric`'s real YouTube `<iframe>` trailer as a live test case.
-- Still to do: the Modrinth Servers "install to server" flow
-  (`providers/setup/server-install-content.ts`, wired into `Browse.vue` and `project/Index.vue` —
-  needs hand-testing against those pages afterward), item 6 (real traffic capture and
-  `docs/NETWORK.md`), and item 7 (the CI allowlist guard).
+- **The Modrinth Servers "install to server" flow — deliberately deprioritized 2026-09-22, not a
+  scope cut.** Scoped before touching anything: `server-install-content.ts` is unconditionally
+  instantiated by both `Browse.vue` and `project/Index.vue`, and its `isServerContext` flag branches
+  through roughly 15 separate conditionals in *each* file (filters, tabs, install-button state,
+  badges, the install flow itself). It is gated entirely on a `?sid=` URL query param that only ever
+  gets set by linking in from Modrinth's server-hosting management pages — which don't exist in Dyad
+  any more (goal 3 removed hosting/billing). So `isServerContext` is always `false`: this code makes
+  no network requests and renders no UI, ever, in this fork. Unlike the rest of item 1, removing it
+  would be pure code-cleanliness with no behavior change, at the cost of a wide, high-blast-radius
+  refactor across the two most-used pages in the app (Browse and the project detail page), each
+  needing careful hand-testing afterward. Decided not worth that risk/reward trade right now; left in
+  place as documented, confirmed-inert dead code, revisitable later with dedicated testing time.
+- Still to do: item 6 (real traffic capture and `docs/NETWORK.md`) and item 7 (the CI allowlist
+  guard).
 
 ### 8. Launcher backgrounds, with per-instance overrides
 
@@ -845,7 +855,7 @@ Last reviewed 2026-09-22.
 | 4 | Update notifications | Done — Modrinth's updater disabled 2026-09-04; self-updater built 2026-09-14, replaced by a download-link version check 2026-09-21; release-pipeline fixes 2026-09-16/17. Self-updater leftovers not yet cleaned up |
 | 5 | Windows installer trust warning | **Partly done** — CI fallback fix and installer metadata landed 2026-09-13; installer is still unsigned, SignPath application not yet submitted |
 | 6 | Migrate-from-Modrinth-App import | Done (2026-09-16), pending real-world Windows validation |
-| 7 | Network & tracking audit | **In progress** — scoped 2026-09-21; items 2-5 and all of item 1 except the Servers install flow done as of 2026-09-22; item 1's Servers install flow, plus items 6-7, outstanding |
+| 7 | Network & tracking audit | **In progress** — scoped 2026-09-21; items 1-5 done as of 2026-09-22 (item 1's Servers install flow deliberately left as documented, confirmed-inert dead code); items 6-7 outstanding |
 | 8 | Launcher backgrounds + per-instance overrides | Done (2026-09-21) — backend, rendering, global and per-instance UI, hand-tested in the real app |
 | 9 | Instance comparison | **Not started** — scoped 2026-09-21 (metadata + content only in v1) |
 
@@ -884,12 +894,14 @@ goal 3: a code audit found leftover Modrinth Servers/billing prefetches, a GeoIP
 avatar service, the download-attribution header and dead Stripe/account plumbing (see its findings
 list). As of 2026-09-22 the launch-time frontend prefetches (phase 1 of item 1), the third-party
 avatar lookups (item 2), the download-attribution header (item 3), the User-Agent rebrand (item 4),
-the version-check off switch (item 5, default on), and all of item 1 except the Servers install flow
-(CSP tightening, dead config/env, an unused dependency, the cross-device-sync settings columns, and
-the account-only Rust/frontend dead code — narrower than first scoped, since some of `api/users.rs`
-turned out to back a live anonymous-profile-viewing page and a shared cross-app component contract)
-are done; the Modrinth Servers install flow, the real-traffic capture and `docs/NETWORK.md` (item 6),
-and the CI allowlist guard (item 7) are still outstanding. Goal 8 (backgrounds) is done; goal 9
+the version-check off switch (item 5, default on), and item 1 (CSP tightening, dead config/env, an
+unused dependency, the cross-device-sync settings columns, and the account-only Rust/frontend dead
+code — narrower than first scoped, since some of `api/users.rs` turned out to back a live
+anonymous-profile-viewing page and a shared cross-app component contract; the Servers install flow
+was left in place as documented, confirmed-inert dead code rather than risk a wide refactor of
+Browse.vue/project/Index.vue for no behavior change) are done; the real-traffic capture and
+`docs/NETWORK.md` (item 6) and the CI allowlist guard (item 7) are still outstanding. Goal 8
+(backgrounds) is done; goal 9
 (instance comparison) is scoped to
 metadata and content in v1 and not started.
 
