@@ -194,18 +194,16 @@ const selectedAccount = computed(() =>
 	accounts.value.find((account) => account.profile.id === defaultUser.value),
 )
 
+const DEFAULT_HEAD_URL = 'https://launcher-files.modrinth.com/assets/steve_head.png'
+
 const avatarUrl = computed(() => {
 	if (equippedSkin.value?.texture_key) {
 		const cachedUrl = headUrlCache.value.get(equippedSkin.value.texture_key)
 		if (cachedUrl) {
 			return cachedUrl
 		}
-		return `https://mc-heads.net/avatar/${equippedSkin.value.texture_key}/128`
 	}
-	if (selectedAccount.value?.profile?.id) {
-		return `https://mc-heads.net/avatar/${selectedAccount.value.profile.id}/128`
-	}
-	return 'https://launcher-files.modrinth.com/assets/steve_head.png'
+	return DEFAULT_HEAD_URL
 })
 
 function getAccountAvatarUrl(account: MinecraftCredential) {
@@ -218,7 +216,7 @@ function getAccountAvatarUrl(account: MinecraftCredential) {
 			return cachedUrl
 		}
 	}
-	return `https://mc-heads.net/avatar/${account.profile.id}/128`
+	return DEFAULT_HEAD_URL
 }
 
 async function setAccount(account: MinecraftCredential) {

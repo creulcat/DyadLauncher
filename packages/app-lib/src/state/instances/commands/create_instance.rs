@@ -209,7 +209,6 @@ pub(crate) async fn resolve_icon_path(
             icon,
             None,
             None,
-            None,
             &state.fetch_semaphore,
             &state.pool,
         )

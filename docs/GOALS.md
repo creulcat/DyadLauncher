@@ -187,8 +187,9 @@ release manifest and points the user at the download.
   "Check for updates" button. Both open the platform's installer link (the manifest's `install_urls`
   entry) in the system browser, falling back to the GitHub releases page, and to copying the link to
   the clipboard if the browser can't be opened. The user runs the installer themselves.
-- The check is **unconditional**: there is no toggle, and it runs at every launch and hourly
-  after. Whether to add an off switch is an open item in goal 7 (item 5).
+- **Toggleable as of 2026-09-22 (goal 7, item 5):** a "Check for updates automatically" setting in
+  Settings → Behavior, on by default, gates the launch-time and hourly checks. The manual "Check for
+  updates" button in the Settings footer always works regardless of the toggle.
 - No Tauri updater plugin is compiled in or configured any more (no `updater` Cargo feature or
   capability, no `plugins.updater` block or public key). The app never downloads or runs anything
   itself, so there is nothing for it to verify: the only network request is a read of the manifest
@@ -238,8 +239,9 @@ day in favor of dropping the self-updater altogether.
 - A stale comment in `theseus-build.yml` still describes the manifest as "the updater feed configured
   in tauri-release.conf.json".
 - The `check_for_updates` setting (migration `20260914120000_add-check-for-updates-setting.sql`, the
-  Rust field in `state/settings.rs`, the type in `helpers/settings.ts`) has no UI and nothing reads
-  it. Its toggle in Behavior settings was removed in `9500ef50d`.
+  Rust field in `state/settings.rs`, the type in `helpers/settings.ts`) had no UI and nothing read it
+  from `9500ef50d` (when its Behavior-settings toggle was removed along with the self-updater) until
+  goal 7 gave it a new toggle and wired it up on 2026-09-22 — see goal 7, item 5.
 - `@tauri-apps/plugin-updater` is still listed in `apps/app-frontend/package.json`.
 - If a real in-place updater is wanted again later, it means building that back properly, including
   uploading the signed bundles the manifest points to.
@@ -557,23 +559,55 @@ Known tradeoffs and notes:
   modals, the WebView2 error dialog in `main.rs`) are a separate rebrand pass and are not part of
   this goal, except where they are a live request.
 
-**Progress (started 2026-09-21), uncommitted until hand-tested:**
+**Progress (started 2026-09-21):**
 
-- **Phase 1, launch-time frontend requests: code done.** Removed from `App.vue` the Modrinth Servers
-  and billing prefetches, the `tally.so` script from `index.html`, and the GeoIP lookup (the user
-  country is now a fixed `US`; the only consumer is Imgur proxying in rendered descriptions, so the cost
-  is that Imgur images are never proxied for users in regions that block it). Also removed two calls
-  to functions that no longer exist: `fetchCredentials()` (it threw a `ReferenceError` in `setupApp`,
-  after the opening-command handler and before skin-preview generation) and the modal
-  `onShow`/`onHide` ads-window hold (it threw whenever a modal opened). `vue-tsc` and ESLint are clean;
-  hand-testing in the app is still to do.
+- **Phase 1, launch-time frontend requests — done, committed (`7333656f1`).** Removed from `App.vue`
+  the Modrinth Servers and billing prefetches, the `tally.so` script from `index.html`, and the GeoIP
+  lookup (the user country is now a fixed `US`; the only consumer is Imgur proxying in rendered
+  descriptions, so the cost is that Imgur images are never proxied for users in regions that block
+  it). Also removed two calls to functions that no longer exist: `fetchCredentials()` (it threw a
+  `ReferenceError` in `setupApp`, after the opening-command handler and before skin-preview
+  generation) and the modal `onShow`/`onHide` ads-window hold (it threw whenever a modal opened).
 - Two findings the static audit missed, added to the list above: **Inter**, the main UI font
   (`packages/assets/styles/inter.scss`), also loads from `cdn-raw.modrinth.com` (covered by the
   allowed-host decision in item 2), and `apps/app/build.rs` still declares an inlined `ads` plugin whose
   commands (`init_ads_window`, `update_ads_window_hold`, the consent-UI ones) no longer exist in Rust,
-  along with its capability grants. That goes in the dormant-code removal.
-- Still to do: items 2-7 and the rest of item 1 (account-only Rust and frontend, the Servers install
-  flow, CSP, config/env, dependencies, settings columns).
+  along with its capability grants. That still needs doing as part of the dormant-code removal.
+- **Item 2 (third-party avatar lookups) — done 2026-09-22.** `AccountsCard.vue` no longer calls
+  `mc-heads.net`. The active account's avatar renders from the skin texture the launcher already has
+  locally (`getPlayerHeadUrl`/`headUrlCache`, unchanged from the existing skin-preview pipeline); every
+  other case (other accounts, or before the local render resolves) falls back to the existing default
+  head asset on `launcher-files.modrinth.com` instead of a network request, per the decided approach —
+  the launcher has no locally-cached skin texture for accounts that aren't the active one, so those
+  stay on the default rather than adding a new per-account Mojang lookup.
+- **Item 3 (`modrinth-download-meta` header) — done 2026-09-22.** Removed `DownloadMeta`, the
+  `modrinth-download-meta` header constant, and the header-attachment logic from
+  `packages/app-lib/src/util/fetch.rs`, along with the `download_meta`/`Option<&DownloadMeta>`
+  parameter threaded through every `fetch*`/`fetch_mirrors*` function and its ~15 call sites across
+  `list_content.rs`, `apply_content_install.rs`, `install_mrpack.rs`, `install_from.rs`, and
+  `synced_servers/modpack.rs`. `DownloadReason` itself (the `reason` parameter) is kept — it's still a
+  real Tauri command parameter (`instance_add_project_from_version` and others) and removing it would
+  mean touching the frontend call sites too, which is out of scope for "drop the header"; where a
+  `reason` (or a `content_set`/`metadata` lookup that only existed to build the header) is now
+  genuinely unused inside a specific `pub(crate)` function, it's prefixed `_` rather than threaded
+  further. Verified with `cargo build`/`cargo test` under `RUSTFLAGS=-Dwarnings` (matching CI).
+- **Item 4 (User-Agent rebrand) — done 2026-09-22.** Both the Rust `launcher_user_agent()`
+  (`packages/app-lib/src/lib.rs`) and the frontend `TauriModrinthClient` (`App.vue`) now send
+  `DyadLauncher/<version> (<os>; github.com/creulcat/DyadLauncher)` instead of
+  `modrinth/theseus/<version> (...; support@modrinth.com)`.
+- **Item 5 (version-check off switch) — done 2026-09-22.** A "Check for updates automatically" toggle
+  in Settings → Behavior (`BehaviorSettings.vue`), wired to the existing `check_for_updates` setting.
+  Turning it off stops the launch-time and hourly GitHub checks immediately (`stopAppUpdateChecks()`),
+  turning it on starts them immediately, and `App.vue`'s startup check is now gated on the setting
+  instead of running unconditionally. The manual "Check for updates" button in the Settings footer is
+  unaffected either way, as decided. Migration `20260922120000_check-for-updates-on-by-default.sql`
+  flips existing installs' stored value to on, since the column previously existed unused and
+  defaulted off from when it briefly gated the dropped self-updater (see goal 4) — without the
+  backfill, upgrading would have silently gone from "always checks" to "never checks" for every
+  existing install, the opposite of the decided default.
+- Still to do: the rest of item 1 (account-only Rust and frontend, the Servers install flow, CSP,
+  config/env, dependencies, settings columns), item 6 (real traffic capture and `docs/NETWORK.md`),
+  and item 7 (the CI allowlist guard).
 
 ### 8. Launcher backgrounds, with per-instance overrides
 
@@ -728,7 +762,7 @@ Not started. Scoped 2026-09-21.
 
 ## Status
 
-Last reviewed 2026-09-21.
+Last reviewed 2026-09-22.
 
 | # | Goal | Status |
 |---|---|---|
@@ -738,7 +772,7 @@ Last reviewed 2026-09-21.
 | 4 | Update notifications | Done — Modrinth's updater disabled 2026-09-04; self-updater built 2026-09-14, replaced by a download-link version check 2026-09-21; release-pipeline fixes 2026-09-16/17. Self-updater leftovers not yet cleaned up |
 | 5 | Windows installer trust warning | **Partly done** — CI fallback fix and installer metadata landed 2026-09-13; installer is still unsigned, SignPath application not yet submitted |
 | 6 | Migrate-from-Modrinth-App import | Done (2026-09-16), pending real-world Windows validation |
-| 7 | Network & tracking audit | **In progress** — scoped 2026-09-21; phase 1 (launch-time frontend requests) coded, rest outstanding |
+| 7 | Network & tracking audit | **In progress** — scoped 2026-09-21; items 1 (phase 1 only), 2, 3, 4, 5 done as of 2026-09-22; items 1 (rest), 6, 7 outstanding |
 | 8 | Launcher backgrounds + per-instance overrides | Done (2026-09-21) — backend, rendering, global and per-instance UI, hand-tested in the real app |
 | 9 | Instance comparison | **Not started** — scoped 2026-09-21 (metadata + content only in v1) |
 
@@ -775,9 +809,12 @@ fork's other machine should pick up next.
 Goals 7-9 were added on 2026-09-21 after a scoping discussion with the user. Goal 7 is a follow-up to
 goal 3: a code audit found leftover Modrinth Servers/billing prefetches, a GeoIP lookup, a third-party
 avatar service, the download-attribution header and dead Stripe/account plumbing (see its findings
-list); it is in progress, and the version check from goal 4 is to get an off switch (default on).
-Goal 8 (backgrounds) is done; goal 9 (instance comparison) is scoped to metadata and content in v1
-and not started.
+list). As of 2026-09-22 the launch-time frontend prefetches (phase 1 of item 1), the third-party
+avatar lookups (item 2), the download-attribution header (item 3), the User-Agent rebrand (item 4),
+and the version-check off switch (item 5, default on) are done; the rest of item 1's dormant-code
+removal, the real-traffic capture and `docs/NETWORK.md` (item 6), and the CI allowlist guard (item 7)
+are still outstanding. Goal 8 (backgrounds) is done; goal 9 (instance comparison) is scoped to
+metadata and content in v1 and not started.
 
 This document should be updated as scope changes — treat it as the source of truth for what this fork
 is trying to do, ahead of any individual issue or PR.

@@ -16,6 +16,7 @@ import {
 import { type AppSettings, get, set } from '@/helpers/settings.ts'
 import { screenshotKeys } from '@/pages/instance/query-options.ts'
 import { appSettingsModalContextKey } from '@/providers/app-settings-modal'
+import { startAppUpdateChecks, stopAppUpdateChecks } from '@/providers/app-update.ts'
 
 const appSettings = useAppSettings()
 const { formatMessage } = useVIntl()
@@ -48,6 +49,19 @@ const messages = defineMessages({
 	confirmationsTitle: {
 		id: 'app.behavior-settings.confirmations.title',
 		defaultMessage: 'Confirmations',
+	},
+	updatesTitle: {
+		id: 'app.behavior-settings.updates.title',
+		defaultMessage: 'Updates',
+	},
+	checkForUpdatesTitle: {
+		id: 'app.behavior-settings.check-for-updates.title',
+		defaultMessage: 'Check for updates automatically',
+	},
+	checkForUpdatesDescription: {
+		id: 'app.behavior-settings.check-for-updates.description',
+		defaultMessage:
+			'Periodically check github.com for a new Dyad Launcher release. You can still check manually below. On by default.',
 	},
 	discordTitle: {
 		id: 'app.behavior-settings.discord.title',
@@ -149,6 +163,7 @@ type BehaviorSettingsState = {
 	hideNametag: boolean
 	warnOnUnknownModpacks: boolean
 	skipNonEssentialWarnings: boolean
+	checkForUpdates: boolean
 	discordRichPresence: boolean
 }
 
@@ -181,6 +196,7 @@ function getBehaviorSettingsState(
 		skipNonEssentialWarnings:
 			settings.feature_flags[skipNonEssentialWarningsFlag] ??
 			DEFAULT_FEATURE_FLAGS[skipNonEssentialWarningsFlag],
+		checkForUpdates: settings.check_for_updates,
 		discordRichPresence: settings.discord_rpc,
 	}
 }
@@ -203,6 +219,7 @@ const { saved, current, changes, saving, hasChanges, reset, save } = useSavable(
 				[skipUnknownPackWarningFlag]: !value.warnOnUnknownModpacks,
 				[skipNonEssentialWarningsFlag]: value.skipNonEssentialWarnings,
 			},
+			check_for_updates: value.checkForUpdates,
 			discord_rpc: value.discordRichPresence,
 		}
 
@@ -227,6 +244,11 @@ const { saved, current, changes, saving, hasChanges, reset, save } = useSavable(
 		appSettings.featureFlags[showPlayTimeFlag] = value.showPlayTime
 		appSettings.featureFlags[skipUnknownPackWarningFlag] = !value.warnOnUnknownModpacks
 		appSettings.featureFlags[skipNonEssentialWarningsFlag] = value.skipNonEssentialWarnings
+		if (value.checkForUpdates) {
+			startAppUpdateChecks()
+		} else {
+			stopAppUpdateChecks()
+		}
 	},
 )
 
@@ -374,6 +396,23 @@ onBeforeUnmount(() => {
 					</p>
 				</div>
 				<Toggle id="skip-non-essential-warnings" v-model="current.skipNonEssentialWarnings" />
+			</div>
+		</div>
+	</section>
+
+	<section class="mt-8 border-0 border-t border-solid border-divider pt-6">
+		<h2 class="m-0 text-xl font-semibold text-contrast">
+			{{ formatMessage(messages.updatesTitle) }}
+		</h2>
+		<div class="mt-4 flex flex-col gap-6">
+			<div class="flex items-center justify-between gap-4">
+				<div>
+					<h3 class="m-0 text-lg font-semibold text-contrast">
+						{{ formatMessage(messages.checkForUpdatesTitle) }}
+					</h3>
+					<p class="m-0 mt-1">{{ formatMessage(messages.checkForUpdatesDescription) }}</p>
+				</div>
+				<Toggle id="check-for-updates" v-model="current.checkForUpdates" />
 			</div>
 		</div>
 	</section>

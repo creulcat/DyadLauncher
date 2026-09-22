@@ -172,7 +172,7 @@ const { addPopupNotification } = popupNotificationManager
 
 const appVersion = getVersion()
 const tauriApiClient = new TauriModrinthClient({
-	userAgent: async () => `modrinth/theseus/${await appVersion} (support@modrinth.com)`,
+	userAgent: async () => `DyadLauncher/${await appVersion} (github.com/creulcat/DyadLauncher)`,
 	labrinthBaseUrl: config.labrinthBaseUrl,
 	archonBaseUrl: config.archonBaseUrl,
 	sharedInstancesBaseUrl: config.sharedInstancesBaseUrl,
@@ -339,7 +339,10 @@ onMounted(async () => {
 	document.querySelector('body').addEventListener('auxclick', handleAuxClick)
 	document.querySelector('body').addEventListener('contextmenu', handleContextMenu)
 
-	startAppUpdateChecks()
+	const { check_for_updates } = await getSettings()
+	if (check_for_updates) {
+		startAppUpdateChecks()
+	}
 })
 
 onUnmounted(async () => {
