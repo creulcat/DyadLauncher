@@ -507,8 +507,11 @@ still left. This goal finishes the job and then makes it stay finished.
   mean talking to Mojang, Fabric, Forge, Quilt and NeoForge directly, which is a large separate
   project. Decided 2026-09-21: keep it and document it; it is not tracking.
 - Mojang/Microsoft/Xbox authentication and skins, Minecraft textures, and Azul Java downloads.
-- Discord Rich Presence (opt-in, goal 3), `mclo.gs` log sharing (only when the user clicks it), and
-  the PaperMC/Purpur jar downloads.
+- Discord Rich Presence (opt-in, goal 3) and `mclo.gs` crash analysis/log sharing. **Correction,
+  2026-09-22 (see item 6/NETWORK.md):** mclo.gs crash analysis is not click-gated as first thought —
+  it fires automatically when the Logs page opens for a stopped instance and when a game process
+  finishes. The PaperMC/Purpur jar downloads that used to be listed here were not actually a live
+  feature — zero code called into them — and their CSP entries were removed as dead weight (item 6).
 - `img-src https:` in the CSP stays, because project descriptions render arbitrary remote images.
   That is an accepted tradeoff of anonymous browsing: an image host can see the request.
 
@@ -689,8 +692,25 @@ Known tradeoffs and notes:
   refactor across the two most-used pages in the app (Browse and the project detail page), each
   needing careful hand-testing afterward. Decided not worth that risk/reward trade right now; left in
   place as documented, confirmed-inert dead code, revisitable later with dedicated testing time.
-- Still to do: item 6 (real traffic capture and `docs/NETWORK.md`) and item 7 (the CI allowlist
-  guard).
+- **Item 6 (real traffic capture and `docs/NETWORK.md`) — done 2026-09-22.** See
+  [NETWORK.md](NETWORK.md) for the full per-host writeup. Compiled by reading every `reqwest`/
+  `fetch`/`invoke` call site across all three crates/packages, cross-checked against the CSP
+  allowlist and against the CSP `frame-src` fix verified live earlier in this pass (the
+  `cobblemon-fabric` YouTube embed). Two corrections to the original audit fell out of doing this
+  properly instead of trusting the existing findings list:
+  - `fill.papermc.io`/`api.purpurmc.org` were listed as a deliberately-kept live feature (PaperMC/
+    Purpur server-jar downloads); they're actually the same "always in the CSP, never actually
+    called" dead weight as Archon/shared-instances, confirmed by zero call sites anywhere in
+    `apps/app-frontend` or `packages/app-lib`. Removed from the CSP.
+  - mclo.gs crash analysis (`api.mclo.gs`) was documented as "only when the user clicks it"; it
+    actually fires **automatically** — opening the Logs page for a stopped instance, and whenever a
+    game process finishes — with no confirmation prompt. Documented accurately in NETWORK.md, but
+    **not changed** as part of this item (item 6 is about documenting current behavior); worth a
+    separate, deliberate decision on whether to gate it.
+  - Also found and removed while in `config.ts`: an unused `siteUrl` field (and the `MODRINTH_URL`
+    env var feeding it) — the one place that needed a "link to modrinth.com" already hardcodes the
+    literal string instead.
+- Still to do: item 7 (the CI allowlist guard).
 
 ### 8. Launcher backgrounds, with per-instance overrides
 
@@ -855,7 +875,7 @@ Last reviewed 2026-09-22.
 | 4 | Update notifications | Done — Modrinth's updater disabled 2026-09-04; self-updater built 2026-09-14, replaced by a download-link version check 2026-09-21; release-pipeline fixes 2026-09-16/17. Self-updater leftovers not yet cleaned up |
 | 5 | Windows installer trust warning | **Partly done** — CI fallback fix and installer metadata landed 2026-09-13; installer is still unsigned, SignPath application not yet submitted |
 | 6 | Migrate-from-Modrinth-App import | Done (2026-09-16), pending real-world Windows validation |
-| 7 | Network & tracking audit | **In progress** — scoped 2026-09-21; items 1-5 done as of 2026-09-22 (item 1's Servers install flow deliberately left as documented, confirmed-inert dead code); items 6-7 outstanding |
+| 7 | Network & tracking audit | **In progress** — scoped 2026-09-21; items 1-6 done as of 2026-09-22 (item 1's Servers install flow deliberately left as documented, confirmed-inert dead code; item 6 is [docs/NETWORK.md](NETWORK.md)); item 7 (CI allowlist guard) outstanding |
 | 8 | Launcher backgrounds + per-instance overrides | Done (2026-09-21) — backend, rendering, global and per-instance UI, hand-tested in the real app |
 | 9 | Instance comparison | **Not started** — scoped 2026-09-21 (metadata + content only in v1) |
 
@@ -899,9 +919,9 @@ unused dependency, the cross-device-sync settings columns, and the account-only 
 code — narrower than first scoped, since some of `api/users.rs` turned out to back a live
 anonymous-profile-viewing page and a shared cross-app component contract; the Servers install flow
 was left in place as documented, confirmed-inert dead code rather than risk a wide refactor of
-Browse.vue/project/Index.vue for no behavior change) are done; the real-traffic capture and
-`docs/NETWORK.md` (item 6) and the CI allowlist guard (item 7) are still outstanding. Goal 8
-(backgrounds) is done; goal 9
+Browse.vue/project/Index.vue for no behavior change), and item 6 (the network audit doc, which
+corrected two things the original static audit got wrong — see [NETWORK.md](NETWORK.md)) are done;
+the CI allowlist guard (item 7) is still outstanding. Goal 8 (backgrounds) is done; goal 9
 (instance comparison) is scoped to
 metadata and content in v1 and not started.
 
