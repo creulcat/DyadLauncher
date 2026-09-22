@@ -1,5 +1,6 @@
 //! Theseus instance management interface
 
+mod compare;
 mod content;
 mod export_mrpack;
 mod get;
@@ -15,6 +16,11 @@ mod screenshots;
 mod synced_options;
 pub(crate) mod synced_servers;
 
+pub use self::compare::{
+    ComparedInstance, ComparisonExportFormat, ComparisonReport,
+    ComparisonState, ContentComparisonEntry, ContentComparisonRow,
+    compare_instances, export_comparison,
+};
 pub use self::content::{
     get_content_items, get_dependencies_as_content_items,
     get_install_candidates, get_installed_project_ids,

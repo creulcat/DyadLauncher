@@ -283,6 +283,8 @@ fn main() {
                         "instance_share_unpublish",
                         "instance_export_mrpack",
                         "instance_get_pack_export_candidates",
+                        "instance_compare",
+                        "instance_compare_export",
                     ])
                     .default_permission(
                         DefaultPermissionRule::AllowAllCommands,

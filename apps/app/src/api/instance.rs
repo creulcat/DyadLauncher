@@ -95,6 +95,8 @@ pub fn init<R: tauri::Runtime>() -> tauri::plugin::TauriPlugin<R> {
             instance_get_recent_icon_configs,
             instance_export_mrpack,
             instance_get_pack_export_candidates,
+            instance_compare,
+            instance_compare_export,
         ])
         .build()
 }
@@ -1168,6 +1170,21 @@ pub async fn instance_get_pack_export_candidates(
         parent,
     )
     .await?)
+}
+
+#[tauri::command]
+pub async fn instance_compare(
+    instance_ids: Vec<String>,
+) -> Result<theseus::instance::ComparisonReport> {
+    Ok(theseus::instance::compare_instances(instance_ids).await?)
+}
+
+#[tauri::command]
+pub async fn instance_compare_export(
+    instance_ids: Vec<String>,
+    format: theseus::instance::ComparisonExportFormat,
+) -> Result<String> {
+    Ok(theseus::instance::export_comparison(instance_ids, format).await?)
 }
 
 #[tauri::command]

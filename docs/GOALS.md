@@ -885,52 +885,59 @@ Known tradeoffs and notes:
    opaque window-control block over a background) were fixed before the commit. Small polish items
    are being collected separately as "nitpicks".
 
-### 9. Instance comparison
+### 9. Instance comparison — done
 
 Let the user select **two or more** instances and get a report of how they differ.
 
-**Feasibility:** medium effort. Most of the data is already in the launcher's database: `InstanceFile`
-has each content file's `sha1`, `size` and `enabled` state, and `ContentEntry` has `project_id` and
-`version_id`. So the comparison can be built as a pure function in `packages/app-lib`,
-`compare(instance_ids) -> ComparisonReport`, testable without any UI.
+**Scope narrowed during implementation (2026-09-22), after checking back in with the fork's owner:**
+the original 2026-09-21 scoping below listed update channel, launch overrides (Java path, memory, JVM
+args, env vars, resolution, fullscreen, hooks), the linked modpack, and symlink/junction "shared"
+detection as part of metadata. The owner only wanted game version, loader and loader version, plus the
+content list itself — everything else in that list was cut from v1, not deferred. Content stayed at
+its original scope: all four tracked categories (mods, resource packs, shader packs, data packs).
 
-**Decided scope for v1 (2026-09-21): metadata and content only.** Config-file comparison, world
-comparison and any sync/copy actions are deliberately left out for now.
+**Implemented as of 2026-09-22:**
 
-- **Metadata compared:** Minecraft version, loader and loader version, update channel, the
-  per-instance launch overrides (Java path, memory, JVM args, environment variables, resolution and
-  fullscreen, hooks), and the linked modpack and its version, if any.
-- **Content compared:** mods, resource packs, shader packs and data packs. Entries are matched by
-  `project_id` when the launcher knows it, which lets the report say "same project, different
-  version" and "enabled in one, disabled in the other". Files with no known project (local or
-  unknown files) fall back to matching by file name, then `sha1`. Each row ends up as one of: in all
-  instances and identical, only in some, version differs, or enabled state differs.
-- **Offline by design:** version numbers come from the launcher's cache only. If a version isn't
-  cached, the report shows the file name instead of making a network request. Comparing never causes
-  network traffic (goal 7).
-- **Entry point:** multi-select in the library grid with a "Compare" action; a comparison page shows
-  a matrix with one row per item and one column per instance, an "only show differences" filter,
-  grouping by content type, and summary counts. Two instances get a clear side-by-side reading;
-  three or more use the same matrix.
-- **Export:** copy or save the report as **Markdown** or **JSON**.
-- **Symlinks (goal 2):** a folder that is a symlink or Windows junction to another compared
-  instance's folder is reported as *shared*, not as "identical", so the report can't mistake a
-  shared mods folder for two coincidentally equal ones. Goal 6's symlink/junction handling
-  (`migrate_modrinth_app`) is the reference for detecting them on Windows.
+- **Backend** (`packages/app-lib/src/api/instance/compare.rs`): `compare_instances(instance_ids) ->
+  ComparisonReport`, a pure function over each instance's `InstanceMetadata` (for game version/loader/
+  loader version, via `applied_content_set`) and its content list. Content is matched by `project_id`
+  when known, falling back to file name then `sha1` for untracked files, and classified per row as one
+  of `Identical`, `OnlyInSome`, `VersionDiffers`, or `EnabledDiffers`. `ComparisonReport::to_markdown()`
+  and `::to_json()` render the export formats; `export_comparison()` and the `instance_compare`/
+  `instance_compare_export` Tauri commands expose it to the frontend. Six Rust unit tests cover the
+  matching and state logic without needing any UI.
+  - **Offline guarantee decided as "reuse existing pipeline," not "hard guarantee":** rather than build
+    a new no-fetch cache-only path, content lookups reuse the same `list_content`/`ContentItem`
+    machinery the existing Mods tab already uses. This can attempt a best-effort metadata fetch on a
+    cold cache miss (tolerant of being offline, matching the Mods tab's existing behavior) rather than
+    the stricter "never touches the network" guarantee the original scoping text implied. Decided
+    2026-09-22 in favor of reusing tested, precedent-following code over new plumbing for a guarantee
+    the rest of the app doesn't otherwise make.
+  - **No forced re-scan:** compare reads the database's last-known state, same as every other library
+    view, resolving the "implementation detail to settle" the original scoping left open.
+  - **Symlink/junction "shared" detection cut from v1 entirely** (not deferred) — the owner does not
+    want it as part of the comparison; a shared mods folder between symlinked instances (goal 2, not
+    yet built) will just read as identical content today.
+- **Frontend:** a "Compare" button in the library grid's existing multi-select action bar
+  (`LibrarySelectionActionBar.vue`, enabled once 2+ instances are selected — this multi-select UI
+  already existed for the group/delete bulk actions and needed no new plumbing), navigating to a new
+  `/compare` page (`pages/Compare.vue`, `helpers/instance-compare.ts`). The page shows a metadata grid,
+  tabs to filter by content type, an "only show differences" toggle, a summary count line, the
+  comparison matrix (`@modrinth/ui`'s `Table`, with a color-coded status badge column), and Copy/Save
+  export buttons for Markdown or JSON, reusing the existing clipboard helper and the same
+  save-dialog pattern as the mrpack export modal.
 
 Known tradeoffs and notes:
 
 - Anything not tracked as content (loose files in `config/`, `options.txt`, worlds, `saves/`) is not
-  in the report in v1. That is a deliberate scope cut, not an oversight; config comparison
-  (file-level hashing on demand with a size cap, then text diffs of `options.txt` and small config
-  files) is the most likely next step.
-- No actions in v1: the report is read-only. "Copy this mod to the other instance" and similar sync
-  actions overlap with goal 2 and are left for later.
-- The report reflects what the launcher's database last recorded for each instance. Whether to force
-  a re-scan of each instance's files before comparing (so a mod dropped into a folder by hand is
-  seen) is an implementation detail to settle when building it.
+  in the report. Config comparison (file-level hashing on demand with a size cap, then text diffs of
+  `options.txt` and small config files) is the most likely next step if this is revisited.
+- No actions: the report is read-only. "Copy this mod to the other instance" and similar sync actions
+  overlap with goal 2 and are left for later.
+- Update channel, launch overrides, and linked-modpack comparison, and symlink/junction "shared"
+  detection, are not in the report — cut from scope, not bugs.
 
-Not started. Scoped 2026-09-21.
+Hand-tested by the fork's owner in the real app 2026-09-22, no issues found.
 
 ## Status
 
@@ -946,7 +953,7 @@ Last reviewed 2026-09-22.
 | 6 | Migrate-from-Modrinth-App import | Done (2026-09-16), pending real-world Windows validation |
 | 7 | Network & tracking audit | Done (2026-09-22) — see [docs/NETWORK.md](NETWORK.md) for the full per-host writeup and `scripts/check-network-allowlist.ts` for the CI guard. Item 1's Servers install flow is deliberately left as documented, confirmed-inert dead code rather than a risky refactor of the two main browsing pages |
 | 8 | Launcher backgrounds + per-instance overrides | Done (2026-09-21) — backend, rendering, global and per-instance UI, hand-tested in the real app |
-| 9 | Instance comparison | **Not started** — scoped 2026-09-21 (metadata + content only in v1) |
+| 9 | Instance comparison | Done (2026-09-22) — scope narrowed to game version/loader/content only; symlink detection, launch-override/modpack comparison, and re-scan-on-compare were cut, not deferred |
 
 Goals 1-3 were agreed direction as of 2026-09-02; goal 4 was added on 2026-09-04. Goal 1
 (concurrent multi-account launches) is implemented as of 2026-09-04. Goal 3 is fully implemented:
@@ -1000,8 +1007,12 @@ unresolved (fixed with a dynamic import), and mclo.gs crash analysis firing auto
 confirmation prompt, which the fork's owner decided to remove outright rather than keep in any
 gated form. A last loose end from phase 1 — a dead inlined `ads` Tauri plugin in `build.rs`, flagged
 back then but never actually removed — was also closed while writing up this summary. Goal 8
-(backgrounds) is done; goal 9 (instance comparison) is scoped to metadata and content in v1 and not
-started.
+(backgrounds) is done. Goal 9 (instance comparison) is done as of 2026-09-22: game version, loader and
+loader version metadata plus a mod/resourcepack/shaderpack/datapack content matrix, with a "Compare"
+entry point added to the library grid's existing multi-select action bar and a new `/compare` page for
+the matrix, filters, and Markdown/JSON export. Checking in with the fork's owner during implementation
+narrowed the original scoping down further: update channel, launch-override, and linked-modpack
+comparison, and symlink/junction "shared" detection, were all cut rather than deferred.
 
 This document should be updated as scope changes — treat it as the source of truth for what this fork
 is trying to do, ahead of any individual issue or PR.

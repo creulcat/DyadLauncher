@@ -275,6 +275,90 @@
   "app.browse.server.installing": {
     "message": "Installing"
   },
+  "app.compare.add-instance": {
+    "message": "Add instance"
+  },
+  "app.compare.content": {
+    "message": "Content"
+  },
+  "app.compare.copy": {
+    "message": "Copy"
+  },
+  "app.compare.filter.disabled-somewhere": {
+    "message": "Disabled somewhere"
+  },
+  "app.compare.filter.enabled-somewhere": {
+    "message": "Enabled somewhere"
+  },
+  "app.compare.format.json": {
+    "message": "JSON"
+  },
+  "app.compare.format.markdown": {
+    "message": "Markdown"
+  },
+  "app.compare.game-version": {
+    "message": "Minecraft version"
+  },
+  "app.compare.invalid-selection": {
+    "message": "Select at least two instances to compare"
+  },
+  "app.compare.loader": {
+    "message": "Loader"
+  },
+  "app.compare.no-content": {
+    "message": "No content matches the current filters"
+  },
+  "app.compare.no-more-instances": {
+    "message": "No other instances available"
+  },
+  "app.compare.remove-instance": {
+    "message": "Remove from comparison"
+  },
+  "app.compare.remove-instance-minimum": {
+    "message": "At least two instances are required to compare"
+  },
+  "app.compare.search-placeholder": {
+    "message": "Search content..."
+  },
+  "app.compare.state.enabled-differs": {
+    "message": "Enabled state differs"
+  },
+  "app.compare.state.identical": {
+    "message": "Identical"
+  },
+  "app.compare.state.only-in-some": {
+    "message": "Only in some"
+  },
+  "app.compare.state.version-differs": {
+    "message": "Version differs"
+  },
+  "app.compare.status": {
+    "message": "Status"
+  },
+  "app.compare.summary": {
+    "message": "{identical} identical · {onlyInSome} only in some · {versionDiffers} version differs · {enabledDiffers} enabled differs"
+  },
+  "app.compare.summary-overlap-note": {
+    "message": "(a row can count toward more than one status)"
+  },
+  "app.compare.tab.all": {
+    "message": "All"
+  },
+  "app.compare.tab.data-packs": {
+    "message": "Data Packs"
+  },
+  "app.compare.tab.mods": {
+    "message": "Mods"
+  },
+  "app.compare.tab.resource-packs": {
+    "message": "Resource Packs"
+  },
+  "app.compare.tab.shader-packs": {
+    "message": "Shader Packs"
+  },
+  "app.compare.title": {
+    "message": "Compare instances"
+  },
   "app.content-install.no-compatible-versions": {
     "message": "No available versions match {compatibilityLabel}. Select a version to install anyway. Dependencies will not be installed automatically."
   },
@@ -925,6 +1009,9 @@
   },
   "app.library.selection.aria-label": {
     "message": "Selected instances"
+  },
+  "app.library.selection.compare": {
+    "message": "Compare"
   },
   "app.library.selection.deleting": {
     "message": "Deleting selected instances"
