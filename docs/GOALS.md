@@ -733,6 +733,34 @@ Known tradeoffs and notes:
     rebranded — still said `"Modrinth App (support@modrinth.com; https://modrinth.com/app)"`.
     Rebranded to match.
 
+**Follow-up findings from hand-testing — done 2026-09-22.** Testing the finished goal in the real
+app surfaced two more items, reported via the browser console on a fresh launch, no user action
+needed:
+
+- **`@taijased/vue-render-tracker` removed entirely** (`apps/app-frontend/src/main.js`,
+  `package.json`). A Vue render-performance overlay tool, inherited from upstream Modrinth
+  (introduced in `d1bc65c26`, long before this fork), installed unconditionally via `app.use(vueScan)`
+  even with its own `enabled: false` config — its `install()` hook still tried to hook into a global
+  Vue instance and errored (in Russian) every launch, since `withGlobalTauri: false` means Vue isn't
+  exposed globally. A dev-only debugging tool that had no business being wired into every user's
+  production build.
+- **`@stripe/stripe-js` no longer reaches the app bundle — the "and only needs to stop reaching the
+  app bundle" item flagged but not finished earlier in this goal.** `packages/ui/src/composables/
+  stripe.ts` and `.../components/billing/AddPaymentMethod.vue` had static top-level
+  `import { loadStripe } from '@stripe/stripe-js'`; that package injects a `<script src="js.stripe.
+  com/...">` tag as a side effect of merely being imported, independent of whether `loadStripe` is
+  ever called. Before this pass's CSP fix, `js.stripe.com` was still CSP-allowed, so this loaded
+  silently and successfully on every launch; after the CSP fix it started failing loudly (a `Refused
+  to load` console error) instead — confirming the dead-weight import was real, not just a
+  theoretical risk the original audit flagged. Fixed properly: both files now do
+  `const { loadStripe } = await import('@stripe/stripe-js')` inside the function that actually needs
+  it. Verified in the built `apps/app-frontend/dist` output: `@stripe/stripe-js`, `loadStripe`,
+  `AddPaymentMethod`, and `ModrinthServersPurchaseModal` no longer appear anywhere in it at all —
+  nothing in the app's reachable component tree ever renders that billing UI, so once the import
+  stopped being eager, Rollup's tree-shaking dropped the whole subtree rather than just deferring it
+  to a lazy chunk. `packages/ui`/the website are unaffected (still a real, working static-turned-
+  dynamic import, just deferred to when the component actually mounts).
+
 ### 8. Launcher backgrounds, with per-instance overrides
 
 Let the user set a background for the launcher window, and let individual instances override it.
