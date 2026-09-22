@@ -27,7 +27,7 @@ string anywhere, and the CI guard in item 7 can only catch hardcoded hostnames, 
 | `cdn-raw.modrinth.com` | Static assets: the Inter UI font (`packages/assets/styles/inter.scss`) and the Minecraft font (`apps/app-frontend/src/assets/stylesheets/global.scss`). Decided 2026-09-21 (goal 7) to keep bundling these from Modrinth's CDN rather than vendoring them — the Minecraft font is Mojang-derived and this repo doesn't want to redistribute it. | Loaded on every app start (CSS `@font-face`). Always on. |
 | `launcher-files.modrinth.com` | Fallback avatar image (`AccountsCard.vue`'s default head, used when no local skin render is available) and the fallback content-card image in a couple of older-style cards. | Only when a local render isn't available. Not user-toggleable, but no longer the primary path since goal 7 item 2 moved account avatars to a local render first. |
 | `launcher-meta.modrinth.com` | Modrinth's mirror of the Minecraft and mod-loader (Fabric/Forge/Quilt/NeoForge) version manifests, needed to create and launch instances. Decided 2026-09-21 (goal 7): kept and documented — replacing it means talking to Mojang/Fabric/Forge/Quilt/NeoForge directly, a large separate project, and this is not tracking. | Whenever instance creation or launch needs version metadata. Always on, core functionality. |
-| `api.mclo.gs` | mclogs: crash analysis (`client.mclogs.insights_v1.analyse`, sends the game's log content) and log paste/sharing. | **Not opt-in the way GOALS.md previously assumed.** Crash analysis (`analyseForCrash()` in `pages/instance/logs/index.vue`) runs automatically whenever the Logs page is opened for a non-running instance, and automatically again whenever a game process finishes — with no confirmation prompt. Only the separate "share this log" action is an explicit click. See "Findings from this pass" below. |
+| `api.mclo.gs` | mclogs: log paste/sharing (`client.mclogs.logs_v1.create`, sends the game's log content). | **Opt-in only, as of 2026-09-22.** The automatic crash-analysis call (`insights_v1.analyse`, fired without confirmation on opening the Logs page or a game process finishing) was removed — see "Findings from this pass" below. The only remaining path to this host is the explicit "Share" button on the Logs page. |
 | `modrinth.com` / `*.modrinth.com` | CSP wildcard covering the above plus any other `*.modrinth.com` subdomain a project description or API response might link to. | As needed for the above. |
 | `discord.com` | `frame-src` only — lets a project description embed a Discord invite widget. Passive: the iframe only loads if a project's own description embeds one. | Only when viewing a project whose description embeds a Discord widget. |
 | `*.githubusercontent.com` | `media-src` only — lets a project description embed a `<video>`/`<audio>` clip hosted on GitHub's raw-content CDN, the same "arbitrary remote content in project descriptions" tradeoff as the `img-src https:` wildcard (see GOALS.md goal 7). | Only when viewing a project whose description embeds such a clip. |
@@ -77,13 +77,15 @@ Minecraft account" features, which are the launcher's job, not tracking.
   calls into them — the same "allowed but never actually reachable" pattern goal 7 already found and
   removed for Archon and shared-instances. The previous audit had listed these as a deliberately-kept
   live feature; that was wrong.
-- **mclo.gs crash analysis is not opt-in.** The previous audit's "mclo.gs log sharing (only when the
-  user clicks it)" undersold it: analysis fires automatically on two triggers (opening the Logs page
-  for a stopped instance, and a game process finishing), sending log content to `api.mclo.gs` with no
-  confirmation prompt. Only the separate "share" action is an explicit click. This wasn't changed as
-  part of this pass — item 6 is about documenting current behavior, not changing it — but it's worth a
-  deliberate decision (leave as-is, add a setting, or gate behind confirmation) rather than carrying
-  the incorrect assumption forward.
+- **mclo.gs crash analysis was found to be non-opt-in, then removed (2026-09-22).** The previous
+  audit's "mclo.gs log sharing (only when the user clicks it)" undersold it: analysis fired
+  automatically on two triggers (opening the Logs page for a stopped instance, and a game process
+  finishing), sending log content to `api.mclo.gs` with no confirmation prompt. Decided: this fork
+  doesn't want any automatic upload, opt-in or not. `analyseForCrash()` and its two auto-invocations
+  were removed from `pages/instance/logs/index.vue`, along with the crash-analysis panel it fed
+  (`ConsoleManagerContext.crashAnalysis`/`onDismissCrash`, both optional in the shared type, so the
+  panel simply never renders now — `packages/ui`/the website are unaffected). The only remaining path
+  to `api.mclo.gs` is the separate "Share" button, unchanged and still an explicit click.
 - `config.ts`'s unused `siteUrl` field (and the `MODRINTH_URL` env var feeding it) were dead — nothing
   ever read `config.siteUrl` (the one place that needed a "link to modrinth.com" already hardcodes the
   literal string instead). Removed along with the CSP fixes above.

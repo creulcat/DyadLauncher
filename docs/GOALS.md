@@ -507,11 +507,13 @@ still left. This goal finishes the job and then makes it stay finished.
   mean talking to Mojang, Fabric, Forge, Quilt and NeoForge directly, which is a large separate
   project. Decided 2026-09-21: keep it and document it; it is not tracking.
 - Mojang/Microsoft/Xbox authentication and skins, Minecraft textures, and Azul Java downloads.
-- Discord Rich Presence (opt-in, goal 3) and `mclo.gs` crash analysis/log sharing. **Correction,
-  2026-09-22 (see item 6/NETWORK.md):** mclo.gs crash analysis is not click-gated as first thought —
-  it fires automatically when the Logs page opens for a stopped instance and when a game process
-  finishes. The PaperMC/Purpur jar downloads that used to be listed here were not actually a live
-  feature — zero code called into them — and their CSP entries were removed as dead weight (item 6).
+- Discord Rich Presence (opt-in, goal 3) and `mclo.gs` log sharing (explicit click only). **History:**
+  mclo.gs also did automatic crash analysis until 2026-09-22 — discovered during item 6 to fire with
+  no confirmation prompt (opening the Logs page for a stopped instance, or a game process finishing),
+  contradicting this list's original "only when the user clicks it" claim; removed outright per user
+  decision rather than kept as a documented opt-out, since only the explicit "Share" click is wanted.
+  The PaperMC/Purpur jar downloads that used to be listed here were not actually a live feature — zero
+  code called into them — and their CSP entries were removed as dead weight (item 6).
 - `img-src https:` in the CSP stays, because project descriptions render arbitrary remote images.
   That is an accepted tradeoff of anonymous browsing: an image host can see the request.
 
@@ -760,6 +762,16 @@ needed:
   stopped being eager, Rollup's tree-shaking dropped the whole subtree rather than just deferring it
   to a lazy chunk. `packages/ui`/the website are unaffected (still a real, working static-turned-
   dynamic import, just deferred to when the component actually mounts).
+- **Automatic mclo.gs crash analysis removed per user decision, 2026-09-22.** Once the automatic-vs-
+  opt-in finding above was confirmed precisely (two triggers, zero confirmation, on every stopped-
+  instance Logs-page visit and every game exit — not just crashes), the fork's owner decided against
+  keeping it in any form: no setting, no confirmation prompt, just gone. Removed `analyseForCrash()`
+  and both its auto-invocations from `pages/instance/logs/index.vue`, along with the now-pointless
+  `crashAnalysis`/`onDismissCrash` context fields it populated (optional in
+  `ConsoleManagerContext`, so the crash-analysis panel in the shared console layout simply stops
+  rendering — no change needed there, and the website's own hosting console is unaffected). The
+  separate "Share" button (`logs_v1.create`, a real explicit click) is untouched — that's the only
+  remaining way this app reaches `api.mclo.gs`. See [NETWORK.md](NETWORK.md) for the up-to-date entry.
 
 ### 8. Launcher backgrounds, with per-instance overrides
 
