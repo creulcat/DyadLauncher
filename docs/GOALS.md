@@ -439,7 +439,8 @@ Goal 3 removed the telemetry, ads and account systems it knew about, but a code 
 found that a fair amount of Modrinth-, Stripe- and third-party-bound traffic and dead plumbing is
 still left. This goal finishes the job and then makes it stay finished.
 
-**Audit findings (static, from reading the code — not yet confirmed by capturing real traffic):**
+**Audit findings (static, from reading the code — later confirmed/corrected by item 6's real-traffic
+pass, see the Progress log below and [NETWORK.md](NETWORK.md) for what actually held up):**
 
 *Fires at every launch, without any user action:*
 
@@ -575,9 +576,10 @@ Known tradeoffs and notes:
   generation) and the modal `onShow`/`onHide` ads-window hold (it threw whenever a modal opened).
 - Two findings the static audit missed, added to the list above: **Inter**, the main UI font
   (`packages/assets/styles/inter.scss`), also loads from `cdn-raw.modrinth.com` (covered by the
-  allowed-host decision in item 2), and `apps/app/build.rs` still declares an inlined `ads` plugin whose
-  commands (`init_ads_window`, `update_ads_window_hold`, the consent-UI ones) no longer exist in Rust,
-  along with its capability grants. That still needs doing as part of the dormant-code removal.
+  allowed-host decision in item 2), and `apps/app/build.rs` still declared an inlined `ads` plugin
+  whose commands (`init_ads_window`, `update_ads_window_hold`, the consent-UI ones) no longer existed
+  in Rust and had no capability grant referencing it either — pure orphaned codegen metadata. Removed
+  2026-09-22, while doing this same documentation pass (see the Progress log's last entry).
 - **Item 2 (third-party avatar lookups) — done 2026-09-22.** `AccountsCard.vue` no longer calls
   `mc-heads.net`. The active account's avatar renders from the skin texture the launcher already has
   locally (`getPlayerHeadUrl`/`headUrlCache`, unchanged from the existing skin-preview pipeline); every
@@ -610,8 +612,9 @@ Known tradeoffs and notes:
   defaulted off from when it briefly gated the dropped self-updater (see goal 4) — without the
   backfill, upgrading would have silently gone from "always checks" to "never checks" for every
   existing install, the opposite of the decided default.
-- **Item 1, CSP/config/deps/settings-columns slice — done 2026-09-22 (the account-only Rust/frontend
-  and the Servers install flow are still outstanding, see below).**
+- **Item 1, CSP/config/deps/settings-columns slice — done 2026-09-22** (the account-only Rust/
+  frontend dead code and the decision on the Servers install flow are separate, later entries in this
+  same log).
   - **CSP tightened** in `apps/app/tauri.conf.json`: removed the Stripe entries (`js.stripe.com`,
     `*.stripe.com`, `wss://*.stripe.com`, `hooks.stripe.com`) from `connect-src`/`script-src`/
     `frame-src`, the Tailscale dev-node entries (`*.taila228c5.ts.net`), `*.nodes.modrinth.com`
@@ -772,6 +775,11 @@ needed:
   rendering — no change needed there, and the website's own hosting console is unaffected). The
   separate "Share" button (`logs_v1.create`, a real explicit click) is untouched — that's the only
   remaining way this app reaches `api.mclo.gs`. See [NETWORK.md](NETWORK.md) for the up-to-date entry.
+- **Loose end from phase 1 closed while reviewing these docs, 2026-09-22.** Phase 1's own notes above
+  flagged `apps/app/build.rs`'s inlined `ads` Tauri plugin (commands like `init_ads_window`,
+  `update_ads_window_hold`, the consent-UI ones) as dead codegen metadata needing removal, but it was
+  never actually done. Confirmed none of its commands exist as real `#[tauri::command]`s and no
+  capability file grants `ads:*` either, then removed the block; `apps/app` still builds clean.
 
 ### 8. Launcher backgrounds, with per-instance overrides
 
@@ -984,7 +992,14 @@ was left in place as documented, confirmed-inert dead code rather than risk a wi
 Browse.vue/project/Index.vue for no behavior change), item 6 (the network audit doc, which corrected
 two things the original static audit got wrong — see [NETWORK.md](NETWORK.md)), and item 7 (the CI
 allowlist guard, which found and closed a second, separate allowlist — the `plugin-http` permission
-scope — carrying the same dead hosts the CSP fix had already removed from the webview side). Goal 8
+scope — carrying the same dead hosts the CSP fix had already removed from the webview side).
+Hand-testing the finished goal then surfaced three more items, fixed the same day: an unconditionally-
+installed Vue dev tool throwing console errors on every launch (removed), `@stripe/stripe-js` still
+reaching the app bundle as an import-time side effect despite being flagged earlier in the goal as
+unresolved (fixed with a dynamic import), and mclo.gs crash analysis firing automatically with no
+confirmation prompt, which the fork's owner decided to remove outright rather than keep in any
+gated form. A last loose end from phase 1 — a dead inlined `ads` Tauri plugin in `build.rs`, flagged
+back then but never actually removed — was also closed while writing up this summary. Goal 8
 (backgrounds) is done; goal 9 (instance comparison) is scoped to metadata and content in v1 and not
 started.
 

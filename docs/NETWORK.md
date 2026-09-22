@@ -1,9 +1,9 @@
 # Network hosts
 
 Every host Dyad Launcher's desktop app (`apps/app`, `apps/app-frontend`, `packages/app-lib`) can
-contact over the network, and why. This is goal 7, item 6 of [GOALS.md](GOALS.md) — the follow-up
-to item 7's guard script (item 7), which fails CI when a hostname shows up in source, config or the
-CSP that isn't listed here.
+contact over the network, and why. This is goal 7, item 6 of [GOALS.md](GOALS.md) — the source of
+truth item 7's CI guard script (`scripts/check-network-allowlist.ts`) checks against, failing CI
+when a hostname shows up in source, config or the CSP that isn't listed here.
 
 Compiled by reading every `reqwest`/`fetch`/`invoke` call site in `packages/app-lib`, `apps/app` and
 `apps/app-frontend` (2026-09-22), cross-checked against **two** separate allowlists — the webview CSP
