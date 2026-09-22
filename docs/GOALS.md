@@ -635,12 +635,47 @@ Known tradeoffs and notes:
     there. `@stripe/stripe-js` stays in `packages/ui` for the same reason (shared with the website).
   - Verified with `cargo build`/`apps/app` build under `RUSTFLAGS=-Dwarnings` (matching CI), `vue-tsc`,
     ESLint, and a migration test against a fresh in-memory DB.
-- Still to do: the rest of item 1 — account-only Rust (`api/users.rs`, `api/reports.rs` and their
-  Tauri commands) and frontend (`helpers/user-preferences.ts`, `helpers/user-campaigns.ts`, the
-  `Skins.vue` campaigns query) dead-code removal, and the Modrinth Servers "install to server" flow
+- **Item 1, account-only dead code — done 2026-09-22, narrower than originally scoped.** The original
+  audit finding called `api/users.rs`/`api/reports.rs` "account-dependent Rust" wholesale; closer
+  reading before deleting anything showed that wasn't quite right:
+  - **`api/reports.rs` (both the `packages/app-lib` module and the `apps/app` Tauri plugin/command) —
+    fully removed.** `helpers/reports.ts`'s `create_report` had zero call sites anywhere in the
+    frontend, and the one plausible trigger (the "Report" action on a user's profile) opens
+    `modrinth.com/report` in the system browser instead (`User.vue` passes `external-navigation` to
+    the shared profile layout), so the in-app report command was never reachable. Also dropped its
+    `apps/app/build.rs` inline-plugin entry and `"reports:default"` from `capabilities/plugins.json`.
+  - **`api/users.rs` — partially removed, not deleted.** `search_user`, `get_user_profile`,
+    `get_user_projects`, `get_user_organizations`, `get_user_collections` back `pages/User.vue`, a
+    live, reachable page (viewing another Modrinth user's public profile/projects while browsing
+    anonymously — the same anonymous-browsing surface goal 3 explicitly kept) and were **not**
+    touched. `patch_user`, `change_user_avatar`, `delete_user_avatar`, `block_user`, `unblock_user`
+    and `get_blocked_users` are structurally unreachable in the app (they only ever fire when
+    `auth.user.value` matches the viewed profile or `variant === 'web'`, and `App.vue`'s
+    `credentials` ref is permanently `null` since goal 3 removed Modrinth sign-in) but were also
+    **not** touched, because `packages/ui`'s shared `UserProfileContext` type (used by both this app
+    and the website) requires real implementations for all of them — removing the Rust/Tauri side
+    would just move the dead end from the backend into a frontend stub, for no real reduction in
+    reachable surface. Only `get_user_preferences`/`patch_user_preferences` were removed from
+    `api/users.rs` (Rust and the Tauri command list in `apps/app/src/api/users.rs` and
+    `apps/app/build.rs`): confirmed dead on their own terms — their only consumer,
+    `helpers/user-preferences.ts` via `providers/setup/user-preferences.ts` (both deleted), fed a
+    `useQuery` in `packages/ui` gated on `enabled: Boolean(userId.value)` where `userId` comes from
+    the same permanently-null `auth.user`, so the query never ran and `updatePreferences` was a
+    no-op. The `App.vue` call site (a locale-sync watcher whose body could only ever be reached with
+    `preferences` already `undefined`) is also removed — it called an unimported `setSettings`, a
+    latent `ReferenceError` that could never actually fire, the same class of bug phase 1 found in
+    `fetchCredentials()` and the ads-window hold.
+  - **`helpers/user-campaigns.ts` and the `Skins.vue` campaigns query — removed.** The query that fed
+    `hasPride26Badge` was gated on `!!auth.session_token.value`, permanently false for the same
+    reason, so the "Modrinth Pride" skin section was already unconditionally filtered out; the filter
+    is now written that way directly instead of through a dead auth-gated query. `injectAuth`/
+    `injectModrinthClient` in `Skins.vue` were only used for this and are removed too.
+  - Verified with `cargo build` for both Rust crates under `RUSTFLAGS=-Dwarnings`, `vue-tsc`, and
+    ESLint.
+- Still to do: the Modrinth Servers "install to server" flow
   (`providers/setup/server-install-content.ts`, wired into `Browse.vue` and `project/Index.vue` —
-  needs hand-testing against those pages afterward) — plus item 6 (real traffic capture and
-  `docs/NETWORK.md`) and item 7 (the CI allowlist guard).
+  needs hand-testing against those pages afterward), item 6 (real traffic capture and
+  `docs/NETWORK.md`), and item 7 (the CI allowlist guard).
 
 ### 8. Launcher backgrounds, with per-instance overrides
 
@@ -805,7 +840,7 @@ Last reviewed 2026-09-22.
 | 4 | Update notifications | Done — Modrinth's updater disabled 2026-09-04; self-updater built 2026-09-14, replaced by a download-link version check 2026-09-21; release-pipeline fixes 2026-09-16/17. Self-updater leftovers not yet cleaned up |
 | 5 | Windows installer trust warning | **Partly done** — CI fallback fix and installer metadata landed 2026-09-13; installer is still unsigned, SignPath application not yet submitted |
 | 6 | Migrate-from-Modrinth-App import | Done (2026-09-16), pending real-world Windows validation |
-| 7 | Network & tracking audit | **In progress** — scoped 2026-09-21; items 2-5 and most of item 1 (CSP/config/deps/settings-columns) done as of 2026-09-22; item 1's account-only dead code and Servers install flow, plus items 6-7, outstanding |
+| 7 | Network & tracking audit | **In progress** — scoped 2026-09-21; items 2-5 and all of item 1 except the Servers install flow done as of 2026-09-22; item 1's Servers install flow, plus items 6-7, outstanding |
 | 8 | Launcher backgrounds + per-instance overrides | Done (2026-09-21) — backend, rendering, global and per-instance UI, hand-tested in the real app |
 | 9 | Instance comparison | **Not started** — scoped 2026-09-21 (metadata + content only in v1) |
 
@@ -844,11 +879,13 @@ goal 3: a code audit found leftover Modrinth Servers/billing prefetches, a GeoIP
 avatar service, the download-attribution header and dead Stripe/account plumbing (see its findings
 list). As of 2026-09-22 the launch-time frontend prefetches (phase 1 of item 1), the third-party
 avatar lookups (item 2), the download-attribution header (item 3), the User-Agent rebrand (item 4),
-the version-check off switch (item 5, default on), and most of item 1 (CSP tightening, dead
-config/env, an unused dependency, and the cross-device-sync settings columns) are done; item 1's
-account-only Rust/frontend dead code and the Modrinth Servers install flow, the real-traffic capture
-and `docs/NETWORK.md` (item 6), and the CI allowlist guard (item 7) are still outstanding. Goal 8
-(backgrounds) is done; goal 9 (instance comparison) is scoped to
+the version-check off switch (item 5, default on), and all of item 1 except the Servers install flow
+(CSP tightening, dead config/env, an unused dependency, the cross-device-sync settings columns, and
+the account-only Rust/frontend dead code — narrower than first scoped, since some of `api/users.rs`
+turned out to back a live anonymous-profile-viewing page and a shared cross-app component contract)
+are done; the Modrinth Servers install flow, the real-traffic capture and `docs/NETWORK.md` (item 6),
+and the CI allowlist guard (item 7) are still outstanding. Goal 8 (backgrounds) is done; goal 9
+(instance comparison) is scoped to
 metadata and content in v1 and not started.
 
 This document should be updated as scope changes — treat it as the source of truth for what this fork

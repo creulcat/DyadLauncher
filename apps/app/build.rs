@@ -199,14 +199,6 @@ fn main() {
                     ),
             )
             .plugin(
-                "reports",
-                InlinedPlugin::new()
-                    .commands(&["reports_create"])
-                    .default_permission(
-                        DefaultPermissionRule::AllowAllCommands,
-                    ),
-            )
-            .plugin(
                 "instance",
                 InlinedPlugin::new()
                     .commands(&[
@@ -355,8 +347,6 @@ fn main() {
                         "get_user_projects",
                         "get_user_organizations",
                         "get_user_collections",
-                        "get_user_preferences",
-                        "patch_user_preferences",
                         "patch_user",
                         "change_user_avatar",
                         "delete_user_avatar",

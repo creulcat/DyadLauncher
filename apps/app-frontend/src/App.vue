@@ -104,7 +104,6 @@ import { setupProviders } from '@/providers/setup'
 import { setupAppEventsProvider } from '@/providers/setup/app-events'
 import { setupAuthProvider } from '@/providers/setup/auth'
 import { setupLoadingStateProvider } from '@/providers/setup/loading-state'
-import { setupAppUserPreferencesProvider } from '@/providers/setup/user-preferences.ts'
 import { appMessages } from '@/utils/app-messages'
 
 import { generateSkinPreviews } from './helpers/rendering/batch-skin-renderer'
@@ -646,41 +645,9 @@ watch(incompatibilityWarningModal, (modal) => {
 	}
 })
 
-const authProvider = setupAuthProvider(credentials, () => {
+setupAuthProvider(credentials, () => {
 	// Signing into a Modrinth account is not supported in this fork.
 })
-
-const userPreferences = setupAppUserPreferencesProvider(authProvider, notificationManager)
-let userPreferencesSync = Promise.resolve()
-
-watch(
-	[userPreferences.preferences, stateInitialized],
-	([preferences, initialized]) => {
-		if (!preferences || !initialized) return
-
-		userPreferencesSync = userPreferencesSync
-			.then(async () => {
-				const settings = await getSettings()
-				const locale = preferences.localization.locale
-				let settingsChanged = false
-
-				if (i18n.global.locale.value !== locale) {
-					i18n.global.locale.value = locale
-				}
-
-				if (settings.locale !== locale) {
-					settings.locale = locale
-					settingsChanged = true
-				}
-
-				if (settingsChanged) {
-					await setSettings(settings)
-				}
-			})
-			.catch(handleError)
-	},
-	{ immediate: true },
-)
 
 onMounted(() => {
 	invoke('show_window')

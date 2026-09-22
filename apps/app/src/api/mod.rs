@@ -14,7 +14,6 @@ pub mod metadata;
 pub mod migrate_modrinth_app;
 pub mod minecraft_skins;
 pub mod process;
-pub mod reports;
 pub mod settings;
 pub mod shortcuts;
 pub mod tags;

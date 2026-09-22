@@ -107,7 +107,6 @@
 		"install:default",
 		"migrate-modrinth-app:default",
 		"process:default",
-		"reports:default",
 		"cache:default",
 		"files:default",
 		"settings:default",
