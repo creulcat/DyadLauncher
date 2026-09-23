@@ -30,6 +30,7 @@ import { edit, edit_icon, getInstanceIconUrl, remove } from '@/helpers/instance'
 import type { GameInstance, InstanceIconConfig } from '@/helpers/types'
 
 import { instanceKeys } from '../../query-options'
+import BackgroundSetting from './background-setting.vue'
 import { injectInstanceSettings } from './instance-settings-context'
 
 const { handleError } = injectNotificationManager()
@@ -113,57 +114,64 @@ watch(selectedReleaseChannel, async (channel, previousChannel) => {
 	savingReleaseChannel.value = false
 })
 
-const savingAllowConcurrentLaunches = ref(false)
-async function setAllowConcurrentLaunches(allow: boolean) {
-	if (savingAllowConcurrentLaunches.value) return
+type InstanceFlag = 'allow_concurrent_launches' | 'hide_from_discord'
+
+// Saves a boolean instance setting. The change is shown straight away and rolled back if saving fails
+async function saveInstanceFlag(saving: Ref<boolean>, field: InstanceFlag, value: boolean) {
+	if (saving.value) return
 
 	const instanceId = instance.value.id
 	const detailKey = instanceKeys.detail(instanceId)
 	const listKey = instanceKeys.list()
-	const previous = instance.value.allow_concurrent_launches
-	const applyAllow = (current: GameInstance): GameInstance => ({
+	const previous = instance.value[field]
+	const applyValue = (current: GameInstance, next: boolean): GameInstance => ({
 		...current,
-		allow_concurrent_launches: allow,
+		[field]: next,
 	})
 
-	savingAllowConcurrentLaunches.value = true
+	saving.value = true
 	await Promise.all([
 		queryClient.cancelQueries({ queryKey: detailKey }),
 		queryClient.cancelQueries({ queryKey: listKey }),
 	])
 	queryClient.setQueryData<GameInstance>(detailKey, (current) =>
-		applyAllow(current ?? instance.value),
+		applyValue(current ?? instance.value, value),
 	)
 	queryClient.setQueryData<GameInstance[]>(listKey, (instances) =>
 		instances?.map((candidate) =>
-			candidate.id === instanceId ? applyAllow(candidate) : candidate,
+			candidate.id === instanceId ? applyValue(candidate, value) : candidate,
 		),
 	)
 
 	try {
-		await edit(instanceId, { allow_concurrent_launches: allow })
+		await edit(instanceId, { [field]: value })
 	} catch (error) {
-		const rollbackAllow = (current: GameInstance): GameInstance => ({
-			...current,
-			allow_concurrent_launches: previous,
-		})
 		queryClient.setQueryData<GameInstance>(detailKey, (current) =>
-			current ? rollbackAllow(current) : current,
+			current ? applyValue(current, previous) : current,
 		)
 		queryClient.setQueryData<GameInstance[]>(listKey, (instances) =>
 			instances?.map((candidate) =>
-				candidate.id === instanceId ? rollbackAllow(candidate) : candidate,
+				candidate.id === instanceId ? applyValue(candidate, previous) : candidate,
 			),
 		)
 		handleError(error)
 	} finally {
-		savingAllowConcurrentLaunches.value = false
+		saving.value = false
 		await Promise.all([
 			queryClient.invalidateQueries({ queryKey: detailKey }),
 			queryClient.invalidateQueries({ queryKey: listKey }),
 		])
 	}
 }
+
+const savingAllowConcurrentLaunches = ref(false)
+const setAllowConcurrentLaunches = (allow: boolean) =>
+	saveInstanceFlag(savingAllowConcurrentLaunches, 'allow_concurrent_launches', allow)
+
+// Stored as "hide" (so instances that predate the setting stay visible); shown as "show"
+const savingHideFromDiscord = ref(false)
+const setShowInDiscord = (show: boolean) =>
+	saveInstanceFlag(savingHideFromDiscord, 'hide_from_discord', !show)
 
 async function resetIcon() {
 	try {
@@ -319,6 +327,15 @@ const messages = defineMessages({
 		id: 'instance.settings.tabs.general.allow-concurrent-launches.description',
 		defaultMessage:
 			'Lets this instance be launched more than once at a time, each under a different account, all pointed at this same instance folder. Known tradeoff: logs/latest.log, usercache.json, and crash reports can be overwritten or interleaved between the running copies, and a world open in more than one copy at once can corrupt. Only enable this if you understand and accept that risk.',
+	},
+	showInDiscord: {
+		id: 'instance.settings.tabs.general.show-in-discord',
+		defaultMessage: 'Show in Discord Rich Presence',
+	},
+	showInDiscordDescription: {
+		id: 'instance.settings.tabs.general.show-in-discord.description',
+		defaultMessage:
+			'Show this instance on your Discord profile while you play it. Turn this off to keep it private; it is then left out entirely, and if it is the only instance running, nothing is shown. Only applies if Rich Presence is enabled in Settings, under Behavior.',
 	},
 	deleteInstance: {
 		id: 'instance.settings.tabs.general.delete',
@@ -477,6 +494,26 @@ const messages = defineMessages({
 				{{ formatMessage(messages.allowConcurrentLaunchesDescription) }}
 			</p>
 		</div>
+
+		<div class="flex flex-col gap-2.5 mt-6">
+			<div class="flex items-center justify-between gap-6">
+				<h2 id="show-in-discord-label" class="m-0 text-lg font-semibold text-contrast">
+					{{ formatMessage(messages.showInDiscord) }}
+				</h2>
+				<Toggle
+					id="show-in-discord"
+					aria-labelledby="show-in-discord-label"
+					:model-value="!instance.hide_from_discord"
+					:disabled="savingHideFromDiscord"
+					@update:model-value="setShowInDiscord"
+				/>
+			</div>
+			<p class="m-0">
+				{{ formatMessage(messages.showInDiscordDescription) }}
+			</p>
+		</div>
+
+		<BackgroundSetting class="mt-6" />
 
 		<div class="flex flex-col gap-2.5 mt-6">
 			<h2 id="delete-instance-label" class="m-0 text-lg font-semibold text-contrast block">

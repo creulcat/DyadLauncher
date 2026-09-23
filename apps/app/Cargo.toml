@@ -14,8 +14,6 @@ daedalus = { workspace = true }
 dashmap = { workspace = true }
 either = { workspace = true }
 enumset = { workspace = true, features = ["serde"] }
-hyper = { workspace = true, features = ["server"] }
-hyper-util = { workspace = true }
 native-dialog = { workspace = true }
 paste = { workspace = true }
 path-util = { workspace = true }
@@ -29,7 +27,6 @@ tauri-plugin-http = { workspace = true }
 tauri-plugin-opener = { workspace = true }
 tauri-plugin-os = { workspace = true }
 tauri-plugin-single-instance = { workspace = true }
-tauri-plugin-updater = { workspace = true }
 tauri-plugin-window-state = { workspace = true }
 theseus = { workspace = true, features = ["tauri"] }
 thiserror = { workspace = true }
@@ -45,18 +42,6 @@ features = ["devtools", "macos-private-api", "protocol-asset"]
 
 [build-dependencies]
 tauri-build = { workspace = true, features = ["codegen"] }
-
-[target.'cfg(target_os = "linux")'.dependencies]
-tauri-plugin-updater = { workspace = true, optional = true }
-
-[target.'cfg(target_os = "macos")'.dependencies]
-core-foundation.workspace = true
-core-graphics.workspace = true
-objc2-app-kit = { workspace = true, features = ["NSWindow"] }
-
-[target."cfg(windows)".dependencies]
-webview2-com.workspace = true
-windows-core.workspace = true
 
 [target."cfg(windows)".dependencies.windows]
 workspace = true
@@ -77,7 +62,6 @@ default = ["custom-protocol"]
 # DO NOT remove this
 custom-protocol = ["tauri/custom-protocol"]
 export-app-events = ["theseus/export-ts"]
-updater = []
 
 [lints]
 workspace = true

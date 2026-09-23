@@ -151,6 +151,7 @@ fn main() {
                         "is_modrinth_app_running",
                         "preview_modrinth_app_import",
                         "apply_modrinth_app_settings",
+                        "migrate_modrinth_app_synced_options",
                     ])
                     .default_permission(
                         DefaultPermissionRule::AllowAllCommands,
@@ -193,14 +194,6 @@ fn main() {
                         "process_kill",
                         "process_wait_for",
                     ])
-                    .default_permission(
-                        DefaultPermissionRule::AllowAllCommands,
-                    ),
-            )
-            .plugin(
-                "reports",
-                InlinedPlugin::new()
-                    .commands(&["reports_create"])
                     .default_permission(
                         DefaultPermissionRule::AllowAllCommands,
                     ),
@@ -290,7 +283,25 @@ fn main() {
                         "instance_share_unpublish",
                         "instance_export_mrpack",
                         "instance_get_pack_export_candidates",
+                        "instance_compare",
+                        "instance_compare_export",
                     ])
+                    .default_permission(
+                        DefaultPermissionRule::AllowAllCommands,
+                    ),
+            )
+            .plugin(
+                "background",
+                InlinedPlugin::new()
+                    .commands(&["background_cache_image"])
+                    .default_permission(
+                        DefaultPermissionRule::AllowAllCommands,
+                    ),
+            )
+            .plugin(
+                "discord",
+                InlinedPlugin::new()
+                    .commands(&["discord_set_launcher_activity"])
                     .default_permission(
                         DefaultPermissionRule::AllowAllCommands,
                     ),
@@ -338,8 +349,6 @@ fn main() {
                         "get_user_projects",
                         "get_user_organizations",
                         "get_user_collections",
-                        "get_user_preferences",
-                        "patch_user_preferences",
                         "patch_user",
                         "change_user_avatar",
                         "delete_user_avatar",
@@ -364,27 +373,6 @@ fn main() {
                         "show_app_db_backups_folder",
                         "progress_bars_list",
                         "get_opening_command",
-                    ])
-                    .default_permission(
-                        DefaultPermissionRule::AllowAllCommands,
-                    ),
-            )
-            .plugin(
-                "ads",
-                InlinedPlugin::new()
-                    .commands(&[
-                        "init_ads_window",
-                        "hide_ads_window",
-                        "update_ads_window_hold",
-                        "show_ads_consent_ui",
-                        "expand_ads_consent_webview",
-                        "open_ads_consent_preferences",
-                        "finish_ads_consent_flow",
-                        "should_show_ads_consent_popup",
-                        "perform_ads_consent_action",
-                        "record_ads_click",
-                        "open_link",
-                        "get_ads_personalization",
                     ])
                     .default_permission(
                         DefaultPermissionRule::AllowAllCommands,

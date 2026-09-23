@@ -18,6 +18,16 @@
   and the web frontend header/footer — inlines the mark next to "Dyad" text; previously a generic
   "PROJECT" placeholder with an unrelated ring/checkmark icon)
 
+## Discord Rich Presence art asset
+
+Discord's Rich Presence image is uploaded by hand in the Discord Developer Portal (Rich Presence →
+Art Assets on the Dyad application), not read from this repo. The asset key the code refers to is
+`logo_square_1024` (see `packages/app-lib/src/state/discord.rs`). It is a **fully square,
+1024×1024** export of the mark, with no rounded corners and no inset border (Discord rounds it
+itself). To re-make it, render `mark.svg` with `rx="0"` on the tile and the inset border rect
+removed, through the same `tauri icon` tool as below, and take the 1024px `ios/AppIcon-512@2x.png`
+from its output.
+
 ## Regenerating the rest
 
 Everything under `apps/app/icons/` that's a flat raster (`icon.png`, `icon.ico`, `favicon.ico`,

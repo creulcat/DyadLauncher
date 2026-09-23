@@ -61,6 +61,12 @@ pub struct ImportSelection {
     /// all) behaves as `Copy`.
     #[serde(default)]
     pub symlink_actions: HashMap<String, SymlinkAction>,
+    /// Whether to also copy every loose root-level file/folder outside the 7
+    /// named categories (`options.txt`, `servers.dat`, `usercache.json`,
+    /// `backups/`, `waypoints/`, ...) - see
+    /// `super::ImportOtherFilesCandidate`/`super::other_root_entries`.
+    #[serde(default)]
+    pub include_other_files: bool,
 }
 
 impl ImportSelection {
@@ -150,6 +156,17 @@ async fn resolve_copy_manifest(
         };
         files.extend(subfiles);
     }
+
+    if selection.include_other_files {
+        for entry in super::other_root_entries(source_instance_dir).await {
+            if let Ok(subfiles) =
+                crate::api::pack::import::get_all_subfiles(&entry, true).await
+            {
+                files.extend(subfiles);
+            }
+        }
+    }
+
     files
 }
 
@@ -267,12 +284,10 @@ pub async fn copy_selected_content(
     Ok(())
 }
 
-/// Deletes exactly the source folders that `copy_selected_content` would
-/// copy for this same `selection` - never anything else in the source
-/// instance (its `.minecraft`-root files like `options.txt`, `servers.dat`,
-/// or any other category, are left untouched). Callers must only invoke
-/// this after that copy has already succeeded; it does not itself verify
-/// anything was actually copied.
+/// Deletes exactly the source folders/files that `copy_selected_content`
+/// would copy for this same `selection` - never anything else in the source
+/// instance. Callers must only invoke this after that copy has already
+/// succeeded; it does not itself verify anything was actually copied.
 ///
 /// Backs goal 6's opt-in "delete from source after import" - copy is always
 /// the default, this is only ever run when the user explicitly asked to
@@ -287,6 +302,17 @@ pub async fn delete_selected_source_content(
             crate::util::io::remove_dir_all(&path).await?;
         }
     }
+
+    if selection.include_other_files {
+        for entry in super::other_root_entries(source_instance_dir).await {
+            if entry.is_dir() {
+                crate::util::io::remove_dir_all(&entry).await?;
+            } else if entry.is_file() {
+                crate::util::io::remove_file(&entry).await?;
+            }
+        }
+    }
+
     Ok(())
 }
 
@@ -376,13 +402,92 @@ pub async fn apply_settings(
     Ok(())
 }
 
+/// What happened when `migrate_synced_options_store` was asked to migrate
+/// the source app's shared server list/hotbars/command history.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SyncedOptionsMigrationOutcome {
+    Migrated,
+    /// Dyad's own synced-options store already had files in it - skipped
+    /// rather than risking overwriting/merging into an existing shared
+    /// server list, hotbar set, or command history that real accounts may
+    /// already depend on. Only a from-empty seed is attempted; reconciling
+    /// two non-empty stores is out of scope here.
+    SkippedDestNotEmpty,
+    /// The source app has no synced-options store, or it's empty - nothing
+    /// to migrate.
+    SkippedNothingToMigrate,
+}
+
+/// Migrates the official Modrinth App's app-level synced-options store
+/// (`command_history.txt`, `hotbars/`, `servers/` - shared, symlinked into
+/// every instance that opts in, not per-instance content) into Dyad's own
+/// store, given `source_config_dir` from a Phase 1 `ImportPreview`.
+///
+/// Deliberately only ever seeds an *empty* destination store: goal 6's
+/// per-instance copy (`copy_selected_content`) can safely re-run against an
+/// already-populated instance because it's just files under that instance's
+/// own folder, but this store is shared app-wide and already-synced
+/// accounts' data lives in it - merging into a non-empty store correctly
+/// would mean reproducing this feature's own join/merge logic
+/// (`synced_options::orchestration`) rather than a plain file copy, which is
+/// out of scope for this pass. A no-op "skip" here still leaves every
+/// per-instance root file (`servers.dat`, `hotbar.nbt`,
+/// `command_history.txt`) copied via `include_other_files` instead, just as
+/// plain files rather than through the sync mechanism.
+pub async fn migrate_synced_options_store(
+    source_config_dir: &Path,
+) -> crate::Result<SyncedOptionsMigrationOutcome> {
+    let source_dir =
+        source_config_dir.join(crate::state::SYNCED_OPTIONS_FOLDER_NAME);
+    // `get_all_subfiles` treats a nonexistent path as a single (unstattable)
+    // "file" rather than "no files" (see `resolve_copy_manifest`'s doc
+    // comment) - guard explicitly rather than trusting an empty `Vec` here.
+    if !source_dir.is_dir() {
+        return Ok(SyncedOptionsMigrationOutcome::SkippedNothingToMigrate);
+    }
+    let source_files =
+        crate::api::pack::import::get_all_subfiles(&source_dir, false)
+            .await
+            .unwrap_or_default();
+    if source_files.is_empty() {
+        return Ok(SyncedOptionsMigrationOutcome::SkippedNothingToMigrate);
+    }
+
+    let state = crate::State::get().await?;
+    let dest_dir = state.directories.synced_options_dir();
+    let dest_files = if dest_dir.is_dir() {
+        crate::api::pack::import::get_all_subfiles(&dest_dir, false)
+            .await
+            .unwrap_or_default()
+    } else {
+        Vec::new()
+    };
+    if !dest_files.is_empty() {
+        return Ok(SyncedOptionsMigrationOutcome::SkippedDestNotEmpty);
+    }
+
+    for src_file in source_files {
+        let Ok(relative) = src_file.strip_prefix(&source_dir) else {
+            continue;
+        };
+        let dst_file = dest_dir.join(relative);
+        if let Some(parent) = dst_file.parent() {
+            crate::util::io::create_dir_all(parent).await?;
+        }
+        crate::util::io::copy(&src_file, &dst_file).await?;
+    }
+
+    Ok(SyncedOptionsMigrationOutcome::Migrated)
+}
+
 /// Turns a source instance's launch-overrides candidate into a Dyad
 /// `InstanceLaunchOverridesPatch` that only touches fields the source
 /// actually had set - anything not present in `candidate` is left as
 /// whatever a freshly created instance already has (Dyad's own defaults),
 /// same "only touch what we found" spirit as `apply_settings` above.
-/// `visible_tabs`/`allow_concurrent_launches` are Dyad-specific and have no
-/// source equivalent, so they're never touched here.
+/// `visible_tabs`/`allow_concurrent_launches`/`hide_from_discord` are Dyad-specific and
+/// have no source equivalent, so they're never touched here.
 pub fn launch_overrides_patch(
     candidate: &ImportLaunchOverridesCandidate,
 ) -> InstanceLaunchOverridesPatch {
@@ -407,6 +512,8 @@ pub fn launch_overrides_patch(
         }),
         visible_tabs: None,
         allow_concurrent_launches: None,
+        hide_from_discord: None,
+        background: None,
     }
 }
 
@@ -558,6 +665,7 @@ mod tests {
                 "mods".to_string(),
                 SymlinkAction::Ignore,
             )]),
+            ..Default::default()
         };
 
         let files =
@@ -565,6 +673,57 @@ mod tests {
         let relative = relative_paths(dir.path(), &files);
 
         assert_eq!(relative, HashSet::from(["config/c.txt".to_string()]));
+    }
+
+    #[tokio::test]
+    async fn manifest_includes_other_root_files_when_selected() {
+        let dir = fixture_instance_dir().await;
+        tokio::fs::write(dir.path().join("servers.dat"), "s").await.unwrap();
+        tokio::fs::create_dir_all(dir.path().join(".fabric/cache"))
+            .await
+            .unwrap();
+        tokio::fs::write(dir.path().join(".fabric/cache/x"), "x")
+            .await
+            .unwrap();
+
+        let dest = tempfile::tempdir().expect("failed to create temp dir");
+        let selection = ImportSelection {
+            categories: Vec::new(),
+            worlds: Vec::new(),
+            include_other_files: true,
+            ..Default::default()
+        };
+
+        let files =
+            resolve_copy_manifest(dir.path(), dest.path(), &selection).await;
+        let relative = relative_paths(dir.path(), &files);
+
+        // The loose root file is picked up, but the regenerable `.fabric`
+        // cache never is, even though it's the only other thing at the root.
+        assert_eq!(relative, HashSet::from(["servers.dat".to_string()]));
+    }
+
+    #[tokio::test]
+    async fn manifest_omits_other_root_files_when_not_selected() {
+        let dir = fixture_instance_dir().await;
+        tokio::fs::write(dir.path().join("servers.dat"), "s").await.unwrap();
+
+        let dest = tempfile::tempdir().expect("failed to create temp dir");
+        let selection = ImportSelection {
+            categories: vec![ContentCategory::Mods],
+            worlds: Vec::new(),
+            include_other_files: false,
+            ..Default::default()
+        };
+
+        let files =
+            resolve_copy_manifest(dir.path(), dest.path(), &selection).await;
+        let relative = relative_paths(dir.path(), &files);
+
+        assert_eq!(
+            relative,
+            HashSet::from(["mods/a.jar".to_string(), "mods/b.jar".to_string()])
+        );
     }
 
     #[tokio::test]
@@ -628,6 +787,8 @@ mod tests {
         assert!(patch.hooks.is_none());
         assert!(patch.visible_tabs.is_none());
         assert!(patch.allow_concurrent_launches.is_none());
+        assert!(patch.hide_from_discord.is_none());
+        assert!(patch.background.is_none());
     }
 
     #[test]

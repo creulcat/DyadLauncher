@@ -119,9 +119,6 @@ importers:
       '@tauri-apps/plugin-os':
         specifier: ^2.2.1
         version: 2.3.2
-      '@tauri-apps/plugin-updater':
-        specifier: ^2.7.1
-        version: 2.10.0
       '@tauri-apps/plugin-window-state':
         specifier: ^2.2.2
         version: 2.4.1
@@ -189,9 +186,6 @@ importers:
       '@nuxt/eslint-config':
         specifier: ^0.5.6
         version: 0.5.7(@typescript-eslint/utils@8.54.0(eslint@9.39.2(jiti@1.21.7))(typescript@5.9.3))(eslint@9.39.2(jiti@1.21.7))(typescript@5.9.3)
-      '@taijased/vue-render-tracker':
-        specifier: ^1.0.7
-        version: 1.0.7(vue@3.5.27(typescript@5.9.3))
       '@vitejs/plugin-vue':
         specifier: ^6.0.3
         version: 6.0.4(vite@8.0.3(@types/node@24.12.2)(esbuild@0.27.3)(jiti@1.21.7)(sass@1.97.3)(terser@5.46.0)(yaml@2.8.2))(vue@3.5.27(typescript@5.9.3))
@@ -4217,11 +4211,6 @@ packages:
     peerDependencies:
       '@svgdotjs/svg.js': ^3.2.4
 
-  '@taijased/vue-render-tracker@1.0.7':
-    resolution: {integrity: sha512-nW3eYHdqRiA1AhhOm2rHxHAQCTww9W3CDHd4DYFniqwy29X1W5HXeNjr/yt+8kysTqJsb5PUv0tN6nghKmPq5w==}
-    peerDependencies:
-      vue: ^3.0.0
-
   '@tailwindcss/container-queries@0.1.1':
     resolution: {integrity: sha512-p18dswChx6WnTSaJCSGx6lTmrGzNNvm2FtXmiO6AuA1V4U5REyoqwmT6kgAsIMdjo07QdAfYXHJ4hnMtfHzWgA==}
     peerDependencies:
@@ -4436,9 +4425,6 @@ packages:
 
   '@tauri-apps/plugin-os@2.3.2':
     resolution: {integrity: sha512-n+nXWeuSeF9wcEsSPmRnBEGrRgOy6jjkSU+UVCOV8YUGKb2erhDOxis7IqRXiRVHhY8XMKks00BJ0OAdkpf6+A==}
-
-  '@tauri-apps/plugin-updater@2.10.0':
-    resolution: {integrity: sha512-ljN8jPlnT0aSn8ecYhuBib84alxfMx6Hc8vJSKMJyzGbTPFZAC44T2I1QNFZssgWKrAlofvJqCC6Rr472JWfkQ==}
 
   '@tauri-apps/plugin-window-state@2.4.1':
     resolution: {integrity: sha512-OuvdrzyY8Q5Dbzpj+GcrnV1iCeoZbcFdzMjanZMMcAEUNy/6PH5pxZPXpaZLOR7whlzXiuzx0L9EKZbH7zpdRw==}
@@ -13898,10 +13884,6 @@ snapshots:
     dependencies:
       '@svgdotjs/svg.js': 3.2.5
 
-  '@taijased/vue-render-tracker@1.0.7(vue@3.5.27(typescript@5.9.3))':
-    dependencies:
-      vue: 3.5.27(typescript@5.9.3)
-
   '@tailwindcss/container-queries@0.1.1(tailwindcss@4.1.18)':
     dependencies:
       tailwindcss: 4.1.18
@@ -14060,10 +14042,6 @@ snapshots:
       '@tauri-apps/api': 2.10.1
 
   '@tauri-apps/plugin-os@2.3.2':
-    dependencies:
-      '@tauri-apps/api': 2.10.1
-
-  '@tauri-apps/plugin-updater@2.10.0':
     dependencies:
       '@tauri-apps/api': 2.10.1
 

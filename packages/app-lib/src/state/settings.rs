@@ -1,5 +1,6 @@
 //! Theseus settings file
 
+use super::BackgroundConfig;
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Sqlite};
 use std::collections::HashMap;
@@ -19,8 +20,8 @@ pub struct Settings {
     pub advanced_rendering: bool,
     pub native_decorations: bool,
     pub toggle_sidebar: bool,
-    pub sync_theme_across_devices: bool,
-    pub sync_behavior_across_devices: bool,
+    #[serde(default)]
+    pub background: BackgroundConfig,
 
     pub discord_rpc: bool,
 
@@ -42,8 +43,8 @@ pub struct Settings {
     pub skipped_update: Option<String>,
     pub pending_update_toast_for_version: Option<String>,
     pub auto_download_updates: Option<bool>,
-    /// Opt-in (off by default) toggle for checking for app updates at all. Independent of
-    /// whether the `updater` Cargo feature is compiled in -- this is the user-facing consent
+    /// Toggle for whether the launcher checks for app updates at all (on by default). Independent
+    /// of whether the `updater` Cargo feature is compiled in -- this is the user-facing consent
     /// gate on top of that build-time switch.
     pub check_for_updates: bool,
 
@@ -93,8 +94,8 @@ impl Settings {
                 hook_pre_launch, hook_wrapper, hook_post_exit,
                 custom_dir, prev_custom_dir, migrated, json(feature_flags) feature_flags, toggle_sidebar,
                 skipped_update, pending_update_toast_for_version, auto_download_updates,
-                sync_theme_across_devices, sync_behavior_across_devices,
                 check_for_updates,
+                background,
                 version
             FROM settings
             "
@@ -113,12 +114,7 @@ impl Settings {
             advanced_rendering: res.advanced_rendering == 1,
             native_decorations: res.native_decorations == 1,
             toggle_sidebar: res.toggle_sidebar == 1,
-            // Discord Rich Presence is force-disabled for now, regardless of what's stored:
-            // its toggle is hidden in the app (see AppSettingsModal.vue) because the presence
-            // still shows Modrinth branding, which this fork doesn't want to display. The
-            // stored `res.discord_rpc` value is intentionally ignored rather than migrated
-            // away, so this can be flipped back to `res.discord_rpc == 1` to restore it later.
-            discord_rpc: false,
+            discord_rpc: res.discord_rpc == 1,
             developer_mode: res.developer_mode == 1,
             extra_launch_args: res
                 .extra_launch_args
@@ -156,9 +152,13 @@ impl Settings {
             pending_update_toast_for_version: res
                 .pending_update_toast_for_version,
             auto_download_updates: res.auto_download_updates.map(|x| x == 1),
-            sync_theme_across_devices: res.sync_theme_across_devices == 1,
-            sync_behavior_across_devices: res.sync_behavior_across_devices == 1,
             check_for_updates: res.check_for_updates == 1,
+            background: res
+                .background
+                .as_ref()
+                .and_then(|x| serde_json::from_str::<BackgroundConfig>(x).ok())
+                .unwrap_or_default()
+                .sanitized(),
             version: res.version as usize,
         })
     }
@@ -174,6 +174,8 @@ impl Settings {
         let extra_launch_args = serde_json::to_string(&self.extra_launch_args)?;
         let custom_env_vars = serde_json::to_string(&self.custom_env_vars)?;
         let feature_flags = serde_json::to_string(&self.feature_flags)?;
+        let background =
+            serde_json::to_string(&self.background.clone().sanitized())?;
         let version = self.version as i64;
 
         sqlx::query!(
@@ -217,12 +219,11 @@ impl Settings {
                 pending_update_toast_for_version = $28,
                 auto_download_updates = $29,
 
-                sync_theme_across_devices = $30,
-                sync_behavior_across_devices = $31,
+                check_for_updates = $30,
 
-                check_for_updates = $32,
+                background = $31,
 
-                version = $33
+                version = $32
             ",
             max_concurrent_writes,
             max_concurrent_downloads,
@@ -253,9 +254,8 @@ impl Settings {
             self.skipped_update,
             self.pending_update_toast_for_version,
             self.auto_download_updates,
-            self.sync_theme_across_devices,
-            self.sync_behavior_across_devices,
             self.check_for_updates,
+            background,
             version,
         )
         .execute(exec)

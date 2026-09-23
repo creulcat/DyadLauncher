@@ -95,6 +95,8 @@ pub fn init<R: tauri::Runtime>() -> tauri::plugin::TauriPlugin<R> {
             instance_get_recent_icon_configs,
             instance_export_mrpack,
             instance_get_pack_export_candidates,
+            instance_compare,
+            instance_compare_export,
         ])
         .build()
 }
@@ -132,6 +134,8 @@ pub struct Instance {
     pub hooks: Hooks,
     pub visible_tabs: InstanceTabVisibility,
     pub allow_concurrent_launches: bool,
+    pub hide_from_discord: bool,
+    pub background: Option<BackgroundConfig>,
 }
 
 #[derive(Serialize, Debug, Clone)]
@@ -274,6 +278,13 @@ pub struct EditInstance {
     pub hooks: Option<Hooks>,
     pub visible_tabs: Option<InstanceTabVisibility>,
     pub allow_concurrent_launches: Option<bool>,
+    pub hide_from_discord: Option<bool>,
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        with = "serde_with::rust::double_option"
+    )]
+    pub background: Option<Option<BackgroundConfig>>,
 }
 
 impl From<InstanceMetadata> for Instance {
@@ -316,6 +327,8 @@ impl From<InstanceMetadata> for Instance {
             allow_concurrent_launches: metadata
                 .launch_overrides
                 .allow_concurrent_launches,
+            hide_from_discord: metadata.launch_overrides.hide_from_discord,
+            background: metadata.launch_overrides.background,
         }
     }
 }
@@ -486,6 +499,8 @@ fn edit_to_core(edit_instance: EditInstance) -> Result<CoreEditInstance> {
             hooks: edit_instance.hooks,
             visible_tabs: edit_instance.visible_tabs,
             allow_concurrent_launches: edit_instance.allow_concurrent_launches,
+            hide_from_discord: edit_instance.hide_from_discord,
+            background: edit_instance.background,
         }),
         content_set_patch: Some(AppliedContentSetPatch {
             source_kind: None,
@@ -1155,6 +1170,21 @@ pub async fn instance_get_pack_export_candidates(
         parent,
     )
     .await?)
+}
+
+#[tauri::command]
+pub async fn instance_compare(
+    instance_ids: Vec<String>,
+) -> Result<theseus::instance::ComparisonReport> {
+    Ok(theseus::instance::compare_instances(instance_ids).await?)
+}
+
+#[tauri::command]
+pub async fn instance_compare_export(
+    instance_ids: Vec<String>,
+    format: theseus::instance::ComparisonExportFormat,
+) -> Result<String> {
+    Ok(theseus::instance::export_comparison(instance_ids, format).await?)
 }
 
 #[tauri::command]

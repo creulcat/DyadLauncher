@@ -6,7 +6,7 @@ use crate::state::{
     CacheBehaviour, CachedEntry, Dependency, DependencyType, KnownModrinthFile,
     ModLoader, ProjectType, State, Version, cache_file_hash,
 };
-use crate::util::fetch::{self, DownloadMeta, DownloadReason};
+use crate::util::fetch::{self, DownloadReason};
 use crate::util::io;
 use async_trait::async_trait;
 use bytes::Bytes;
@@ -363,22 +363,12 @@ pub(crate) async fn add_project_from_version(
 }
 
 pub(crate) async fn download_project_version(
-    instance_id: &str,
+    _instance_id: &str,
     version_id: &str,
-    reason: DownloadReason,
-    dependent_on_version_id: Option<String>,
+    _reason: DownloadReason,
+    _dependent_on_version_id: Option<String>,
     state: &State,
 ) -> crate::Result<DownloadedProjectVersion> {
-    let scope = resolve_content_scope(instance_id, None, state).await?;
-    let content_set =
-        content_rows::get_content_set(&scope.content_set_id, &state.pool)
-            .await?
-            .ok_or_else(|| {
-                crate::ErrorKind::InputError(format!(
-                    "Unknown content set {}",
-                    scope.content_set_id
-                ))
-            })?;
     let version = CachedEntry::get_version(
         version_id,
         None,
@@ -401,16 +391,9 @@ pub(crate) async fn download_project_version(
                 "No files for input version present!".to_string(),
             )
         })?;
-    let download_meta = DownloadMeta {
-        reason,
-        game_version: content_set.game_version,
-        loader: content_set.loader.as_str().to_string(),
-        dependent_on: dependent_on_version_id,
-    };
     let bytes = fetch::fetch(
         &file.url,
         file.hashes.get("sha1").map(|hash| hash.as_str()),
-        Some(&download_meta),
         None,
         &state.fetch_semaphore,
         &state.pool,

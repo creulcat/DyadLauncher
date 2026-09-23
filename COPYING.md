@@ -19,3 +19,16 @@ This includes, but may not be limited to, the following files:
 - .github/assets/web_cover.png
 
 If you fork this repository, you must remove all Modrinth branding assets from your fork.
+
+## Dyad Branding
+
+The Dyad name and the Dyad mark (`docs/branding/mark.svg`, `docs/branding/mark-glyph.svg`, and
+every icon/logo derived from them throughout the repo) are **not** covered by the GPLv3 license
+above. They remain copyrighted and all rights are reserved.
+
+> All rights reserved. © 2025 creulcat.
+
+Using the Dyad name or mark to identify a fork, build, or redistribution of this project — or
+anything implying official affiliation — is not permitted without explicit written permission.
+The underlying source code stays free to fork, modify, and redistribute under the GPLv3; you just
+need to rebrand it (swap the name and the mark) to do so.

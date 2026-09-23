@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "\n\t\tSELECT\n\t\t\tinstance_id,\n\t\t\tjson(overrides) AS \"overrides!: String\"\n\t\tFROM instance_launch_overrides\n\t\t",
+  "describe": {
+    "columns": [
+      {
+        "name": "instance_id",
+        "ordinal": 0,
+        "type_info": "Text"
+      },
+      {
+        "name": "overrides!: String",
+        "ordinal": 1,
+        "type_info": "Null"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "8e039c3d0c0485409d7f58eff9a6d46710a1ae0132a1cd022062c0a460a9cef7"
+}

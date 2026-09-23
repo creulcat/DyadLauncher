@@ -1,4 +1,3 @@
-import type { AbstractModrinthClient } from '@modrinth/api-client'
 import type { AbstractPopupNotificationManager, AbstractWebNotificationManager } from '@modrinth/ui'
 
 import type { InstanceIconConfig } from '@/helpers/types'
@@ -9,17 +8,17 @@ import { setupFileDropProvider } from './setup/file-drop'
 import { setupFilePickerProvider } from './setup/file-picker'
 import { setupImageViewerEditorProvider } from './setup/image-viewer-editor'
 import { setupInstanceImportProvider } from './setup/instance-import'
+import { setupMigrateModrinthAppModalProvider } from './setup/migrate-modrinth-app-modal'
 import { setupTagsProvider } from './setup/tags'
 import { setupUserCountryProvider } from './setup/user-country'
 
 export function setupProviders(
-	client: AbstractModrinthClient,
 	notificationManager: AbstractWebNotificationManager,
 	_popupNotificationManager: AbstractPopupNotificationManager,
 	_appEvents: AppEvents,
 	getGeneratedIconConfig?: (iconPath: string) => InstanceIconConfig | null,
 ) {
-	setupUserCountryProvider(client)
+	setupUserCountryProvider()
 	setupTagsProvider(notificationManager)
 	setupFileDropProvider()
 	setupFilePickerProvider()
@@ -28,5 +27,6 @@ export function setupProviders(
 
 	return {
 		...setupCreationModal(notificationManager, getGeneratedIconConfig),
+		...setupMigrateModrinthAppModalProvider(),
 	}
 }

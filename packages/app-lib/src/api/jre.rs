@@ -240,7 +240,6 @@ async fn auto_install_java_inner(
                 None,
                 None,
                 None,
-                None,
                 loading_bar.as_ref().map(|loading_bar| (loading_bar, 80.0)),
                 None,
                 &state.fetch_semaphore,
@@ -252,7 +251,6 @@ async fn auto_install_java_inner(
             fetch_advanced(
                 Method::GET,
                 &download.download_url,
-                None,
                 None,
                 None,
                 None,

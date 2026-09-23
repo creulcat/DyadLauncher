@@ -27,6 +27,7 @@
     "i18n:coverage": "node scripts/run.mjs coverage-i18n --write packages/ui/src/layouts/wrapped/settings/language-settings/language-settings-coverage.generated.ts --quiet",
     "changelog:collect": "node scripts/run.mjs collect-changelog",
     "changelog:combine-for-app": "node scripts/run.mjs build-theseus-release-notes",
+    "network:check-allowlist": "node scripts/run.mjs check-network-allowlist",
     "scripts": "node scripts/run.mjs"
   },
   "devDependencies": {

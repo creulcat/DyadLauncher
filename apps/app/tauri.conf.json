@@ -103,10 +103,12 @@
 					"$APPDATA/caches/icons/*",
 					"$APPCONFIG/caches/icons/*",
 					"$CONFIG/caches/icons/*",
+					"$APPDATA/caches/backgrounds/*",
+					"$APPCONFIG/caches/backgrounds/*",
+					"$CONFIG/caches/backgrounds/*",
 					"$APPDATA/profiles/*/saves/*/icon.png",
 					"$APPCONFIG/profiles/*/saves/*/icon.png",
-					"$CONFIG/profiles/*/saves/*/icon.png",
-					"$DATA/ModrinthApp/caches/icons/*"
+					"$CONFIG/profiles/*/saves/*/icon.png"
 				],
 				"enable": true
 			},
@@ -116,12 +118,12 @@
 			],
 			"csp": {
 				"default-src": "'self' customprotocol: asset:",
-				"connect-src": "ipc: http://ipc.localhost https://modrinth.com https://*.modrinth.com https://*.nodes.modrinth.com https://api.mclo.gs http://textures.minecraft.net https://textures.minecraft.net https://js.stripe.com https://*.stripe.com wss://*.stripe.com wss://*.nodes.modrinth.com https://*.taila228c5.ts.net https://*.taila228c5.ts.net wss://*.taila228c5.ts.net https://fill.papermc.io https://api.purpurmc.org 'self' data: blob:",
+				"connect-src": "ipc: http://ipc.localhost https://modrinth.com https://*.modrinth.com https://api.mclo.gs http://textures.minecraft.net https://textures.minecraft.net 'self' data: blob:",
 				"font-src": "https://cdn-raw.modrinth.com/fonts/",
 				"img-src": "https: 'unsafe-inline' 'self' asset: http://asset.localhost http://textures.minecraft.net blob: data:",
 				"style-src": "'unsafe-inline' 'self'",
-				"script-src": "https://js.stripe.com 'self'",
-				"frame-src": "https://www.youtube.com https://www.youtube-nocookie.com https://discord.com https://js.stripe.com https://hooks.stripe.com 'self'",
+				"script-src": "'self'",
+				"frame-src": "https://www.youtube.com https://www.youtube-nocookie.com https://discord.com 'self'",
 				"media-src": "https://*.githubusercontent.com"
 			}
 		}

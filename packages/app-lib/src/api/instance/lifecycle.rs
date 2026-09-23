@@ -62,7 +62,19 @@ pub async fn edit(
     patch: EditInstance,
 ) -> crate::Result<InstanceMetadata> {
     let state = State::get().await?;
+    let changes_discord_visibility = patch
+        .launch_overrides
+        .as_ref()
+        .is_some_and(|overrides| overrides.hide_from_discord.is_some());
+    let changes_background = patch
+        .launch_overrides
+        .as_ref()
+        .is_some_and(|overrides| overrides.background.is_some());
     crate::state::edit_instance(instance_id, patch, &state.pool).await?;
+
+    if changes_background {
+        crate::api::background::collect_garbage().await;
+    }
 
     let instance = crate::state::get_instance(instance_id, &state.pool)
         .await?
@@ -70,6 +82,15 @@ pub async fn edit(
             crate::ErrorKind::InputError("Unknown instance".to_string())
                 .as_error()
         })?;
+
+    // Hiding or showing an instance that is running right now should apply straight away
+    if changes_discord_visibility
+        && let Err(e) = state.discord_rpc.refresh(true).await
+    {
+        tracing::warn!(
+            "Failed to refresh Discord presence after instance change: {e}"
+        );
+    }
 
     super::reconcile_instance_synced_options(instance_id).await?;
 
@@ -109,6 +130,7 @@ pub async fn remove(instance_id: &str) -> crate::Result<()> {
     )
     .await?;
     crate::state::remove_instance(instance_id, &state).await?;
+    crate::api::background::collect_garbage().await;
 
     if let Some(instance) = instance {
         emit_instance(&instance.id, InstancePayloadType::Removed).await?;

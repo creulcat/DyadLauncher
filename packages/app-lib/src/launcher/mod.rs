@@ -1137,14 +1137,9 @@ pub async fn launch_minecraft(
         }
     }
 
-    let _ = state
-        .discord_rpc
-        .set_activity(&format!("Playing {}", instance.name), true)
-        .await;
-
     // Create Minecraft child by inserting it into the state
     // This also spawns the process and prepares the subsequent processes
-    state
+    let metadata = state
         .process_manager
         .insert_new_process(
             &instance.id,
@@ -1187,5 +1182,10 @@ pub async fn launch_minecraft(
                 Ok(())
             },
         )
-        .await
+        .await?;
+
+    // The process is registered now, so the presence can include it
+    let _ = state.discord_rpc.refresh(true).await;
+
+    Ok(metadata)
 }

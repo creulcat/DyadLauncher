@@ -31,6 +31,11 @@ export default new createRouter({
 			component: Pages.Screenshots,
 		},
 		{
+			path: '/compare',
+			name: 'Compare',
+			component: Pages.Compare,
+		},
+		{
 			path: '/user/:user/:projectType?',
 			name: 'User',
 			component: Pages.User,

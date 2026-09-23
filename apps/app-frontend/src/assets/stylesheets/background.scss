@@ -1,0 +1,68 @@
+/*
+ * Launcher backgrounds (see composables/use-background.ts). While a background is showing, the app
+ * shell gets translucent copies of the theme surfaces so the image shows through. Tailwind's
+ * `bg-bg` / `bg-surface-*` classes read the `--surface-*` variables directly, so redefining them
+ * here is enough. Teleported modals and menus sit outside the shell and stay opaque.
+ *
+ * A custom property that references itself is invalid, so the theme's own solid values are copied
+ * to `--surface-*-solid` on `html`, above the scope that redefines them.
+ */
+html {
+	--surface-1-solid: var(--surface-1);
+	--surface-1-5-solid: var(--surface-1-5);
+	--surface-2-solid: var(--surface-2);
+	--surface-2-5-solid: var(--surface-2-5);
+	--surface-3-solid: var(--surface-3);
+	--surface-4-solid: var(--surface-4);
+	--surface-5-solid: var(--surface-5);
+}
+
+html.has-background {
+	.app-grid-layout,
+	.app-contents {
+		/* 40% opaque at no dim, up to 95% at full dim */
+		--panel-opacity: calc((40 + var(--background-dim, 40) * 0.55) * 1%);
+
+		--surface-1: color-mix(in srgb, var(--surface-1-solid) var(--panel-opacity), transparent);
+		--surface-1-5: color-mix(in srgb, var(--surface-1-5-solid) var(--panel-opacity), transparent);
+		--surface-2: color-mix(in srgb, var(--surface-2-solid) var(--panel-opacity), transparent);
+		--surface-2-5: color-mix(in srgb, var(--surface-2-5-solid) var(--panel-opacity), transparent);
+		--surface-3: color-mix(in srgb, var(--surface-3-solid) var(--panel-opacity), transparent);
+		--surface-4: color-mix(in srgb, var(--surface-4-solid) var(--panel-opacity), transparent);
+		--surface-5: color-mix(in srgb, var(--surface-5-solid) var(--panel-opacity), transparent);
+
+		--color-bg: var(--surface-1);
+		--color-raised-bg: var(--surface-3);
+		--color-super-raised-bg: var(--surface-4);
+		--color-button-bg: var(--surface-4);
+	}
+
+	.app-grid-layout {
+		background-color: transparent;
+	}
+
+	.app-sidebar::after {
+		display: none;
+	}
+
+	/*
+	 * The content area's rounded top-left corner only looks right against the flat theme colour
+	 * behind it. Over a background it cuts a wedge out of the content and shows the image through.
+	 */
+	.app-contents,
+	.app-contents::before,
+	.loading-indicator-container,
+	#background-teleport-target {
+		border-top-left-radius: 0;
+	}
+
+	/*
+	 * The window controls are teleported out of the app shell, so they keep an opaque surface while
+	 * the status bar under them turns translucent. The bar already spans the full width, so the
+	 * controls draw nothing of their own.
+	 */
+	.window-controls {
+		background-color: transparent;
+		border-bottom-left-radius: 0;
+	}
+}

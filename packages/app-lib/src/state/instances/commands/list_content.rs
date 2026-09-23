@@ -15,9 +15,7 @@ use crate::state::{
     ProjectType, ReleaseChannel, TeamMember, Version, VersionEnvironment,
     VersionV3,
 };
-use crate::util::fetch::{
-    DownloadMeta, DownloadReason, FetchSemaphore, fetch_mirrors, sha1_async,
-};
+use crate::util::fetch::{FetchSemaphore, fetch_mirrors, sha1_async};
 use async_zip::base::read::seek::ZipFileReader;
 use dashmap::DashMap;
 use sqlx::SqlitePool;
@@ -302,7 +300,6 @@ pub(crate) async fn list_linked_modpack_content(
     };
     let modpack_ids = match get_modpack_identifiers(
         &version_id,
-        &resolved.content_set,
         &state.pool,
         &state.api_semaphore,
     )
@@ -1274,7 +1271,6 @@ async fn get_cached_modpack_identifiers(
 
 async fn get_modpack_identifiers(
     version_id: &str,
-    content_set: &ContentSet,
     pool: &SqlitePool,
     fetch_semaphore: &FetchSemaphore,
 ) -> crate::Result<ModpackIdentifiers> {
@@ -1335,16 +1331,9 @@ async fn get_modpack_identifiers(
                 "No files found for modpack version {version_id}"
             ))
         })?;
-    let download_meta = DownloadMeta {
-        reason: DownloadReason::Modpack,
-        game_version: content_set.game_version.clone(),
-        loader: content_set.loader.as_str().to_string(),
-        dependent_on: Some(version_id.to_string()),
-    };
     let mrpack_bytes = fetch_mirrors(
         &[&primary_file.url],
         primary_file.hashes.get("sha1").map(String::as_str),
-        Some(&download_meta),
         None,
         fetch_semaphore,
         pool,

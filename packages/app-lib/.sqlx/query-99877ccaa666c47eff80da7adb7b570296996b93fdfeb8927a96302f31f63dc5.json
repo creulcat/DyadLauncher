@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n            SELECT\n                max_concurrent_writes, max_concurrent_downloads,\n                theme, locale, default_page, collapsed_navigation, hide_nametag_skins_page, advanced_rendering, native_decorations,\n                discord_rpc, developer_mode,\n                json(extra_launch_args) extra_launch_args, json(custom_env_vars) custom_env_vars,\n                mc_memory_max, mc_force_fullscreen, mc_game_resolution_x, mc_game_resolution_y, hide_on_process_start,\n                hook_pre_launch, hook_wrapper, hook_post_exit,\n                custom_dir, prev_custom_dir, migrated, json(feature_flags) feature_flags, toggle_sidebar,\n                skipped_update, pending_update_toast_for_version, auto_download_updates,\n                sync_theme_across_devices, sync_behavior_across_devices,\n                check_for_updates,\n                version\n            FROM settings\n            ",
+  "query": "\n            SELECT\n                max_concurrent_writes, max_concurrent_downloads,\n                theme, locale, default_page, collapsed_navigation, hide_nametag_skins_page, advanced_rendering, native_decorations,\n                discord_rpc, developer_mode,\n                json(extra_launch_args) extra_launch_args, json(custom_env_vars) custom_env_vars,\n                mc_memory_max, mc_force_fullscreen, mc_game_resolution_x, mc_game_resolution_y, hide_on_process_start,\n                hook_pre_launch, hook_wrapper, hook_post_exit,\n                custom_dir, prev_custom_dir, migrated, json(feature_flags) feature_flags, toggle_sidebar,\n                skipped_update, pending_update_toast_for_version, auto_download_updates,\n                check_for_updates,\n                background,\n                version\n            FROM settings\n            ",
   "describe": {
     "columns": [
       {
@@ -149,23 +149,18 @@
         "type_info": "Integer"
       },
       {
-        "name": "sync_theme_across_devices",
+        "name": "check_for_updates",
         "ordinal": 29,
         "type_info": "Integer"
       },
       {
-        "name": "sync_behavior_across_devices",
+        "name": "background",
         "ordinal": 30,
-        "type_info": "Integer"
-      },
-      {
-        "name": "check_for_updates",
-        "ordinal": 31,
-        "type_info": "Integer"
+        "type_info": "Text"
       },
       {
         "name": "version",
-        "ordinal": 32,
+        "ordinal": 31,
         "type_info": "Integer"
       }
     ],
@@ -203,10 +198,9 @@
       true,
       true,
       false,
-      false,
-      false,
+      true,
       false
     ]
   },
-  "hash": "f6b02097d270dbb0d413f28a024abf42096be709068a603257bf40883535ee76"
+  "hash": "99877ccaa666c47eff80da7adb7b570296996b93fdfeb8927a96302f31f63dc5"
 }

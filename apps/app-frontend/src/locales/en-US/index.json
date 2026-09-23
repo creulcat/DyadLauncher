@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Downloading Java {version}"
   },
-  "app.action-bar.downloading-update": {
-    "message": "Downloading update"
-  },
   "app.action-bar.downloads": {
     "message": "Downloads"
   },
@@ -107,9 +104,6 @@
   "app.action-bar.primary-instance": {
     "message": "Primary instance"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "Reload to update"
-  },
   "app.action-bar.show-downloads": {
     "message": "Show active downloads"
   },
@@ -118,9 +112,6 @@
   },
   "app.action-bar.stop-instance": {
     "message": "Stop instance"
-  },
-  "app.action-bar.update": {
-    "message": "Update"
   },
   "app.action-bar.view-active-downloads": {
     "message": "View active downloads"
@@ -192,16 +183,25 @@
     "message": "Cannot reach authentication servers"
   },
   "app.behavior-settings.check-for-updates.description": {
-    "message": "Periodically check GitHub for new Dyad Launcher releases, and offer to download and install them. Off by default."
+    "message": "Periodically check github.com for a new Dyad Launcher release. You can still check manually below. On by default."
   },
   "app.behavior-settings.check-for-updates.title": {
-    "message": "Check for updates"
+    "message": "Check for updates automatically"
   },
   "app.behavior-settings.confirmations.title": {
     "message": "Confirmations"
   },
   "app.behavior-settings.content.title": {
     "message": "Home and content"
+  },
+  "app.behavior-settings.discord-rich-presence.description": {
+    "message": "Show Dyad Launcher as your current activity on Discord. This does not affect Rich Presence added to instances by mods. Off by default."
+  },
+  "app.behavior-settings.discord-rich-presence.title": {
+    "message": "Discord Rich Presence"
+  },
+  "app.behavior-settings.discord.title": {
+    "message": "Discord"
   },
   "app.behavior-settings.show-all-screenshots.description": {
     "message": "View screenshots from all your instances on the Screenshots page."
@@ -274,6 +274,90 @@
   },
   "app.browse.server.installing": {
     "message": "Installing"
+  },
+  "app.compare.add-instance": {
+    "message": "Add instance"
+  },
+  "app.compare.content": {
+    "message": "Content"
+  },
+  "app.compare.copy": {
+    "message": "Copy"
+  },
+  "app.compare.filter.disabled-somewhere": {
+    "message": "Disabled somewhere"
+  },
+  "app.compare.filter.enabled-somewhere": {
+    "message": "Enabled somewhere"
+  },
+  "app.compare.format.json": {
+    "message": "JSON"
+  },
+  "app.compare.format.markdown": {
+    "message": "Markdown"
+  },
+  "app.compare.game-version": {
+    "message": "Minecraft version"
+  },
+  "app.compare.invalid-selection": {
+    "message": "Select at least two instances to compare"
+  },
+  "app.compare.loader": {
+    "message": "Loader"
+  },
+  "app.compare.no-content": {
+    "message": "No content matches the current filters"
+  },
+  "app.compare.no-more-instances": {
+    "message": "No other instances available"
+  },
+  "app.compare.remove-instance": {
+    "message": "Remove from comparison"
+  },
+  "app.compare.remove-instance-minimum": {
+    "message": "At least two instances are required to compare"
+  },
+  "app.compare.search-placeholder": {
+    "message": "Search content..."
+  },
+  "app.compare.state.enabled-differs": {
+    "message": "Enabled state differs"
+  },
+  "app.compare.state.identical": {
+    "message": "Identical"
+  },
+  "app.compare.state.only-in-some": {
+    "message": "Only in some"
+  },
+  "app.compare.state.version-differs": {
+    "message": "Version differs"
+  },
+  "app.compare.status": {
+    "message": "Status"
+  },
+  "app.compare.summary": {
+    "message": "{identical} identical · {onlyInSome} only in some · {versionDiffers} version differs · {enabledDiffers} enabled differs"
+  },
+  "app.compare.summary-overlap-note": {
+    "message": "(a row can count toward more than one status)"
+  },
+  "app.compare.tab.all": {
+    "message": "All"
+  },
+  "app.compare.tab.data-packs": {
+    "message": "Data Packs"
+  },
+  "app.compare.tab.mods": {
+    "message": "Mods"
+  },
+  "app.compare.tab.resource-packs": {
+    "message": "Resource Packs"
+  },
+  "app.compare.tab.shader-packs": {
+    "message": "Shader Packs"
+  },
+  "app.compare.title": {
+    "message": "Compare instances"
   },
   "app.content-install.no-compatible-versions": {
     "message": "No available versions match {compatibilityLabel}. Select a version to install anyway. Dependencies will not be installed automatically."
@@ -926,6 +1010,9 @@
   "app.library.selection.aria-label": {
     "message": "Selected instances"
   },
+  "app.library.selection.compare": {
+    "message": "Compare"
+  },
   "app.library.selection.deleting": {
     "message": "Deleting selected instances"
   },
@@ -964,6 +1051,135 @@
   },
   "app.library.title": {
     "message": "Library"
+  },
+  "app.migrate-modrinth-app.already-imported": {
+    "message": "Already imported as \"{name}\""
+  },
+  "app.migrate-modrinth-app.browse": {
+    "message": "Browse..."
+  },
+  "app.migrate-modrinth-app.cancel-all": {
+    "message": "Cancel all"
+  },
+  "app.migrate-modrinth-app.cancel-job": {
+    "message": "Cancel"
+  },
+  "app.migrate-modrinth-app.category.config": {
+    "message": "Config"
+  },
+  "app.migrate-modrinth-app.category.logs": {
+    "message": "Logs"
+  },
+  "app.migrate-modrinth-app.category.mods": {
+    "message": "Mods"
+  },
+  "app.migrate-modrinth-app.category.other-files": {
+    "message": "Other files (server list, waypoints, backups, ...)"
+  },
+  "app.migrate-modrinth-app.category.resource-packs": {
+    "message": "Resource packs"
+  },
+  "app.migrate-modrinth-app.category.saves": {
+    "message": "Worlds/saves"
+  },
+  "app.migrate-modrinth-app.category.screenshots": {
+    "message": "Screenshots"
+  },
+  "app.migrate-modrinth-app.category.shader-packs": {
+    "message": "Shader packs"
+  },
+  "app.migrate-modrinth-app.detecting": {
+    "message": "Looking for an official Modrinth App install..."
+  },
+  "app.migrate-modrinth-app.error.title": {
+    "message": "Couldn't read the Modrinth App install"
+  },
+  "app.migrate-modrinth-app.game-version-inferred": {
+    "message": "best guess, please double-check"
+  },
+  "app.migrate-modrinth-app.header": {
+    "message": "Import from Modrinth App"
+  },
+  "app.migrate-modrinth-app.import-button": {
+    "message": "Import"
+  },
+  "app.migrate-modrinth-app.import-copy-suffix": {
+    "message": "{name} (import copy)"
+  },
+  "app.migrate-modrinth-app.instances-title": {
+    "message": "Instances"
+  },
+  "app.migrate-modrinth-app.java-versions-title": {
+    "message": "Java installations"
+  },
+  "app.migrate-modrinth-app.launch-overrides": {
+    "message": "Also import this instance's launch overrides (JVM args, memory, hooks, Java path)"
+  },
+  "app.migrate-modrinth-app.need-folder.text": {
+    "message": "Pick the Modrinth App data folder manually (the one containing app.db)."
+  },
+  "app.migrate-modrinth-app.need-folder.title": {
+    "message": "Couldn't find a Modrinth App install"
+  },
+  "app.migrate-modrinth-app.no-game-version": {
+    "message": "Can't import - no recognizable game version"
+  },
+  "app.migrate-modrinth-app.overwrite-existing": {
+    "message": "Overwrite that instance instead of creating a copy"
+  },
+  "app.migrate-modrinth-app.progress-title": {
+    "message": "Import progress"
+  },
+  "app.migrate-modrinth-app.running.text": {
+    "message": "Close the official Modrinth App completely, then try again."
+  },
+  "app.migrate-modrinth-app.running.title": {
+    "message": "Modrinth App is still running"
+  },
+  "app.migrate-modrinth-app.settings-title": {
+    "message": "Global settings"
+  },
+  "app.migrate-modrinth-app.settings.custom-env-vars": {
+    "message": "Custom environment variables"
+  },
+  "app.migrate-modrinth-app.settings.extra-launch-args": {
+    "message": "Extra launch arguments"
+  },
+  "app.migrate-modrinth-app.settings.force-fullscreen": {
+    "message": "Force fullscreen"
+  },
+  "app.migrate-modrinth-app.settings.game-resolution": {
+    "message": "Game resolution"
+  },
+  "app.migrate-modrinth-app.settings.hooks": {
+    "message": "Pre-launch, wrapper, and post-exit hooks"
+  },
+  "app.migrate-modrinth-app.settings.memory-maximum": {
+    "message": "Maximum memory allocation"
+  },
+  "app.migrate-modrinth-app.symlink.copy": {
+    "message": "Copy"
+  },
+  "app.migrate-modrinth-app.symlink.ignore": {
+    "message": "Skip"
+  },
+  "app.migrate-modrinth-app.symlink.recreate": {
+    "message": "Link"
+  },
+  "app.migrate-modrinth-app.symlink.target-inside": {
+    "message": "This points inside the official Modrinth App itself - Link will copy its contents instead."
+  },
+  "app.migrate-modrinth-app.symlink.target-outside": {
+    "message": "Linked to {target} - Link keeps it there instead of copying it, so both installs would keep using the same files."
+  },
+  "app.migrate-modrinth-app.symlink.title": {
+    "message": "{category} (linked folder)"
+  },
+  "app.migrate-modrinth-app.try-again": {
+    "message": "Try again"
+  },
+  "app.migrate-modrinth-app.worlds-label": {
+    "message": "Worlds"
   },
   "app.modal.install-to-play.external-files-dont-install": {
     "message": "Don't install"
@@ -1099,9 +1315,6 @@
   },
   "app.quick-instance-switcher.view-instance": {
     "message": "View instance"
-  },
-  "app.restarting": {
-    "message": "Restarting..."
   },
   "app.screenshots.copied": {
     "message": "Copied"
@@ -1259,6 +1472,90 @@
   "app.settings.app-version": {
     "message": "Dyad Launcher {version}"
   },
+  "app.settings.background.blur": {
+    "message": "Blur"
+  },
+  "app.settings.background.blur-description": {
+    "message": "Softens the background image."
+  },
+  "app.settings.background.blur-disabled-description": {
+    "message": "Turn on advanced rendering to blur the background."
+  },
+  "app.settings.background.change-image": {
+    "message": "Change image…"
+  },
+  "app.settings.background.choose-image": {
+    "message": "Choose image…"
+  },
+  "app.settings.background.color": {
+    "message": "Color"
+  },
+  "app.settings.background.description": {
+    "message": "Show your own image, color or gradient behind the launcher. Each instance can override this in its own settings."
+  },
+  "app.settings.background.dim": {
+    "message": "Dim"
+  },
+  "app.settings.background.dim-description": {
+    "message": "Darkens the background and makes panels more solid, so text is easier to read."
+  },
+  "app.settings.background.gradient-angle": {
+    "message": "Angle"
+  },
+  "app.settings.background.gradient-from": {
+    "message": "From"
+  },
+  "app.settings.background.gradient-to": {
+    "message": "To"
+  },
+  "app.settings.background.image-hint": {
+    "message": "PNG, JPEG or WebP. The image is copied into the launcher, so moving or deleting the original will not affect it."
+  },
+  "app.settings.background.preview": {
+    "message": "Preview"
+  },
+  "app.settings.background.sample-panel": {
+    "message": "Panels look like this"
+  },
+  "app.settings.background.source": {
+    "message": "Background type"
+  },
+  "app.settings.background.source.color": {
+    "message": "Color"
+  },
+  "app.settings.background.source.gradient": {
+    "message": "Gradient"
+  },
+  "app.settings.background.source.image": {
+    "message": "Image"
+  },
+  "app.settings.background.source.none": {
+    "message": "None"
+  },
+  "app.settings.background.title": {
+    "message": "Background"
+  },
+  "app.settings.check-for-updates": {
+    "message": "Check for updates"
+  },
+  "app.settings.check-for-updates.checking": {
+    "message": "Checking..."
+  },
+  "app.settings.check-for-updates.download": {
+    "message": "Download"
+  },
+  "app.settings.check-for-updates.link-copied.text": {
+    "message": "The link was copied to your clipboard instead - paste it into a browser."
+  },
+  "app.settings.check-for-updates.link-copied.title": {
+    "message": "Could not open the download link"
+  },
+  "app.settings.check-for-updates.up-to-date": {
+    "message": "You're up to date"
+  },
+  "app.settings.check-for-updates.update-available": {
+    "message": "v{version} is available"
+  },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "Environment variables set when launching an instance."
   },
@@ -1349,20 +1646,20 @@
   "app.settings.developer-mode-enabled": {
     "message": "Developer mode enabled."
   },
-  "app.settings.downloading": {
-    "message": "Downloading v{version}"
-  },
   "app.settings.java-installations.location.title": {
     "message": "Java {version, number} location"
   },
+  "app.settings.migrate-modrinth-app.button": {
+    "message": "Import..."
+  },
+  "app.settings.migrate-modrinth-app.description": {
+    "message": "Bring instances, content, and settings over from an existing official Modrinth App install."
+  },
+  "app.settings.migrate-modrinth-app.title": {
+    "message": "Import from Modrinth App"
+  },
   "app.settings.operating-system.macos": {
     "message": "macOS"
-  },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Show Dyad Launcher as your current activity on Discord. This does not affect Rich Presence added to instances by mods. Requires an app restart."
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord Rich Presence"
   },
   "app.settings.resource-management.always-show-copy-details.description": {
     "message": "Show the Copy details action while an install is queued or running. It is always available for failed or interrupted installs."
@@ -1490,8 +1787,8 @@
   "app.settings.tabs.language": {
     "message": "Language"
   },
-  "app.settings.tabs.privacy": {
-    "message": "Privacy"
+  "app.settings.tabs.migrate-modrinth-app": {
+    "message": "Import from Modrinth App"
   },
   "app.settings.tabs.resource-management": {
     "message": "Resource management"
@@ -1501,6 +1798,9 @@
   },
   "app.sidebar.playing-as": {
     "message": "Playing as"
+  },
+  "app.sidebar.update-available": {
+    "message": "New update available v{version} - download now"
   },
   "app.skins.add-button": {
     "message": "Add skin"
@@ -1664,35 +1964,11 @@
   "app.skins.toggle-ears-features-on": {
     "message": "Toggle on"
   },
-  "app.update-popup.body.download-complete": {
-    "message": "Dyad Launcher v{version} has finished downloading. Reload to update now, or automatically when you close Dyad Launcher."
+  "app.update.link-copied.text": {
+    "message": "The link was copied to your clipboard instead - paste it into a browser."
   },
-  "app.update-popup.body.metered": {
-    "message": "Dyad Launcher v{version} is available now! Since you're on a metered network, we didn't automatically download it."
-  },
-  "app.update-popup.changelog": {
-    "message": "Changelog"
-  },
-  "app.update-popup.download": {
-    "message": "Download ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "Download complete"
-  },
-  "app.update-popup.reload": {
-    "message": "Reload to update"
-  },
-  "app.update-popup.title": {
-    "message": "Update available"
-  },
-  "app.update.complete-toast.text": {
-    "message": "Click here to view the changelog."
-  },
-  "app.update.complete-toast.title": {
-    "message": "Version {version} was successfully installed!"
-  },
-  "app.update.download-error.missing-version": {
-    "message": "Failed to download update: no version available"
+  "app.update.link-copied.title": {
+    "message": "Could not open the download link"
   },
   "app.user.project.install-to-instance": {
     "message": "Install to instance"
@@ -1703,8 +1979,17 @@
   "app.welcome-screen.description": {
     "message": "Ready to start playing?"
   },
+  "app.welcome-screen.discord-rich-presence.description": {
+    "message": "Let friends see what you are playing with Discord Rich Presence. Off by default; change it any time in Settings, under Behavior."
+  },
+  "app.welcome-screen.discord-rich-presence.title": {
+    "message": "Show on Discord"
+  },
   "app.welcome-screen.import-from-launcher": {
     "message": "Import from launcher"
+  },
+  "app.welcome-screen.import-from-modrinth-app": {
+    "message": "Import from Modrinth App"
   },
   "app.welcome-screen.import-prompt": {
     "message": "Escaping another launcher?"
@@ -2090,6 +2375,21 @@
   "instance.settings.tabs.general.allow-concurrent-launches.description": {
     "message": "Lets this instance be launched more than once at a time, each under a different account, all pointed at this same instance folder. Known tradeoff: logs/latest.log, usercache.json, and crash reports can be overwritten or interleaved between the running copies, and a world open in more than one copy at once can corrupt. Only enable this if you understand and accept that risk."
   },
+  "instance.settings.tabs.general.background": {
+    "message": "Background"
+  },
+  "instance.settings.tabs.general.background.description": {
+    "message": "Choose the background shown on this instance's pages. This does not change the game."
+  },
+  "instance.settings.tabs.general.background.mode.custom": {
+    "message": "Custom"
+  },
+  "instance.settings.tabs.general.background.mode.inherit": {
+    "message": "Use launcher background"
+  },
+  "instance.settings.tabs.general.background.mode.none": {
+    "message": "None"
+  },
   "instance.settings.tabs.general.delete": {
     "message": "Delete instance"
   },
@@ -2137,6 +2437,12 @@
   },
   "instance.settings.tabs.general.name": {
     "message": "Name"
+  },
+  "instance.settings.tabs.general.show-in-discord": {
+    "message": "Show in Discord Rich Presence"
+  },
+  "instance.settings.tabs.general.show-in-discord.description": {
+    "message": "Show this instance on your Discord profile while you play it. Turn this off to keep it private; it is then left out entirely, and if it is the only instance running, nothing is shown. Only applies if Rich Presence is enabled in Settings, under Behavior."
   },
   "instance.settings.tabs.general.update-channel": {
     "message": "Update channel"

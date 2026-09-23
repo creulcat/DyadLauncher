@@ -37,6 +37,15 @@
 				<MinusIcon />
 				<span class="bar-label">{{ formatMessage(messages.removeFromGroup) }}</span>
 			</Button>
+			<Button
+				v-if="selectedInstanceCount >= 2"
+				type="quiet"
+				:disabled="busy"
+				@click="openComparison"
+			>
+				<ArrowLeftRightIcon />
+				<span class="bar-label">{{ formatMessage(messages.compare) }}</span>
+			</Button>
 			<div class="mx-1 h-6 w-px bg-surface-5" />
 			<Button
 				v-tooltip="deleting ? formatMessage(messages.deleting) : undefined"
@@ -59,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { MinusIcon, SquarePlusIcon, TrashIcon } from '@modrinth/assets'
+import { ArrowLeftRightIcon, MinusIcon, SquarePlusIcon, TrashIcon } from '@modrinth/assets'
 import {
 	Button,
 	commonMessages,
@@ -69,6 +78,7 @@ import {
 	useVIntl,
 } from '@modrinth/ui'
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 import { getLibraryInstanceSelectionKey, useLibrary } from '@/components/ui/library/use-library'
 import ConfirmDeleteInstanceModal from '@/components/ui/modal/ConfirmDeleteInstanceModal.vue'
@@ -78,6 +88,7 @@ import { set_group_memberships as setInstanceGroupMemberships } from '@/helpers/
 
 const { formatMessage } = useVIntl()
 const { handleError } = injectNotificationManager()
+const router = useRouter()
 const {
 	instances,
 	selectedLibraryInstances,
@@ -128,7 +139,20 @@ const messages = defineMessages({
 		id: 'app.library.selection.remove-from-group',
 		defaultMessage: 'Remove from group',
 	},
+	compare: {
+		id: 'app.library.selection.compare',
+		defaultMessage: 'Compare',
+	},
 })
+
+function openComparison() {
+	if (selectedInstanceCount.value < 2) return
+
+	router.push({
+		path: '/compare',
+		query: { ids: [...selectedInstanceIds.value].join(',') },
+	})
+}
 
 async function createGroupFromSelection() {
 	if (busy.value) return

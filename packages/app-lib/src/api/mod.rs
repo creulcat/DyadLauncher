@@ -1,5 +1,7 @@
 //! API for interacting with Theseus
+pub mod background;
 pub mod cache;
+pub mod discord;
 pub mod handler;
 pub mod instance;
 pub mod jre;
@@ -10,7 +12,6 @@ pub mod minecraft_auth;
 pub mod minecraft_skins;
 pub mod pack;
 pub mod process;
-pub mod reports;
 pub mod server_address;
 pub mod settings;
 pub mod tags;
@@ -19,16 +20,17 @@ pub mod worlds;
 
 pub mod data {
     pub use crate::state::{
-        AppliedContentSetPatch, CacheBehaviour, CacheValueType, ContentFile,
-        ContentItem, ContentItemOwner, ContentItemProject, ContentItemVersion,
+        AppliedContentSetPatch, BackgroundConfig, BackgroundSource,
+        CacheBehaviour, CacheValueType, ContentFile, ContentItem,
+        ContentItemOwner, ContentItemProject, ContentItemVersion,
         CreateInstance, Credentials, Dependency, DirectoryInfo, EditInstance,
         Hooks, InstanceIconBackground, InstanceIconConfig,
         InstanceInstallCandidate, InstanceInstallTarget,
         InstanceLaunchOverridesPatch, InstanceLink, InstanceMetadata,
         InstanceSyncedOption, InstanceSyncedOptions, InstanceTabVisibility,
-        JavaVersion, LinkedModpackInfo, MemorySettings, ModLoader, Organization,
-        OwnerType, ProcessMetadata, Project, ProjectType, ProjectV3,
-        SearchResult, SearchResults, SearchResultsV3,
+        JavaVersion, LauncherActivity, LinkedModpackInfo, MemorySettings,
+        ModLoader, Organization, OwnerType, ProcessMetadata, Project,
+        ProjectType, ProjectV3, SearchResult, SearchResults, SearchResultsV3,
         Settings, SharedInstanceAttachment, SharedInstanceRole, TeamMember,
         Theme, User, Version, WindowSize,
     };
@@ -41,8 +43,9 @@ pub mod data {
 
 pub mod prelude {
     pub use crate::{
-        State,
+        State, background,
         data::*,
+        discord,
         event::CommandPayload,
         install, instance, jre, metadata, minecraft_auth, pack, process,
         settings,

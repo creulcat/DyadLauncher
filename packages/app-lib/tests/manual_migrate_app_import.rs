@@ -10,6 +10,8 @@
 //!
 //!   cargo test -p theseus --test manual_migrate_app_import -- --ignored --nocapture
 
+#![recursion_limit = "256"]
+
 use std::time::Duration;
 use theseus::install::InstallJobStatus;
 use theseus::migrate_modrinth_app::execute::ImportSelection;
@@ -50,6 +52,7 @@ async fn import_real_instance_end_to_end() {
     let selection = ImportSelection {
         categories: vec![ContentCategory::Mods, ContentCategory::Config],
         worlds: vec![],
+        ..Default::default()
     };
 
     let snapshot = theseus::install::import_modrinth_app_instance(
@@ -64,6 +67,12 @@ async fn import_real_instance_end_to_end() {
         candidate.icon_path.clone(),
         selection,
         false,
+        None,
+        0,
+        None,
+        source.settings_dir.clone(),
+        candidate.source_id.clone(),
+        None,
     )
     .await
     .expect("import_modrinth_app_instance should start successfully");

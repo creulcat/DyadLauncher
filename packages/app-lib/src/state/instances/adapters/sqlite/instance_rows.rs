@@ -1197,6 +1197,27 @@ where
     row.map(TryInto::try_into).transpose()
 }
 
+pub(crate) async fn list_instance_launch_overrides<'e, E>(
+    exec: E,
+) -> crate::Result<Vec<InstanceLaunchOverrides>>
+where
+    E: Executor<'e, Database = Sqlite>,
+{
+    let rows = sqlx::query_as!(
+        InstanceLaunchOverridesRow,
+        r#"
+		SELECT
+			instance_id,
+			json(overrides) AS "overrides!: String"
+		FROM instance_launch_overrides
+		"#,
+    )
+    .fetch_all(exec)
+    .await?;
+
+    rows.into_iter().map(TryInto::try_into).collect()
+}
+
 pub(crate) async fn insert_instance(
     instance: &Instance,
     tx: &mut Transaction<'_, Sqlite>,

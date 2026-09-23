@@ -3,6 +3,8 @@ use serde::{Serialize, Serializer};
 use thiserror::Error;
 
 pub mod auth;
+pub mod background;
+pub mod discord;
 pub mod import;
 pub mod install;
 pub mod instance;
@@ -12,7 +14,6 @@ pub mod metadata;
 pub mod migrate_modrinth_app;
 pub mod minecraft_skins;
 pub mod process;
-pub mod reports;
 pub mod settings;
 pub mod shortcuts;
 pub mod tags;
@@ -44,14 +45,6 @@ pub enum TheseusSerializableError {
 
     #[error("Tauri error: {0}")]
     Tauri(#[from] tauri::Error),
-
-    #[cfg(feature = "updater")]
-    #[error("Updater error: {0}")]
-    Updater(#[from] tauri_plugin_updater::Error),
-
-    #[cfg(feature = "updater")]
-    #[error("HTTP error: {0}")]
-    Http(#[from] tauri_plugin_http::reqwest::Error),
 }
 
 // Generic implementation of From<T> for ErrorTypeA
@@ -117,16 +110,7 @@ macro_rules! impl_serialize {
 }
 
 // Use the macro to implement Serialize for TheseusSerializableError
-#[cfg(not(feature = "updater"))]
 impl_serialize! {
     IO,
     Tauri,
-}
-
-#[cfg(feature = "updater")]
-impl_serialize! {
-    IO,
-    Tauri,
-    Updater,
-    Http,
 }

@@ -14,8 +14,7 @@ use crate::state::{
     cache_file_hash,
 };
 use crate::util::fetch::{
-    DownloadMeta, DownloadReason, FetchProgressFn, fetch_mirrors_with_progress,
-    write,
+    DownloadReason, FetchProgressFn, fetch_mirrors_with_progress, write,
 };
 use crate::util::io;
 use async_zip::base::read::seek::ZipFileReader as SeekZipFileReader;
@@ -78,7 +77,6 @@ struct ModpackContentInstallContext {
     instance_id: String,
     instance_path: String,
     instance_full_path: PathBuf,
-    download_meta: DownloadMeta,
     pack_version_id: Option<String>,
     pack_project_id: Option<String>,
     reporter: InstallProgressReporter,
@@ -479,7 +477,7 @@ where
 pub(crate) async fn install_zipped_mrpack_files_with_reporter(
     create_pack: CreatePack,
     ignore_lock: bool,
-    reason: DownloadReason,
+    _reason: DownloadReason,
     reporter: InstallProgressReporter,
 ) -> crate::Result<String> {
     let state = &State::get().await?;
@@ -666,12 +664,6 @@ pub(crate) async fn install_zipped_mrpack_files_with_reporter(
                 ))
             })?;
     let instance_path = metadata.instance.path.clone();
-    let download_meta = DownloadMeta {
-        reason,
-        game_version: metadata.applied_content_set.game_version.clone(),
-        loader: metadata.applied_content_set.loader.as_str().to_string(),
-        dependent_on: version_id.clone(),
-    };
 
     let num_files = pack.files.len();
     let content_total_bytes = pack
@@ -726,7 +718,6 @@ pub(crate) async fn install_zipped_mrpack_files_with_reporter(
         instance_id: instance_id.clone(),
         instance_path: instance_path.clone(),
         instance_full_path: instance_full_path.clone(),
-        download_meta,
         pack_version_id: version_id.clone(),
         pack_project_id: project_id.clone(),
         reporter: reporter.clone(),
@@ -853,7 +844,6 @@ pub(crate) async fn install_zipped_mrpack_files_with_reporter(
                         .map(|x| &**x)
                         .collect::<Vec<&str>>(),
                     project.hashes.get(&PackFileHash::Sha1).map(|x| &**x),
-                    Some(&content_context.download_meta),
                     None,
                     &state.fetch_semaphore,
                     &state.pool,

@@ -11,8 +11,8 @@ use crate::state::{
     EditInstance, InstanceInstallStage, InstanceLink, SideType,
 };
 use crate::util::fetch::{
-    DownloadMeta, DownloadReason, FetchProgressFn, fetch,
-    fetch_advanced_with_progress, sha1_file_async_with_progress,
+    DownloadReason, FetchProgressFn, fetch, fetch_advanced_with_progress,
+    sha1_file_async_with_progress,
 };
 use path_util::SafeRelativeUtf8UnixPathBuf;
 use reqwest::Method;
@@ -305,7 +305,7 @@ pub(crate) async fn generate_pack_from_version_id_with_reporter(
     title: String,
     icon_url: Option<String>,
     instance_id: String,
-    reason: DownloadReason,
+    _reason: DownloadReason,
     reporter: InstallProgressReporter,
 ) -> crate::Result<CreatePack> {
     let state = State::get().await?;
@@ -363,22 +363,6 @@ pub(crate) async fn generate_pack_from_version_id_with_reporter(
             )
         })?;
 
-    let metadata =
-        crate::api::instance::get(&instance_id)
-            .await?
-            .ok_or_else(|| {
-                crate::ErrorKind::InputError(format!(
-                    "Unknown instance {instance_id}"
-                ))
-            })?;
-
-    let download_meta = DownloadMeta {
-        reason,
-        game_version: metadata.applied_content_set.game_version.clone(),
-        loader: metadata.applied_content_set.loader.as_str().to_string(),
-        dependent_on: Some(version_id.clone()),
-    };
-
     let details = InstallPhaseDetails::Modpack {
         project_id: Some(project_id.clone()),
         version_id: Some(version_id.clone()),
@@ -429,7 +413,6 @@ pub(crate) async fn generate_pack_from_version_id_with_reporter(
         hash.map(|x| &**x),
         None,
         None,
-        Some(&download_meta),
         None,
         None,
         &state.fetch_semaphore,
@@ -455,7 +438,6 @@ pub(crate) async fn generate_pack_from_version_id_with_reporter(
             .await?;
         let icon_bytes = fetch(
             &icon_url,
-            None,
             None,
             None,
             &state.fetch_semaphore,

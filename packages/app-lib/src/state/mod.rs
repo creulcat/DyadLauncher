@@ -2,7 +2,6 @@
 use crate::util::fetch::{FetchSemaphore, IoSemaphore};
 use dashmap::DashMap;
 use std::sync::Arc;
-use std::sync::atomic::AtomicBool;
 use tokio::sync::{Mutex, MutexGuard, OnceCell, OwnedMutexGuard, Semaphore};
 
 use crate::state::instances::watcher::FileWatcher;
@@ -17,6 +16,9 @@ pub use self::instance_types::*;
 
 pub(crate) mod instances;
 pub use self::instances::*;
+
+mod background;
+pub use self::background::*;
 
 mod settings;
 pub use self::settings::*;
@@ -82,8 +84,6 @@ pub struct State {
     //
     // /// App identifier string (like com.modrinth.ModrinthApp)
     // pub app_identifier: String,
-    pub restart_after_pending_update: AtomicBool,
-
     pub(crate) pool: SqlitePool,
 
     pub(crate) file_watcher: FileWatcher,
@@ -164,8 +164,10 @@ impl State {
                 tracing::error!("Error migrating legacy instance icons: {e}");
             }
 
+            crate::api::background::collect_garbage().await;
+
             let res = tokio::try_join!(
-                state.discord_rpc.clear_to_default(true),
+                state.discord_rpc.refresh(true),
                 instances::refresh_all_instances(),
                 Settings::migrate(&state.pool),
             );
@@ -252,7 +254,6 @@ impl State {
             synced_options_lock: Mutex::new(()),
             discord_rpc,
             process_manager,
-            restart_after_pending_update: AtomicBool::new(false),
             pool,
             file_watcher,
             // app_identifier,

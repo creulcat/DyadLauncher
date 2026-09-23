@@ -623,6 +623,8 @@ where
         hooks: input.hooks,
         visible_tabs: InstanceTabVisibility::default(),
         allow_concurrent_launches: false,
+        hide_from_discord: false,
+        background: None,
     };
     let launch_overrides_data = serde_json::to_string(
         &InstanceLaunchOverridesData::from(&launch_overrides),

@@ -5,12 +5,7 @@
 </template>
 
 <script setup>
-import {
-	ConsolePageLayout,
-	injectModrinthClient,
-	injectNotificationManager,
-	provideConsoleManager,
-} from '@modrinth/ui'
+import { ConsolePageLayout, injectNotificationManager, provideConsoleManager } from '@modrinth/ui'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, ref, shallowRef, triggerRef, watch, watchEffect } from 'vue'
 
@@ -21,7 +16,6 @@ import { delete_logs_by_filename, get_output_by_filename } from '@/helpers/logs.
 import { injectInstancePage } from '../instance-context'
 import { instanceKeys } from '../query-options'
 
-const client = injectModrinthClient()
 const { handleError } = injectNotificationManager()
 const instancePage = injectInstancePage()
 const instanceId = instancePage.instanceId
@@ -108,23 +102,6 @@ watchEffect(() => {
 	triggerRef(logLines)
 })
 
-const crashAnalysis = ref(null)
-
-async function analyseForCrash() {
-	const lines = liveConsole.output.value
-	if (lines.length === 0) return
-
-	const content = lines.map((l) => l.text).join('\n')
-	try {
-		const data = await client.mclogs.insights_v1.analyse(content)
-		if (data.analysis?.problems?.length > 0) {
-			crashAnalysis.value = data
-		}
-	} catch {
-		// Crash analysis is best-effort
-	}
-}
-
 const selectedLog = computed(() => filteredLogs.value[selectedLogIndex.value])
 
 const deleteDisabled = computed(() => {
@@ -158,10 +135,6 @@ provideConsoleManager({
 	deleteDisabledTooltip: 'Cannot delete latest.log while the instance is running',
 	shareDisabled: instancePage.offline,
 	emptyStateType: 'instance',
-	crashAnalysis,
-	onDismissCrash: () => {
-		crashAnalysis.value = null
-	},
 })
 
 watch(selectedLogIndex, async (newIndex) => {
@@ -187,10 +160,6 @@ watch(selectedLogIndex, async (newIndex) => {
 
 selectedLogIndex.value = 0
 
-if (!instancePage.playing.value) {
-	void analyseForCrash()
-}
-
 useAppEvent('log', (payload) => {
 	if (payload.instance_id !== instanceId.value) return
 
@@ -213,7 +182,6 @@ useAppEvent('process', async (e) => {
 		invalidate()
 		const { data } = await historicalLogsQuery.refetch()
 		if (data) logs.value = buildLogList(data)
-		void analyseForCrash()
 	}
 })
 </script>

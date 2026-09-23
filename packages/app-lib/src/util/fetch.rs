@@ -24,8 +24,6 @@ use tokio::sync::Semaphore;
 use tokio::{fs::File, io::AsyncReadExt, io::AsyncWriteExt};
 use tracing::{debug, info};
 
-pub const DOWNLOAD_META_HEADER: &str = "modrinth-download-meta";
-
 #[derive(Debug, derive_more::Display, Clone, Copy, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[display(rename_all = "snake_case")]
@@ -34,20 +32,6 @@ pub enum DownloadReason {
     Dependency,
     Modpack,
     Update,
-}
-
-#[derive(Debug, Clone, Serialize)]
-pub struct DownloadMeta {
-    pub reason: DownloadReason,
-    pub game_version: String,
-    pub loader: String,
-    pub dependent_on: Option<String>,
-}
-
-impl DownloadMeta {
-    pub fn to_header_value(&self) -> String {
-        serde_json::to_string(self).unwrap_or_default()
-    }
 }
 
 #[derive(Debug)]
@@ -368,7 +352,6 @@ pub type FetchProgressFn<'a> = dyn FnMut(
 pub async fn fetch(
     url: &str,
     sha1: Option<&str>,
-    download_meta: Option<&DownloadMeta>,
     uri_path: Option<&'static str>,
     semaphore: &FetchSemaphore,
     exec: impl sqlx::Executor<'_, Database = sqlx::Sqlite>,
@@ -379,7 +362,6 @@ pub async fn fetch(
         sha1,
         None,
         None,
-        download_meta,
         None,
         uri_path,
         semaphore,
@@ -392,7 +374,6 @@ pub async fn fetch(
 pub async fn fetch_with_client(
     url: &str,
     sha1: Option<&str>,
-    download_meta: Option<&DownloadMeta>,
     uri_path: Option<&'static str>,
     semaphore: &FetchSemaphore,
     exec: impl sqlx::Executor<'_, Database = sqlx::Sqlite>,
@@ -404,7 +385,6 @@ pub async fn fetch_with_client(
         sha1,
         None,
         None,
-        download_meta,
         None,
         uri_path,
         semaphore,
@@ -418,7 +398,6 @@ pub async fn fetch_with_client(
 pub async fn fetch_with_client_progress(
     url: &str,
     sha1: Option<&str>,
-    download_meta: Option<&DownloadMeta>,
     uri_path: Option<&'static str>,
     semaphore: &FetchSemaphore,
     exec: impl sqlx::Executor<'_, Database = sqlx::Sqlite>,
@@ -432,7 +411,6 @@ pub async fn fetch_with_client_progress(
         None,
         None,
         None,
-        download_meta,
         None,
         uri_path,
         semaphore,
@@ -457,8 +435,7 @@ where
     T: DeserializeOwned,
 {
     let result = fetch_advanced(
-        method, url, sha1, json_body, None, None, None, uri_path, semaphore,
-        exec,
+        method, url, sha1, json_body, None, None, uri_path, semaphore, exec,
     )
     .await?;
     let value = serde_json::from_slice(&result)?;
@@ -475,7 +452,6 @@ pub async fn fetch_advanced(
     sha1: Option<&str>,
     json_body: Option<serde_json::Value>,
     header: Option<(&str, &str)>,
-    download_meta: Option<&DownloadMeta>,
     loading_bar: Option<(&LoadingBarId, f64)>,
     uri_path: Option<&'static str>,
     semaphore: &FetchSemaphore,
@@ -487,7 +463,6 @@ pub async fn fetch_advanced(
         sha1,
         json_body,
         header,
-        download_meta,
         loading_bar,
         uri_path,
         semaphore,
@@ -516,7 +491,6 @@ pub async fn fetch_advanced_bytes(
         Some(body),
         header,
         None,
-        None,
         uri_path,
         semaphore,
         exec,
@@ -534,7 +508,6 @@ pub async fn fetch_advanced_with_progress(
     sha1: Option<&str>,
     json_body: Option<serde_json::Value>,
     header: Option<(&str, &str)>,
-    download_meta: Option<&DownloadMeta>,
     loading_bar: Option<(&LoadingBarId, f64)>,
     uri_path: Option<&'static str>,
     semaphore: &FetchSemaphore,
@@ -548,7 +521,6 @@ pub async fn fetch_advanced_with_progress(
         json_body,
         None,
         header,
-        download_meta,
         loading_bar,
         uri_path,
         semaphore,
@@ -568,7 +540,6 @@ pub async fn fetch_advanced_with_client(
     sha1: Option<&str>,
     json_body: Option<serde_json::Value>,
     header: Option<(&str, &str)>,
-    download_meta: Option<&DownloadMeta>,
     loading_bar: Option<(&LoadingBarId, f64)>,
     uri_path: Option<&'static str>,
     semaphore: &FetchSemaphore,
@@ -582,7 +553,6 @@ pub async fn fetch_advanced_with_client(
         json_body,
         None,
         header,
-        download_meta,
         loading_bar,
         uri_path,
         semaphore,
@@ -604,7 +574,6 @@ async fn fetch_advanced_with_client_and_progress(
     json_body: Option<serde_json::Value>,
     bytes_body: Option<Bytes>,
     header: Option<(&str, &str)>,
-    download_meta: Option<&DownloadMeta>,
     loading_bar: Option<(&LoadingBarId, f64)>,
     uri_path: Option<&'static str>,
     semaphore: &FetchSemaphore,
@@ -617,9 +586,6 @@ async fn fetch_advanced_with_client_and_progress(
     let is_api_url = url.starts_with(env!("MODRINTH_API_URL"))
         || url.starts_with(env!("MODRINTH_API_URL_V3"));
     let fence_key = if is_api_url { uri_path } else { None };
-
-    let download_meta_header = download_meta
-        .map(|m| (DOWNLOAD_META_HEADER.to_string(), m.to_header_value()));
 
     for attempt in 1..=(FETCH_ATTEMPTS + 1) {
         if is_api_url {
@@ -645,11 +611,6 @@ async fn fetch_advanced_with_client_and_progress(
 
         if let Some(header) = header {
             req = req.header(header.0, header.1);
-        }
-
-        if let Some((name, value)) = &download_meta_header {
-            tracing::debug!("Sending download analytics: {value}");
-            req = req.header(name.as_str(), value.as_str());
         }
 
         let result = req.send().await;
@@ -782,7 +743,6 @@ async fn fetch_advanced_with_client_and_progress(
 pub async fn fetch_mirrors(
     mirrors: &[&str],
     sha1: Option<&str>,
-    download_meta: Option<&DownloadMeta>,
     uri_path: Option<&'static str>,
     semaphore: &FetchSemaphore,
     exec: impl sqlx::Executor<'_, Database = sqlx::Sqlite> + Copy,
@@ -797,7 +757,6 @@ pub async fn fetch_mirrors(
         let result = fetch_with_client(
             mirror,
             sha1,
-            download_meta,
             uri_path,
             semaphore,
             exec,
@@ -817,7 +776,6 @@ pub async fn fetch_mirrors(
 pub async fn fetch_mirrors_with_progress(
     mirrors: &[&str],
     sha1: Option<&str>,
-    download_meta: Option<&DownloadMeta>,
     uri_path: Option<&'static str>,
     semaphore: &FetchSemaphore,
     exec: impl sqlx::Executor<'_, Database = sqlx::Sqlite> + Copy,
@@ -833,7 +791,6 @@ pub async fn fetch_mirrors_with_progress(
         let result = fetch_with_client_progress(
             mirror,
             sha1,
-            download_meta,
             uri_path,
             semaphore,
             exec,
