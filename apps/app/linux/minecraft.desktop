@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Minecraft
+Comment=Minecraft, launched via Dyad Launcher
+Exec=DyadLauncher
+Icon=/usr/share/dyad-launcher/grass-block.png
+StartupWMClass=com.mojang.minecraft
+NoDisplay=true
+Terminal=false
+Categories=Game;

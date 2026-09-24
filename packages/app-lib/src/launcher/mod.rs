@@ -1068,6 +1068,15 @@ pub async fn launch_minecraft(
     if std::env::var("CARGO").is_ok() {
         command.env_remove("DYLD_FALLBACK_LIBRARY_PATH");
     }
+    // Minecraft's bundled LWJGL/SDL3 picks a native Wayland surface whenever it can reach
+    // the compositor socket, which on GNOME commonly launches undecorated (SDL's libdecor
+    // integration doesn't negotiate cleanly there) and without a taskbar icon (no .desktop
+    // file matches its com.mojang.minecraft app_id). Unsetting WAYLAND_DISPLAY isn't enough
+    // to stop this: libwayland's wl_display_connect(NULL) falls back to the default
+    // "wayland-0" socket name even when the env var is absent. SDL_VIDEO_DRIVER=x11 forces
+    // the X11/XWayland backend directly instead, which GNOME handles normally.
+    #[cfg(target_os = "linux")]
+    command.env("SDL_VIDEO_DRIVER", "x11");
     // Java options should be set in instance options (the existence of _JAVA_OPTIONS overwrites them)
     command.env_remove("_JAVA_OPTIONS");
 
