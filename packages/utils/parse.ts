@@ -105,6 +105,19 @@ export const configuredXss = new FilterXSS({
 			}
 		}
 
+		// YouTube/Discord embeds need these to render reliably (e.g. avoids YouTube
+		// player error 153 on browsers/OSes with stricter default referrer policies).
+		// Force known-safe fixed values rather than trusting user-supplied content.
+		if (tag === 'iframe' && name === 'referrerpolicy') {
+			return `${name}="strict-origin-when-cross-origin"`
+		}
+		if (tag === 'iframe' && name === 'allow') {
+			return `${name}="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"`
+		}
+		if (tag === 'iframe' && name === 'title') {
+			return `${name}="${escapeAttrValue(value)}"`
+		}
+
 		// For Highlight.JS
 		if (name === 'class' && ['pre', 'code', 'span'].includes(tag)) {
 			const allowedClasses: string[] = []
