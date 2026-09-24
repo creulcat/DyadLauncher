@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Downloader Java {version}"
   },
-  "app.action-bar.downloading-update": {
-    "message": "Downloader opdatering"
-  },
   "app.action-bar.downloads": {
     "message": "Downloads"
   },
@@ -101,17 +98,11 @@
   "app.action-bar.primary-instance": {
     "message": "Primære instance"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "Genindlæs for at opdater"
-  },
   "app.action-bar.show-more-running-instances": {
     "message": "Vis flere kørende instances"
   },
   "app.action-bar.stop-instance": {
     "message": "Stop instance"
-  },
-  "app.action-bar.update": {
-    "message": "Opdater"
   },
   "app.action-bar.view-active-downloads": {
     "message": "Vis aktive downloads"
@@ -386,9 +377,6 @@
   "app.settings.developer-mode-enabled": {
     "message": "Udvikler-tilstand aktiveret."
   },
-  "app.settings.downloading": {
-    "message": "Downloader v{version}"
-  },
   "app.settings.tabs.appearance": {
     "message": "Udseende"
   },
@@ -397,9 +385,6 @@
   },
   "app.settings.tabs.language": {
     "message": "Sprog"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "Privatliv"
   },
   "app.settings.tabs.resource-management": {
     "message": "Ressourcestyring"
@@ -535,33 +520,6 @@
   },
   "app.skins.toggle-ears-features-on": {
     "message": "Slå til"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "Dyad Launcher v{version} er færdig med at download. Genindlæs for at opdatere nu, eller automatisk når du lukker Dyad Launcher."
-  },
-  "app.update-popup.body.metered": {
-    "message": "Dyad Launcher v{version} er nu tilgængelig! Siden du er på et begrænset netværk, vi downloadede den ikke automatisk."
-  },
-  "app.update-popup.changelog": {
-    "message": "Ændringslog"
-  },
-  "app.update-popup.download": {
-    "message": "Download ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "Download færdiggjort"
-  },
-  "app.update-popup.reload": {
-    "message": "Genindlæs for at opdater"
-  },
-  "app.update-popup.title": {
-    "message": "Opdatering tilgængelig"
-  },
-  "app.update.complete-toast.text": {
-    "message": "Klik her for at vise ændringslog."
-  },
-  "app.update.complete-toast.title": {
-    "message": "Version {version} var installeret med succes!"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "eksemple.modrinth.gg"

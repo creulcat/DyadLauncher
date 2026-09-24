@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Đang tải xuống Java {version}"
   },
-  "app.action-bar.downloading-update": {
-    "message": "Đang tải xuống bản cập nhật"
-  },
   "app.action-bar.downloads": {
     "message": "Tải xuống"
   },
@@ -107,9 +104,6 @@
   "app.action-bar.primary-instance": {
     "message": "Bản instance chính"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "Tải lại để cập nhật"
-  },
   "app.action-bar.show-downloads": {
     "message": "Hiển thị các lượt tải xuống đang hoạt động"
   },
@@ -118,9 +112,6 @@
   },
   "app.action-bar.stop-instance": {
     "message": "Dừng instance"
-  },
-  "app.action-bar.update": {
-    "message": "Cập nhật"
   },
   "app.action-bar.view-active-downloads": {
     "message": "Xem các lượt tải xuống"
@@ -488,9 +479,6 @@
   "app.settings.developer-mode-enabled": {
     "message": "Chế độ nhà phát triển đã được bật."
   },
-  "app.settings.downloading": {
-    "message": "Đang tải về v{version}"
-  },
   "app.settings.tabs.appearance": {
     "message": "Giao diện"
   },
@@ -499,9 +487,6 @@
   },
   "app.settings.tabs.language": {
     "message": "Ngôn ngữ"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "Quyền riêng tư"
   },
   "app.settings.tabs.resource-management": {
     "message": "Quản lý tài nguyên"
@@ -643,33 +628,6 @@
   },
   "app.skins.title": {
     "message": "Đổi skin"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "Phiên bản v{version} của Modrinth đã sẵn sàng để có thể cài đặt. Khởi động lại ứng dụng để cập nhật ngay bây giờ, hoặc tự động cập nhật sau khi bạn tắt Modrinth."
-  },
-  "app.update-popup.body.metered": {
-    "message": "Phiên bản v{version} của Modrinth hiện đang khả dụng ngay bây giờ! Vì bạn đang sử dụng mạng có tính phí theo dung lượng nên chúng tôi không tự động tải xuống."
-  },
-  "app.update-popup.changelog": {
-    "message": "Nhật ký thay đổi"
-  },
-  "app.update-popup.download": {
-    "message": "Tải xuống ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "Cài đặt thành công"
-  },
-  "app.update-popup.reload": {
-    "message": "Tải lại để cập nhật"
-  },
-  "app.update-popup.title": {
-    "message": "Cập nhật mới hiện đang khả dụng"
-  },
-  "app.update.complete-toast.text": {
-    "message": "Nhấn vào đây để xem nhật kí thay đổi."
-  },
-  "app.update.complete-toast.title": {
-    "message": "Phiên bản {version} đã được cài đặt thành công!"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"

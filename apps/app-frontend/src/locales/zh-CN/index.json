@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "正在下载 Java {version}"
   },
-  "app.action-bar.downloading-update": {
-    "message": "下载更新中"
-  },
   "app.action-bar.downloads": {
     "message": "下载"
   },
@@ -107,9 +104,6 @@
   "app.action-bar.primary-instance": {
     "message": "主实例"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "重启以完成更新"
-  },
   "app.action-bar.show-downloads": {
     "message": "查看当前的下载项目列表"
   },
@@ -118,9 +112,6 @@
   },
   "app.action-bar.stop-instance": {
     "message": "停止实例"
-  },
-  "app.action-bar.update": {
-    "message": "更新"
   },
   "app.action-bar.view-active-downloads": {
     "message": "查看正在下载内容"
@@ -1040,9 +1031,6 @@
   "app.quick-instance-switcher.drag-tooltip": {
     "message": "拖拽以调整大小"
   },
-  "app.restarting": {
-    "message": "正在重启…"
-  },
   "app.settings.app-version": {
     "message": "Dyad Launcher {version}"
   },
@@ -1127,20 +1115,11 @@
   "app.settings.developer-mode-enabled": {
     "message": "开发者模式已启用。"
   },
-  "app.settings.downloading": {
-    "message": "正在下载 v{version}"
-  },
   "app.settings.java-installations.location.title": {
     "message": "Java {version, number} 位置"
   },
   "app.settings.operating-system.macos": {
     "message": "macOS"
-  },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "在 Discord 上将 Dyad Launcher 显示为您当前的活动。这不会影响模组为游戏实例添加的 Rich Presence。需要重启应用生效。"
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord Rich Presence"
   },
   "app.settings.resource-management.always-show-copy-details.description": {
     "message": "在安装排队或运行时显示“复制详细信息”选项。对于失败或中断的安装，该选项始终可用。"
@@ -1210,9 +1189,6 @@
   },
   "app.settings.tabs.language": {
     "message": "语言"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "隐私"
   },
   "app.settings.tabs.resource-management": {
     "message": "资源管理"
@@ -1381,36 +1357,6 @@
   },
   "app.skins.toggle-ears-features-on": {
     "message": "切换至开"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "Dyad Launcher v{version} 更新已下载完成！立即重启更新，或退出时自动安装。"
-  },
-  "app.update-popup.body.metered": {
-    "message": "Dyad Launcher v{version} 现已发布！由于你正在使用按流量计费的网络，该更新未自动下载。"
-  },
-  "app.update-popup.changelog": {
-    "message": "更新日志"
-  },
-  "app.update-popup.download": {
-    "message": "下载（{size}）"
-  },
-  "app.update-popup.download-complete": {
-    "message": "下载完成"
-  },
-  "app.update-popup.reload": {
-    "message": "重新加载以更新"
-  },
-  "app.update-popup.title": {
-    "message": "有可用的更新"
-  },
-  "app.update.complete-toast.text": {
-    "message": "点击此处查看更新日志。"
-  },
-  "app.update.complete-toast.title": {
-    "message": "版本 {version} 已成功安装！"
-  },
-  "app.update.download-error.missing-version": {
-    "message": "下载更新失败：无可用版本"
   },
   "app.user.project.install-to-instance": {
     "message": "在实例上安装"

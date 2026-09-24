@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Java {version} 다운로드 중"
   },
-  "app.action-bar.downloading-update": {
-    "message": "업데이트 다운로드 중"
-  },
   "app.action-bar.downloads": {
     "message": "다운로드"
   },
@@ -107,9 +104,6 @@
   "app.action-bar.primary-instance": {
     "message": "기본 인스턴스"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "업데이트하려면 다시 로드"
-  },
   "app.action-bar.show-downloads": {
     "message": "다운로드 목록 보기"
   },
@@ -118,9 +112,6 @@
   },
   "app.action-bar.stop-instance": {
     "message": "인스턴스 중지"
-  },
-  "app.action-bar.update": {
-    "message": "업데이트"
   },
   "app.action-bar.view-active-downloads": {
     "message": "다운로드 목록 보기"
@@ -962,9 +953,6 @@
   "app.quick-instance-switcher.drag-tooltip": {
     "message": "드래그하여 크기 조절"
   },
-  "app.restarting": {
-    "message": "재시작 중..."
-  },
   "app.settings.app-version": {
     "message": "Modrinth 앱 {version}"
   },
@@ -1049,20 +1037,11 @@
   "app.settings.developer-mode-enabled": {
     "message": "개발자 모드가 활성화되었습니다."
   },
-  "app.settings.downloading": {
-    "message": "v{version} 다운로드 중"
-  },
   "app.settings.java-installations.location.title": {
     "message": "Java {version, number} 위치"
   },
   "app.settings.operating-system.macos": {
     "message": "macOS"
-  },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Discord의 현재 활동 상태에 Dyad Launcher을 표시합니다. 모드가 인스턴스에 추가한 Rich Presence에는 영향을 미치지 않습니다. 앱 재시작이 필요합니다."
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord 활동 상태"
   },
   "app.settings.resource-management.always-show-copy-details.description": {
     "message": "설치가 대기 중이거나 진행 중일 때 '상세 정보 복사' 버튼을 표시합니다. 실패했거나 중단된 설치 건에서는 항상 사용할 수 있습니다."
@@ -1132,9 +1111,6 @@
   },
   "app.settings.tabs.language": {
     "message": "언어"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "개인정보"
   },
   "app.settings.tabs.resource-management": {
     "message": "리소스 관리"
@@ -1288,33 +1264,6 @@
   },
   "app.skins.toggle-ears-features-on": {
     "message": "켜기"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "Dyad Launcher v{version} 다운로드가 완료되었습니다. 새로고침하거나 Dyad Launcher을 종료하면 자동으로 업데이트됩니다."
-  },
-  "app.update-popup.body.metered": {
-    "message": "Modrinth 앱 v{version}을 지금 사용할 수 있습니다! 데이터 통신 연결을 사용 중이므로, 자동으로 다운로드하지 않았습니다."
-  },
-  "app.update-popup.changelog": {
-    "message": "변경 내역"
-  },
-  "app.update-popup.download": {
-    "message": "다운로드 ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "다운로드 완료"
-  },
-  "app.update-popup.reload": {
-    "message": "새로고침하여 업데이트"
-  },
-  "app.update-popup.title": {
-    "message": "업데이트 가능"
-  },
-  "app.update.complete-toast.text": {
-    "message": "변경 내역을 보려면 클릭하세요."
-  },
-  "app.update.complete-toast.title": {
-    "message": "{version} 버전이 성공적으로 설치되었습니다!"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"

@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Mengunduh Java {version}"
   },
-  "app.action-bar.downloading-update": {
-    "message": "Mengunduh pembaruan"
-  },
   "app.action-bar.downloads": {
     "message": "Unduhan"
   },
@@ -23,17 +20,11 @@
   "app.action-bar.primary-instance": {
     "message": "Instans utama"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "Muat ulang untuk memperbarui"
-  },
   "app.action-bar.show-more-running-instances": {
     "message": "Tampilkan lebih banyak instans yang sedang berjalan"
   },
   "app.action-bar.stop-instance": {
     "message": "Hentikan instans"
-  },
-  "app.action-bar.update": {
-    "message": "Perbarui"
   },
   "app.action-bar.view-active-downloads": {
     "message": "Lihat pengunduhan berlangsung"
@@ -212,9 +203,6 @@
   "app.settings.developer-mode-enabled": {
     "message": "Mode pengembang dihidupkan."
   },
-  "app.settings.downloading": {
-    "message": "Mengunduh v{version}"
-  },
   "app.settings.tabs.appearance": {
     "message": "Tampilan"
   },
@@ -223,9 +211,6 @@
   },
   "app.settings.tabs.language": {
     "message": "Bahasa"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "Privasi"
   },
   "app.settings.tabs.resource-management": {
     "message": "Manajemen sumber"
@@ -364,33 +349,6 @@
   },
   "app.skins.title": {
     "message": "Pemilih rupa"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "Dyad Launcher v{version} telah selesai mengunduh. Muat ulang untuk memperbarui sekarang, atau secara otomatis saat Anda menutup Dyad Launcher."
-  },
-  "app.update-popup.body.metered": {
-    "message": "Dyad Launcher v{version} sudah tersedia! Karena Anda saat ini sedang berada dalam jaringan terukur, kami tidak mengunduhnya secara otomatis."
-  },
-  "app.update-popup.changelog": {
-    "message": "Catatan perubahan"
-  },
-  "app.update-popup.download": {
-    "message": "Unduh ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "Selesai mengunduh"
-  },
-  "app.update-popup.reload": {
-    "message": "Muat ulang untuk memperbarui"
-  },
-  "app.update-popup.title": {
-    "message": "Pembaruan tersedia"
-  },
-  "app.update.complete-toast.text": {
-    "message": "Klik di sini untuk melihat catatan perubahan."
-  },
-  "app.update.complete-toast.title": {
-    "message": "Versi {version} berhasil dipasang!"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"

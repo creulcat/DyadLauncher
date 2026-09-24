@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Java {version} aan het downloaden"
   },
-  "app.action-bar.downloading-update": {
-    "message": "Update aan het downloaden"
-  },
   "app.action-bar.downloads": {
     "message": "Downloads"
   },
@@ -107,9 +104,6 @@
   "app.action-bar.primary-instance": {
     "message": "Hoofdinstantie"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "Herlaadt om te updaten"
-  },
   "app.action-bar.show-downloads": {
     "message": "Actieve downloads weergeven"
   },
@@ -118,9 +112,6 @@
   },
   "app.action-bar.stop-instance": {
     "message": "Stop instantie"
-  },
-  "app.action-bar.update": {
-    "message": "Bijwerken"
   },
   "app.action-bar.view-active-downloads": {
     "message": "Bekijk actieve downloads"
@@ -551,9 +542,6 @@
   "app.quick-instance-switcher.drag-tooltip": {
     "message": "Sleep om formaat aan te passen"
   },
-  "app.restarting": {
-    "message": "Opnieuw opstarten..."
-  },
   "app.settings.app-version": {
     "message": "Modrinth-app {version}"
   },
@@ -638,20 +626,11 @@
   "app.settings.developer-mode-enabled": {
     "message": "Ontwikkelaarsmodus ingeschakeld."
   },
-  "app.settings.downloading": {
-    "message": "v{version} wordt gedownload"
-  },
   "app.settings.java-installations.location.title": {
     "message": "Java {version, number} locatie"
   },
   "app.settings.operating-system.macos": {
     "message": "macOS"
-  },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Laat Modrinth als jouw activiteit op Discord. Dit verandert niet activiteiten toegevoegd door mods."
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord Rich Presence"
   },
   "app.settings.resource-management.always-show-copy-details.description": {
     "message": "Geef de knop 'Details kopiëren' weer terwijl een installatie in de wachtrij staat of wordt uitgevoerd. Deze actie is altijd beschikbaar voor mislukte of onderbroken installaties."
@@ -721,9 +700,6 @@
   },
   "app.settings.tabs.language": {
     "message": "Taal"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "Privacy"
   },
   "app.settings.tabs.resource-management": {
     "message": "Bronnenbeheer"
@@ -877,33 +853,6 @@
   },
   "app.skins.toggle-ears-features-on": {
     "message": "Inschakelen"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "Dyad Launcher v{version} is klaar met downloaden. Herlaad om nu te updaten, of automatisch wanneer je de Dyad Launcher afsluit."
-  },
-  "app.update-popup.body.metered": {
-    "message": "Dyad Launcher v{version} is nu beschikbaar! Omdat je nu op een netwerk met datalimiet zit, is de download niet automatisch gestart."
-  },
-  "app.update-popup.changelog": {
-    "message": "Wijzigingen"
-  },
-  "app.update-popup.download": {
-    "message": "Download ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "Downloaden voltooid"
-  },
-  "app.update-popup.reload": {
-    "message": "Herladen om te updaten"
-  },
-  "app.update-popup.title": {
-    "message": "Update beschikbaar"
-  },
-  "app.update.complete-toast.text": {
-    "message": "Klik hier om het wijzigingenlogboek te bekijken."
-  },
-  "app.update.complete-toast.title": {
-    "message": "Versie {version} is succesvol geïnstalleerd!"
   },
   "app.user.project.install-to-instance": {
     "message": "Op instantie installeren"

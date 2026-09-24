@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Скачивание Java {version}"
   },
-  "app.action-bar.downloading-update": {
-    "message": "Скачивание обновления"
-  },
   "app.action-bar.downloads": {
     "message": "Загрузки"
   },
@@ -107,9 +104,6 @@
   "app.action-bar.primary-instance": {
     "message": "Основная сборка"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "Перезапустить и обновить"
-  },
   "app.action-bar.show-downloads": {
     "message": "Показать текущие загрузки"
   },
@@ -118,9 +112,6 @@
   },
   "app.action-bar.stop-instance": {
     "message": "Остановить сборку"
-  },
-  "app.action-bar.update": {
-    "message": "Обновить"
   },
   "app.action-bar.view-active-downloads": {
     "message": "Посмотреть текущие загрузки"
@@ -1022,9 +1013,6 @@
   "app.quick-instance-switcher.drag-tooltip": {
     "message": "Потяните для изменения размера"
   },
-  "app.restarting": {
-    "message": "Перезапуск..."
-  },
   "app.settings.app-version": {
     "message": "Dyad Launcher {version}"
   },
@@ -1109,20 +1097,11 @@
   "app.settings.developer-mode-enabled": {
     "message": "Режим разработчика включён."
   },
-  "app.settings.downloading": {
-    "message": "Скачивание версии {version}"
-  },
   "app.settings.java-installations.location.title": {
     "message": "Расположение Java {version}"
   },
   "app.settings.operating-system.macos": {
     "message": "macOS"
-  },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Показывать Modrinth App в текущей активности Discord. Не влияет на Rich Presence модов. Требуется перезапуск."
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord Rich Presence"
   },
   "app.settings.resource-management.always-show-copy-details.description": {
     "message": "Показывать кнопку «Получить отчёт» во время установки. Для прерванных установок кнопка видна всегда."
@@ -1192,9 +1171,6 @@
   },
   "app.settings.tabs.language": {
     "message": "Язык"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "Конфиденциальность"
   },
   "app.settings.tabs.resource-management": {
     "message": "Управление ресурсами"
@@ -1363,36 +1339,6 @@
   },
   "app.skins.toggle-ears-features-on": {
     "message": "Показать"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "Скачивание версии Modrinth App {version} завершено. Перезапустите приложение, чтобы обновить его, или оно обновится автоматически после закрытия."
-  },
-  "app.update-popup.body.metered": {
-    "message": "Версия Modrinth App {version} доступна для скачивания! Используется сеть с лимитным тарифным планом, поэтому скачивание не началось автоматически."
-  },
-  "app.update-popup.changelog": {
-    "message": "Список изменений"
-  },
-  "app.update-popup.download": {
-    "message": "Скачать ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "Скачивание завершено"
-  },
-  "app.update-popup.reload": {
-    "message": "Перезапустить"
-  },
-  "app.update-popup.title": {
-    "message": "Доступно обновление"
-  },
-  "app.update.complete-toast.text": {
-    "message": "Нажмите, чтобы посмотреть список изменений."
-  },
-  "app.update.complete-toast.title": {
-    "message": "Версия {version} успешно установлена!"
-  },
-  "app.update.download-error.missing-version": {
-    "message": "Не удалось загрузить обновление: нет доступных версий"
   },
   "app.user.project.install-to-instance": {
     "message": "Установить в сборку"

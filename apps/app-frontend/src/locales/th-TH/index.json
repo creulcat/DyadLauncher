@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "กำลังดาวน์โหลด Java {version}"
   },
-  "app.action-bar.downloading-update": {
-    "message": "กำลังดาวน์โหลดอัปเดต"
-  },
   "app.action-bar.downloads": {
     "message": "ดาวน์โหลด"
   },
@@ -38,17 +35,11 @@
   "app.action-bar.primary-instance": {
     "message": "อินสแตนซ์หลัก"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "รีโหลดเพื่ออัปเดต"
-  },
   "app.action-bar.show-more-running-instances": {
     "message": "แสดงอินสแตนซ์ที่ทำงานอยู่เพิ่มเติม"
   },
   "app.action-bar.stop-instance": {
     "message": "หยุดอินสแตนซ์"
-  },
-  "app.action-bar.update": {
-    "message": "อัปเดต"
   },
   "app.action-bar.view-active-downloads": {
     "message": "ดูการดาวน์โหลดที่กำลังดำเนินการอยู่"
@@ -227,9 +218,6 @@
   "app.settings.developer-mode-enabled": {
     "message": "โหมดนักพัฒนาเปิดอยู่"
   },
-  "app.settings.downloading": {
-    "message": "ดาวน์โหลดเวอร์ชัน {version}"
-  },
   "app.settings.tabs.appearance": {
     "message": "หน้าตา"
   },
@@ -238,9 +226,6 @@
   },
   "app.settings.tabs.language": {
     "message": "ภาษา"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "ความเป็นส่วนตัว"
   },
   "app.settings.tabs.resource-management": {
     "message": "การจัดการทรัพยากร"
@@ -376,30 +361,6 @@
   },
   "app.skins.section.tiny-takeover": {
     "message": "Tiny Takeover"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "ดาวน์โหลด Modrinth v{version} สำเร็จแล้ว เปิดโปรแกรมใหม่อีกครั้งเพื่ออัปเดตตอนนี้ หรือจะรออัปเดตอัตโนมัติ ซึ่งจะเกิดขึ้นเมื่อคุณกดปิดโปรแกรม Modrinth"
-  },
-  "app.update-popup.body.metered": {
-    "message": "Modrinth v{version} พร้อมให้บริการแล้ว! แต่เนื่องจากคุณเปิดโหมดจำกัดปริมาณการใช้ข้อมูลเครือข่าย เราจึงไม่ได้อัปเดตเนื้อหาโดยอัตโนมัติ"
-  },
-  "app.update-popup.changelog": {
-    "message": "บันทึกการเปลี่ยนแปลง"
-  },
-  "app.update-popup.download": {
-    "message": "ดาวโหลด ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "การดาวน์โหลดเสร็จสมบูรณ์"
-  },
-  "app.update-popup.title": {
-    "message": "มีการอัปเดตใหม่"
-  },
-  "app.update.complete-toast.text": {
-    "message": "คลิกที่นี่เพื่อดูบันทึกการเปลี่ยนแปลง"
-  },
-  "app.update.complete-toast.title": {
-    "message": "เวอร์ชั่น {version} ถูกติดตั้งแล้ว"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"

@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Dina-download ang Java {version}"
   },
-  "app.action-bar.downloading-update": {
-    "message": "Dina-download ang update"
-  },
   "app.action-bar.downloads": {
     "message": "Mga downloads"
   },
@@ -56,17 +53,11 @@
   "app.action-bar.primary-instance": {
     "message": "Pangunahing instansiya"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "Mag-reload upang ma-update"
-  },
   "app.action-bar.show-more-running-instances": {
     "message": "Ipakita ang mas marami pang tumatakbong instansiya"
   },
   "app.action-bar.stop-instance": {
     "message": "Itigil ang instansiya"
-  },
-  "app.action-bar.update": {
-    "message": "Mag-update"
   },
   "app.action-bar.view-active-downloads": {
     "message": "Tignan ang mga active downloads"
@@ -239,9 +230,6 @@
   "app.settings.developer-mode-enabled": {
     "message": "Binuksan ang moda ng nagdi-develop."
   },
-  "app.settings.downloading": {
-    "message": "Dina-download ang v{version}"
-  },
   "app.settings.tabs.appearance": {
     "message": "Itsura"
   },
@@ -250,9 +238,6 @@
   },
   "app.settings.tabs.language": {
     "message": "Wika"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "Pribasiya"
   },
   "app.settings.tabs.resource-management": {
     "message": "Pamamahala ng paglalaan"
@@ -286,30 +271,6 @@
   },
   "app.skins.section.modrinth-pride": {
     "message": "Modrinth Pride"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "Tapos nang ma-download ang Dyad Launcher v{version}. Mag-reload upang ma-update ngayon, o awtomatiko sa pagsara ng Dyad Launcher."
-  },
-  "app.update-popup.body.metered": {
-    "message": "Magagamit na ngayon ang Dyad Launcher v{version}! Hindi namin dinanload kaagad dahil naka-metro ang inyong network."
-  },
-  "app.update-popup.changelog": {
-    "message": "Changelog"
-  },
-  "app.update-popup.download": {
-    "message": "I-download ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "Nakumpleto ang pagdownload"
-  },
-  "app.update-popup.title": {
-    "message": "May bagong update"
-  },
-  "app.update.complete-toast.text": {
-    "message": "Dito pumindot upang matingnan ang changelog."
-  },
-  "app.update.complete-toast.title": {
-    "message": "Tagumpay na na-install ang bersiyong {version}!"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"

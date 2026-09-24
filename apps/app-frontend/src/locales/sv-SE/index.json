@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Laddar ner Java {version}"
   },
-  "app.action-bar.downloading-update": {
-    "message": "Laddar ner uppdatering"
-  },
   "app.action-bar.downloads": {
     "message": "Nedladdningar"
   },
@@ -104,9 +101,6 @@
   "app.action-bar.primary-instance": {
     "message": "Primärinstans"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "Uppdatera (ladda om)"
-  },
   "app.action-bar.show-downloads": {
     "message": "Visa aktiva nedladdningar"
   },
@@ -115,9 +109,6 @@
   },
   "app.action-bar.stop-instance": {
     "message": "Avsluta instans"
-  },
-  "app.action-bar.update": {
-    "message": "Uppdatera"
   },
   "app.action-bar.view-active-downloads": {
     "message": "Visa aktiva nedladdningar"
@@ -983,9 +974,6 @@
   "app.quick-instance-switcher.drag-tooltip": {
     "message": "Dra för att ändra storlek"
   },
-  "app.restarting": {
-    "message": "Startar om..."
-  },
   "app.settings.app-version": {
     "message": "Dyad Launcher {version}"
   },
@@ -1046,14 +1034,8 @@
   "app.settings.developer-mode-enabled": {
     "message": "Utvecklarläge aktiverat."
   },
-  "app.settings.downloading": {
-    "message": "Ladda ner v{version}"
-  },
   "app.settings.operating-system.macos": {
     "message": "macOS"
-  },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Visa Dyad Launcher som din nuvarande aktivitet på Discord. Detta påverkar inte Rich Presence som lagts till i instanser av moddar. Kräver en app omstart."
   },
   "app.settings.resource-management.always-show-copy-details.title": {
     "message": "Visa alltid kopieringsdetaljer"
@@ -1108,9 +1090,6 @@
   },
   "app.settings.tabs.language": {
     "message": "Språk"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "Integritet"
   },
   "app.settings.tabs.resource-management": {
     "message": "Resurshantering"
@@ -1273,36 +1252,6 @@
   },
   "app.skins.toggle-ears-features-on": {
     "message": "Växla på"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "Dyad Launcher v{version} har laddats ner. Ladda om för att uppdatera nu, eller automatiskt när du stänger Dyad Launcher."
-  },
-  "app.update-popup.body.metered": {
-    "message": "Dyad Launcher v{version} är nu tillgänglig! Eftersom du använder ett nätverk med datatrafikbegränsningar har vi inte laddat ner det automatiskt."
-  },
-  "app.update-popup.changelog": {
-    "message": "Ändringslogg"
-  },
-  "app.update-popup.download": {
-    "message": "Ladda ner ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "Nedladdning slutförd"
-  },
-  "app.update-popup.reload": {
-    "message": "Ladda om för att uppdatera"
-  },
-  "app.update-popup.title": {
-    "message": "Uppdatering tillgänglig"
-  },
-  "app.update.complete-toast.text": {
-    "message": "Tryck här för att visa ändringsloggen."
-  },
-  "app.update.complete-toast.title": {
-    "message": "Version {version} har installerats!"
-  },
-  "app.update.download-error.missing-version": {
-    "message": "Kunde inte ladda ner uppdatering: ingen version tillgänglig"
   },
   "app.user.project.install-to-instance": {
     "message": "Installera till instans"

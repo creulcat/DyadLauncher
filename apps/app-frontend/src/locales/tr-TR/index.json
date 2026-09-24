@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Java {version} indiriliyor"
   },
-  "app.action-bar.downloading-update": {
-    "message": "Güncelleme indiriliyor"
-  },
   "app.action-bar.downloads": {
     "message": "İndirmeler"
   },
@@ -107,9 +104,6 @@
   "app.action-bar.primary-instance": {
     "message": "Birincil kurulum"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "Güncellemek için yeniden yükle"
-  },
   "app.action-bar.show-downloads": {
     "message": "Aktif indirmeleri göster"
   },
@@ -118,9 +112,6 @@
   },
   "app.action-bar.stop-instance": {
     "message": "Kurulumu durdur"
-  },
-  "app.action-bar.update": {
-    "message": "Güncelleme"
   },
   "app.action-bar.view-active-downloads": {
     "message": "Şu anda indirilienleri göster"
@@ -1040,9 +1031,6 @@
   "app.quick-instance-switcher.drag-tooltip": {
     "message": "Yeniden boyutlandırmak için kaydırın"
   },
-  "app.restarting": {
-    "message": "Yeniden Başlatılıyor..."
-  },
   "app.settings.app-version": {
     "message": "Modrinth Uygulaması {version}"
   },
@@ -1127,20 +1115,11 @@
   "app.settings.developer-mode-enabled": {
     "message": "Geliştirici modu açıldı."
   },
-  "app.settings.downloading": {
-    "message": "v{version} indiriliyor"
-  },
   "app.settings.java-installations.location.title": {
     "message": "Java {version, number} konumu"
   },
   "app.settings.operating-system.macos": {
     "message": "macOS"
-  },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Şu anki Discord aktiviteniz olarak, Dyad Launcher'i gösterin. Bu, örneğe modlar tarafından eklenen Rich Presence'ı etkilemez. Uygulamayı yeniden başlatmayı gerektirir."
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord Rich Presence"
   },
   "app.settings.resource-management.always-show-copy-details.description": {
     "message": "Bir yükleme işlemi kuyrukta beklerken veya devam ederken Ayrıntıları Kopyala eylemini gösterir. Bu eylem, başarısız olan veya kesintiye uğrayan yüklemeler için her zaman kullanılabilir."
@@ -1210,9 +1189,6 @@
   },
   "app.settings.tabs.language": {
     "message": "Dil"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "Gizlilik"
   },
   "app.settings.tabs.resource-management": {
     "message": "Kaynak yönetimi"
@@ -1381,36 +1357,6 @@
   },
   "app.skins.toggle-ears-features-on": {
     "message": "Aç"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "Dyad Launcher v{version} indirildi. Güncellemek için yeniden başlatın veya Dyad Launcher’i kapattığınızda otomatik olarak güncellenecektir."
-  },
-  "app.update-popup.body.metered": {
-    "message": "Dyad Launcher v{version} mevcut! Kısıtlı bağlantıda olduğunuzdan otomatik olarak indirmedik."
-  },
-  "app.update-popup.changelog": {
-    "message": "Yama Notları"
-  },
-  "app.update-popup.download": {
-    "message": "İndir ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "İndirme tamamlandı"
-  },
-  "app.update-popup.reload": {
-    "message": "Güncellemek için yeniden yükle"
-  },
-  "app.update-popup.title": {
-    "message": "Güncelleme mevcut"
-  },
-  "app.update.complete-toast.text": {
-    "message": "Yama notlarını görüntülemek için buraya tıklayın."
-  },
-  "app.update.complete-toast.title": {
-    "message": "{version} sürümü başarıyla kuruldu!"
-  },
-  "app.update.download-error.missing-version": {
-    "message": "Güncelleme indirilemedi: sürüm mevcut değil"
   },
   "app.user.project.install-to-instance": {
     "message": "Bu örneğe yükle"

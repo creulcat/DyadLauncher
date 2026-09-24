@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Téléchargement de Java {version}"
   },
-  "app.action-bar.downloading-update": {
-    "message": "Téléchargement de la mise à jour"
-  },
   "app.action-bar.downloads": {
     "message": "Téléchargements"
   },
@@ -107,9 +104,6 @@
   "app.action-bar.primary-instance": {
     "message": "Instance principale"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "Recharger pour mettre à jour"
-  },
   "app.action-bar.show-downloads": {
     "message": "Montrer les téléchargements actifs"
   },
@@ -118,9 +112,6 @@
   },
   "app.action-bar.stop-instance": {
     "message": "Arrêter l'instance"
-  },
-  "app.action-bar.update": {
-    "message": "Mettre à jour"
   },
   "app.action-bar.view-active-downloads": {
     "message": "Voir les téléchargements actifs"
@@ -1001,9 +992,6 @@
   "app.quick-instance-switcher.drag-tooltip": {
     "message": "Faire glisser pour redimensionner"
   },
-  "app.restarting": {
-    "message": "Redémarrage..."
-  },
   "app.settings.app-version": {
     "message": "Dyad Launcher {version}"
   },
@@ -1088,20 +1076,11 @@
   "app.settings.developer-mode-enabled": {
     "message": "Mode développeur activé."
   },
-  "app.settings.downloading": {
-    "message": "Téléchargement de la version {version}"
-  },
   "app.settings.java-installations.location.title": {
     "message": "Emplacement de Java {version, number}"
   },
   "app.settings.operating-system.macos": {
     "message": "macOS"
-  },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Affiche Dyad Launcher en tant que votre activité actuelle sur Discord. Cela n'affecte pas Rich Presence ajouté à l'instance par les mods. Nécessite un redémarrage de l'application."
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord Rich Presence"
   },
   "app.settings.resource-management.always-show-copy-details.description": {
     "message": "Afficher l’action Copier les détails lorsqu’une installation est en attente ou en cours. Elle est toujours disponible pour les installations échouées ou interrompues."
@@ -1171,9 +1150,6 @@
   },
   "app.settings.tabs.language": {
     "message": "Langue"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "Confidentialité"
   },
   "app.settings.tabs.resource-management": {
     "message": "Gestion des ressources"
@@ -1339,33 +1315,6 @@
   },
   "app.skins.toggle-ears-features-on": {
     "message": "Activer"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "Dyad Launcher v{version} a finie d'être téléchargée. Rechargez pour mettre à jour maintenant, ou automatiquement quand vous fermez Dyad Launcher."
-  },
-  "app.update-popup.body.metered": {
-    "message": "Dyad Launcher v{version} est disponible maintenant ! Puisque vous êtes sur un réseau métré, nous ne l'avons pas téléchargé automatiquement."
-  },
-  "app.update-popup.changelog": {
-    "message": "Journal des modifications"
-  },
-  "app.update-popup.download": {
-    "message": "Télécharger ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "Téléchargement terminé"
-  },
-  "app.update-popup.reload": {
-    "message": "Recharger pour mettre à jour"
-  },
-  "app.update-popup.title": {
-    "message": "Mise à jour disponible"
-  },
-  "app.update.complete-toast.text": {
-    "message": "Cliquez ici pour voir les changements récents."
-  },
-  "app.update.complete-toast.title": {
-    "message": "La version {version} a été téléchargée avec succès !"
   },
   "app.user.project.install-to-instance": {
     "message": "Installer dans l'instance"

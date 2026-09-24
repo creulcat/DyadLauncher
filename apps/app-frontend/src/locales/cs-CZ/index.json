@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Stahování Javy {version}"
   },
-  "app.action-bar.downloading-update": {
-    "message": "Stahování aktualizace"
-  },
   "app.action-bar.downloads": {
     "message": "Stahování"
   },
@@ -107,9 +104,6 @@
   "app.action-bar.primary-instance": {
     "message": "Primární instance"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "Znovu načíst pro aktualizaci"
-  },
   "app.action-bar.show-downloads": {
     "message": "Zobrazit probíhající stahování"
   },
@@ -118,9 +112,6 @@
   },
   "app.action-bar.stop-instance": {
     "message": "Zastavit instanci"
-  },
-  "app.action-bar.update": {
-    "message": "Aktualizovat"
   },
   "app.action-bar.view-active-downloads": {
     "message": "Zobrazit probíhající stahování"
@@ -995,9 +986,6 @@
   "app.quick-instance-switcher.drag-tooltip": {
     "message": "Přetažením změnte velikost"
   },
-  "app.restarting": {
-    "message": "Restartování..."
-  },
   "app.settings.app-version": {
     "message": "Dyad Launcher {version}"
   },
@@ -1037,9 +1025,6 @@
   "app.settings.developer-mode-enabled": {
     "message": "Vývojářský režim povolen."
   },
-  "app.settings.downloading": {
-    "message": "Stahování v{version}"
-  },
   "app.settings.tabs.appearance": {
     "message": "Vzhled"
   },
@@ -1048,9 +1033,6 @@
   },
   "app.settings.tabs.language": {
     "message": "Jazyk"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "Soukromí"
   },
   "app.settings.tabs.resource-management": {
     "message": "Správa zdrojů"
@@ -1192,36 +1174,6 @@
   },
   "app.skins.title": {
     "message": "Výběr skinu"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "Stahování Dyad Launcher v{version} bylo dokončeno. Aktualizujte ji znovunačtením nebo se automaticky aktualizuje po zavření."
-  },
-  "app.update-popup.body.metered": {
-    "message": "Dyad Launcher v{version} je nyní k dispozici! Protože jste v měřené síti, nebyla stažena automaticky."
-  },
-  "app.update-popup.changelog": {
-    "message": "Seznam změn"
-  },
-  "app.update-popup.download": {
-    "message": "Stáhnout ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "Stahování bylo dokončeno"
-  },
-  "app.update-popup.reload": {
-    "message": "Znovu načíst pro aktualizaci"
-  },
-  "app.update-popup.title": {
-    "message": "Aktualizace k dispozici"
-  },
-  "app.update.complete-toast.text": {
-    "message": "Kliknutím sem zobrazíte seznam změn."
-  },
-  "app.update.complete-toast.title": {
-    "message": "Verze {version} byla úspěšně nainstalována!"
-  },
-  "app.update.download-error.missing-version": {
-    "message": "Nepodařilo se stáhnout aktualizaci: není k dispozici žádná verze"
   },
   "app.user.project.install-to-instance": {
     "message": "Instalovat do instance"

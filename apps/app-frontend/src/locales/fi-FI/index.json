@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Ladataan Java-versiota {version}"
   },
-  "app.action-bar.downloading-update": {
-    "message": "Ladataan päivitystä"
-  },
   "app.action-bar.downloads": {
     "message": "Lataukset"
   },
@@ -50,17 +47,11 @@
   "app.action-bar.primary-instance": {
     "message": "Ensisijainen instanssi"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "Lataa uudelleen päivittääksesi"
-  },
   "app.action-bar.show-more-running-instances": {
     "message": "Näytä enemmän käynnissä olevia instansseja"
   },
   "app.action-bar.stop-instance": {
     "message": "Pysäytä instanssi"
-  },
-  "app.action-bar.update": {
-    "message": "Päivitä"
   },
   "app.action-bar.view-active-downloads": {
     "message": "Näytä aktiiviset lataukset"
@@ -335,9 +326,6 @@
   "app.settings.developer-mode-enabled": {
     "message": "Kehittäjätila käytössä."
   },
-  "app.settings.downloading": {
-    "message": "Ladataan v{version}"
-  },
   "app.settings.tabs.appearance": {
     "message": "Ulkonäkö"
   },
@@ -346,9 +334,6 @@
   },
   "app.settings.tabs.language": {
     "message": "Kieli"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "Yksityisyys"
   },
   "app.settings.tabs.resource-management": {
     "message": "Resurssien hallinta"
@@ -493,33 +478,6 @@
   },
   "app.skins.toggle-ears-features-on": {
     "message": "Ota käyttöön"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "Dyad Launcher versio {version} on ladattu. Voit käynnistää sovelluksen uudelleen päivittääksesi heti tai antaa päivityksen asentua automaattisesti, kun suljet Dyad Launcherin."
-  },
-  "app.update-popup.body.metered": {
-    "message": "Dyad Launcher versio {version} on nyt saatavilla! Koska käytät käytön mukaan laskutettavaa verkkoa, emme ladannut sitä automaattisesti."
-  },
-  "app.update-popup.changelog": {
-    "message": "Muutosloki"
-  },
-  "app.update-popup.download": {
-    "message": "Lataa ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "Lataus valmis"
-  },
-  "app.update-popup.reload": {
-    "message": "Lataa uudelleen päivittääksesi"
-  },
-  "app.update-popup.title": {
-    "message": "Päivitys saatavilla"
-  },
-  "app.update.complete-toast.text": {
-    "message": "Klikkaa tästä nähdäksesi muutoslokin."
-  },
-  "app.update.complete-toast.title": {
-    "message": "Versio {version} asennettiin onnistuneesti!"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"

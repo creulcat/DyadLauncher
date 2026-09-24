@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "جار تنزيل إصدار جافا {version}"
   },
-  "app.action-bar.downloading-update": {
-    "message": "جاري تنزيل التحديث"
-  },
   "app.action-bar.downloads": {
     "message": "التنزيلات"
   },
@@ -107,9 +104,6 @@
   "app.action-bar.primary-instance": {
     "message": "النسخة الأساسية"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "أعد التشغيل للتحديث"
-  },
   "app.action-bar.show-downloads": {
     "message": "عرض التنزيلات النشطة"
   },
@@ -118,9 +112,6 @@
   },
   "app.action-bar.stop-instance": {
     "message": "إيقاف النسخة"
-  },
-  "app.action-bar.update": {
-    "message": "تحديث"
   },
   "app.action-bar.view-active-downloads": {
     "message": "عرض التنزيلات النشطة"
@@ -971,9 +962,6 @@
   "app.quick-instance-switcher.drag-tooltip": {
     "message": "اسحب لتغيير حجم"
   },
-  "app.restarting": {
-    "message": "إعادة التشغيل..."
-  },
   "app.settings.app-version": {
     "message": "تطبيق Modrinth {version}"
   },
@@ -1058,20 +1046,11 @@
   "app.settings.developer-mode-enabled": {
     "message": "تم تفعيل وضع المطوّر."
   },
-  "app.settings.downloading": {
-    "message": "جار تنزيل الإصدار {version}"
-  },
   "app.settings.java-installations.location.title": {
     "message": "موقع Java {version, number}"
   },
   "app.settings.operating-system.macos": {
     "message": "macOS"
-  },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "إظهار تطبيق Modrinth كنشاطك الحالي على Discord. لا يؤثر هذا على الـ Rich Presence المُضاف للنسخ بواسطة المودات. يتطلب إعادة تشغيل التطبيق."
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord Rich Presence"
   },
   "app.settings.resource-management.always-show-copy-details.description": {
     "message": "إظهار إجراء \"نسخ التفاصيل\" أثناء إدراج التثبيت في قائمة الانتظار أو تشغيله. يكون متاحاً دائماً للتثبيتات الفاشلة أو المقاطعة."
@@ -1141,9 +1120,6 @@
   },
   "app.settings.tabs.language": {
     "message": "اللغة"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "الخصوصية"
   },
   "app.settings.tabs.resource-management": {
     "message": "إدارة الموارد"
@@ -1312,36 +1288,6 @@
   },
   "app.skins.toggle-ears-features-on": {
     "message": "تشغيل"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "انتهى تنزيل تطبيق Modrinth v{version}. أعد التحميل للتحديث الآن، أو تلقائيًا عند إغلاق تطبيق Modrinth."
-  },
-  "app.update-popup.body.metered": {
-    "message": "تطبيق Modrinth v{version} متاح الآن! وبما أنك متصل بشبكة مقيّدة، لم نقم بتنزيله تلقائيًا."
-  },
-  "app.update-popup.changelog": {
-    "message": "سجل التغيير"
-  },
-  "app.update-popup.download": {
-    "message": "تنزيل ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "اكتمل التنزيل"
-  },
-  "app.update-popup.reload": {
-    "message": "أعد التحميل للتحديث"
-  },
-  "app.update-popup.title": {
-    "message": "تحديث متاح"
-  },
-  "app.update.complete-toast.text": {
-    "message": "انقر هنا لعرض سجلّ التغييرات."
-  },
-  "app.update.complete-toast.title": {
-    "message": "تم تثبيت الإصدار {version} بنجاح!"
-  },
-  "app.update.download-error.missing-version": {
-    "message": "فشل تنزيل التحديث: لا يوجد إصدار متاح"
   },
   "app.user.project.install-to-instance": {
     "message": "التثبيت في النسخة"

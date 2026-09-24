@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Descargando Java {version}"
   },
-  "app.action-bar.downloading-update": {
-    "message": "Descargando actualización"
-  },
   "app.action-bar.downloads": {
     "message": "Descargas"
   },
@@ -107,9 +104,6 @@
   "app.action-bar.primary-instance": {
     "message": "Instancia principal"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "Reinicia para actualizar"
-  },
   "app.action-bar.show-downloads": {
     "message": "Mostrar descargas activas"
   },
@@ -118,9 +112,6 @@
   },
   "app.action-bar.stop-instance": {
     "message": "Detener instancia"
-  },
-  "app.action-bar.update": {
-    "message": "Actualizar"
   },
   "app.action-bar.view-active-downloads": {
     "message": "Ver descargas en curso"
@@ -1040,9 +1031,6 @@
   "app.quick-instance-switcher.drag-tooltip": {
     "message": "Arrastra para cambiar el tamaño"
   },
-  "app.restarting": {
-    "message": "Reiniciando..."
-  },
   "app.settings.app-version": {
     "message": "App de Modrinth {version}"
   },
@@ -1127,20 +1115,11 @@
   "app.settings.developer-mode-enabled": {
     "message": "Modo desarrollador activado."
   },
-  "app.settings.downloading": {
-    "message": "Descargando v{version}"
-  },
   "app.settings.java-installations.location.title": {
     "message": "Directorio de Java {version, number}"
   },
   "app.settings.operating-system.macos": {
     "message": "macOS"
-  },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Mostrar la aplicación de Modrinth como tu actividad actual en Discord. Esto no afecta a cualquier Rich Presence añadida a instancias con mods. Necesita reiniciar la app."
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord Rich Presence"
   },
   "app.settings.resource-management.always-show-copy-details.description": {
     "message": "Muestra la opción 'Copiar detalles' mientras haya una instalación en cola o instalando. Siempre está disponible para las instalaciones fallidas o interrumpidas."
@@ -1210,9 +1189,6 @@
   },
   "app.settings.tabs.language": {
     "message": "Idioma"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "Privacidad"
   },
   "app.settings.tabs.resource-management": {
     "message": "Gestión de recursos"
@@ -1381,36 +1357,6 @@
   },
   "app.skins.toggle-ears-features-on": {
     "message": "Activar"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "La descarga de la Dyad Launcher v{version} ha finalizado. Actualiza ahora o automáticamente al cerrar la Dyad Launcher."
-  },
-  "app.update-popup.body.metered": {
-    "message": "¡La Dyad Launcher v{version} ya está disponible! Al estar usando una red de datos límitada, no la hemos descargado automáticamente."
-  },
-  "app.update-popup.changelog": {
-    "message": "Registro de cambios"
-  },
-  "app.update-popup.download": {
-    "message": "Descargar ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "Descarga completada"
-  },
-  "app.update-popup.reload": {
-    "message": "Reinicia para actualizar"
-  },
-  "app.update-popup.title": {
-    "message": "Actualización disponible"
-  },
-  "app.update.complete-toast.text": {
-    "message": "Haz clic aquí para ver el registro de cambios."
-  },
-  "app.update.complete-toast.title": {
-    "message": "¡La versión {version} se ha instalado correctamente!"
-  },
-  "app.update.download-error.missing-version": {
-    "message": "Error al descargar la actualización: no hay versión disponible"
   },
   "app.user.project.install-to-instance": {
     "message": "Instalar a instancia"

@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Instalacija Jave {version}"
   },
-  "app.action-bar.downloading-update": {
-    "message": "Instaliranje ažuriranja"
-  },
   "app.action-bar.downloads": {
     "message": "Instalacije"
   },
@@ -104,17 +101,11 @@
   "app.action-bar.primary-instance": {
     "message": "Primarna instanca"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "Ponovo učitaj da ažuriraš"
-  },
   "app.action-bar.show-more-running-instances": {
     "message": "Pokaži više pokrenutih instanca"
   },
   "app.action-bar.stop-instance": {
     "message": "Prekini instancu"
-  },
-  "app.action-bar.update": {
-    "message": "Ažuiraj"
   },
   "app.action-bar.view-active-downloads": {
     "message": "Vidi aktivna preuzimanja"
@@ -446,9 +437,6 @@
   "app.settings.developer-mode-enabled": {
     "message": "Režim programera je ukljućen."
   },
-  "app.settings.downloading": {
-    "message": "Instaliranje v{version}"
-  },
   "app.settings.tabs.appearance": {
     "message": "Izgled"
   },
@@ -457,9 +445,6 @@
   },
   "app.settings.tabs.language": {
     "message": "Jezik"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "Privatnost"
   },
   "app.settings.tabs.resource-management": {
     "message": "Upravljanje resursima"
@@ -601,33 +586,6 @@
   },
   "app.skins.title": {
     "message": "Selektor skina"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "Preuzimanje Modrinth aplikacije v{version} je završeno. Ponovo učitaj da bi ažurirao sada ili automatski kada zatvoriš Modrinth aplikaciju."
-  },
-  "app.update-popup.body.metered": {
-    "message": "Modrinth aplikacija v{version} je sada dostupna! Pošto si na mreži sa ograničenjem interneta, nismo je automatski preuzeli."
-  },
-  "app.update-popup.changelog": {
-    "message": "Spisak promena"
-  },
-  "app.update-popup.download": {
-    "message": "Instalacija ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "Preuzimanje je završeno"
-  },
-  "app.update-popup.reload": {
-    "message": "Učitaj ponovo da bi ažurirao"
-  },
-  "app.update-popup.title": {
-    "message": "Dostupno je ažuriranje"
-  },
-  "app.update.complete-toast.text": {
-    "message": "Klikni ovde da bi vidio spisak promena."
-  },
-  "app.update.complete-toast.title": {
-    "message": "Verzija {version} je uspešno instalirana!"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "primer.modrinth.gg"

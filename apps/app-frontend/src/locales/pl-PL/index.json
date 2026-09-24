@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Pobieranie Java {version}"
   },
-  "app.action-bar.downloading-update": {
-    "message": "Pobieranie aktualizacji"
-  },
   "app.action-bar.downloads": {
     "message": "Pobrania"
   },
@@ -107,9 +104,6 @@
   "app.action-bar.primary-instance": {
     "message": "Główna instancja"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "Załaduj ponownie, aby zaktualizować"
-  },
   "app.action-bar.show-downloads": {
     "message": "Pokaż aktywne pobrania"
   },
@@ -118,9 +112,6 @@
   },
   "app.action-bar.stop-instance": {
     "message": "Zatrzymaj instancję"
-  },
-  "app.action-bar.update": {
-    "message": "Zaktualizuj"
   },
   "app.action-bar.view-active-downloads": {
     "message": "Pokaż aktualnie pobierane"
@@ -905,9 +896,6 @@
   "app.quick-instance-switcher.drag-tooltip": {
     "message": "Przeciągnij, by zmienić rozmiar"
   },
-  "app.restarting": {
-    "message": "Uruchamianie ponowne..."
-  },
   "app.settings.app-version": {
     "message": "Dyad Launcher {version}"
   },
@@ -983,20 +971,11 @@
   "app.settings.developer-mode-enabled": {
     "message": "Tryb dewelopera włączony."
   },
-  "app.settings.downloading": {
-    "message": "Pobieranie v{version}"
-  },
   "app.settings.java-installations.location.title": {
     "message": "Ścieżka do Java {version, number}"
   },
   "app.settings.operating-system.macos": {
     "message": "macOS"
-  },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Pokazuj Dyad Launcher jako aktywność na Discord. Nie wpływa to na Rich Presence dodane do instancji przez mody. Wymaga ponownego uruchomienia aplikacji."
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord Rich Presence"
   },
   "app.settings.resource-management.app-cache.confirm.title": {
     "message": "Wyczyścić pamięć podręczną aplikacji?"
@@ -1045,9 +1024,6 @@
   },
   "app.settings.tabs.language": {
     "message": "Język"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "Prywatność"
   },
   "app.settings.tabs.resource-management": {
     "message": "Zarządzanie zasobami"
@@ -1204,36 +1180,6 @@
   },
   "app.skins.toggle-ears-features-on": {
     "message": "Włącz"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "Wersja Dyad Launcher v{version} została pobrana. Załaduj ponownie, żeby zaktualizować teraz, albo automatycznie, gdy zamkniesz Dyad Launcher."
-  },
-  "app.update-popup.body.metered": {
-    "message": "Wersja Dyad Launcher v{version} jest dostępna! Skoro korzystasz z sieci taryfowej, nie pobraliśmy jej automatycznie."
-  },
-  "app.update-popup.changelog": {
-    "message": "Dziennik zmian"
-  },
-  "app.update-popup.download": {
-    "message": "Pobierz ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "Pobieranie ukończone"
-  },
-  "app.update-popup.reload": {
-    "message": "Załaduj ponownie, by zaktualizować"
-  },
-  "app.update-popup.title": {
-    "message": "Dostępna aktualizacja"
-  },
-  "app.update.complete-toast.text": {
-    "message": "Kliknij, by pokazać dziennik zmian."
-  },
-  "app.update.complete-toast.title": {
-    "message": "Wersja {version} została pomyślnie zainstalowana!"
-  },
-  "app.update.download-error.missing-version": {
-    "message": "Nie udało się pobrać aktualizacji: brak dostępnej wersji"
   },
   "app.user.project.install-to-instance": {
     "message": "Zainstaluj do instancji"

@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Завантаження Java {version}"
   },
-  "app.action-bar.downloading-update": {
-    "message": "Завантаження оновлення"
-  },
   "app.action-bar.downloads": {
     "message": "Завантаження"
   },
@@ -107,9 +104,6 @@
   "app.action-bar.primary-instance": {
     "message": "Основний примірник"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "Перезапустити для оновлення"
-  },
   "app.action-bar.show-downloads": {
     "message": "Показати активні завантаження"
   },
@@ -118,9 +112,6 @@
   },
   "app.action-bar.stop-instance": {
     "message": "Зупинити примірник"
-  },
-  "app.action-bar.update": {
-    "message": "Оновити"
   },
   "app.action-bar.view-active-downloads": {
     "message": "Переглянути поточні завантаження"
@@ -824,9 +815,6 @@
   "app.quick-instance-switcher.drag-tooltip": {
     "message": "Перетягніть, щоб змінити розмір"
   },
-  "app.restarting": {
-    "message": "Перезапуск..."
-  },
   "app.settings.app-version": {
     "message": "Dyad Launcher {version}"
   },
@@ -911,20 +899,11 @@
   "app.settings.developer-mode-enabled": {
     "message": "Увімкнено режим розробника."
   },
-  "app.settings.downloading": {
-    "message": "Завантаження v{version}"
-  },
   "app.settings.java-installations.location.title": {
     "message": "Розташування Java {version, number}"
   },
   "app.settings.operating-system.macos": {
     "message": "macOS"
-  },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Показувати Dyad Launcher як вашу поточну активність у Discord. Це не впливає на Rich Presence, доданий до збірок модами. Потребує перезапуску застосунку."
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord Rich Presence"
   },
   "app.settings.resource-management.always-show-copy-details.description": {
     "message": "Показувати кнопку «Копіювати деталі», коли встановлення перебуває в черзі або виконується. Вона завжди доступна для невдалих або перерваних встановлень."
@@ -994,9 +973,6 @@
   },
   "app.settings.tabs.language": {
     "message": "Мова"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "Конфіденційність"
   },
   "app.settings.tabs.resource-management": {
     "message": "Керування ресурсами"
@@ -1150,33 +1126,6 @@
   },
   "app.skins.toggle-ears-features-on": {
     "message": "Увімкнути"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "Dyad Launcher v{version} завантажено. Перезапустіть, щоб оновити зараз, або це відбудеться автоматично після закриття застосунку."
-  },
-  "app.update-popup.body.metered": {
-    "message": "Dyad Launcher v{version} вже доступно! Оскільки ви використовуєте лімітне підключення, ми не завантажили його автоматично."
-  },
-  "app.update-popup.changelog": {
-    "message": "Список змін"
-  },
-  "app.update-popup.download": {
-    "message": "Завантажити ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "Завантаження завершено"
-  },
-  "app.update-popup.reload": {
-    "message": "Перезавантаження для оновлення"
-  },
-  "app.update-popup.title": {
-    "message": "Доступне оновлення"
-  },
-  "app.update.complete-toast.text": {
-    "message": "Натисніть тут, щоб переглянути список змін."
-  },
-  "app.update.complete-toast.title": {
-    "message": "Версію {version} успішно встановлено!"
   },
   "app.user.project.install-to-instance": {
     "message": "Установити в примірник"

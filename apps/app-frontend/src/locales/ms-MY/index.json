@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Sedang memuat turun Java {version}"
   },
-  "app.action-bar.downloading-update": {
-    "message": "Sedang memuat turun kemas kini"
-  },
   "app.action-bar.downloads": {
     "message": "Muat Turun"
   },
@@ -40,9 +37,6 @@
   },
   "app.action-bar.stop-instance": {
     "message": "Hentikan pemasangan"
-  },
-  "app.action-bar.update": {
-    "message": "Kemas kini"
   },
   "app.action-bar.view-active-downloads": {
     "message": "Lihat muat turun aktif"
@@ -302,9 +296,6 @@
   "app.settings.developer-mode-enabled": {
     "message": "Mod pembangun didayakan."
   },
-  "app.settings.downloading": {
-    "message": "Sedang memuat turun v{version}"
-  },
   "app.settings.operating-system.macos": {
     "message": "macOS"
   },
@@ -316,9 +307,6 @@
   },
   "app.settings.tabs.language": {
     "message": "Bahasa"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "Privasi"
   },
   "app.settings.tabs.resource-management": {
     "message": "Pengurusan sumber"
@@ -415,30 +403,6 @@
   },
   "app.skins.title": {
     "message": "Pemilih kekulit"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "Dyad Launcher v{version} sudah selesai dimuat turun! Muat semula untuk kemas kini sekarang, atau kemas kini secara automatik apabila anda menutup Dyad Launcher."
-  },
-  "app.update-popup.body.metered": {
-    "message": "Dyad Launcher v{version} kini tersedia! Memandangkan anda sedang menggunakan rangkaian bermeter, kami tidak memuat turunnya secara automatik."
-  },
-  "app.update-popup.changelog": {
-    "message": "Log perubahan"
-  },
-  "app.update-popup.download": {
-    "message": "Muat turun ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "Muat turun selesai"
-  },
-  "app.update-popup.title": {
-    "message": "Kemas kini tersedia"
-  },
-  "app.update.complete-toast.text": {
-    "message": "Klik di sini untuk melihat log perubahan."
-  },
-  "app.update.complete-toast.title": {
-    "message": "Versi {version} telah berjaya dipasang!"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"

@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Java {version} をダウンロード中"
   },
-  "app.action-bar.downloading-update": {
-    "message": "アップデートをダウンロード中"
-  },
   "app.action-bar.downloads": {
     "message": "ダウンロード"
   },
@@ -107,9 +104,6 @@
   "app.action-bar.primary-instance": {
     "message": "デフォルトのインスタンス"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "再読み込みしてアップデート"
-  },
   "app.action-bar.show-downloads": {
     "message": "進行中のダウンロードを表示"
   },
@@ -118,9 +112,6 @@
   },
   "app.action-bar.stop-instance": {
     "message": "インスタンスを停止"
-  },
-  "app.action-bar.update": {
-    "message": "アップデート"
   },
   "app.action-bar.view-active-downloads": {
     "message": "進行中のダウンロードを表示"
@@ -575,9 +566,6 @@
   "app.quick-instance-switcher.drag-tooltip": {
     "message": "ドラッグしてサイズ変更"
   },
-  "app.restarting": {
-    "message": "再起動中..."
-  },
   "app.settings.app-version": {
     "message": "Dyad Launcher {version}"
   },
@@ -662,20 +650,11 @@
   "app.settings.developer-mode-enabled": {
     "message": "開発者モードがオンになっています。"
   },
-  "app.settings.downloading": {
-    "message": "v{version}をダウンロード中"
-  },
   "app.settings.java-installations.location.title": {
     "message": "Java {version, number} の場所"
   },
   "app.settings.operating-system.macos": {
     "message": "MacOS"
-  },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Discordの現在のプレイ中に Dyad Launcher を表示します。これはModによってインスタンスに追加されるRich Presenceには影響しません。適用にはアプリの再起動が必要です。"
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord Rich Presence"
   },
   "app.settings.resource-management.always-show-copy-details.description": {
     "message": "インストールの保留中または実行中に「詳細をコピー」アクションを表示します。失敗または中断されたインストールでは常に利用可能です。"
@@ -745,9 +724,6 @@
   },
   "app.settings.tabs.language": {
     "message": "言語"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "プライバシー設定"
   },
   "app.settings.tabs.resource-management": {
     "message": "リソース管理"
@@ -901,33 +877,6 @@
   },
   "app.skins.toggle-ears-features-on": {
     "message": "オンに切り替え"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "Dyad Launcher v{version} のダウンロードが完了しました。今すぐ更新するには再読み込みするか、Dyad Launcherを閉じる際に自動更新されます。"
-  },
-  "app.update-popup.body.metered": {
-    "message": "Dyad Launcher v{version} が利用可能になりました！お使いのネットワークが従量制のため、自動ダウンロードは行っておりません。"
-  },
-  "app.update-popup.changelog": {
-    "message": "更新履歴"
-  },
-  "app.update-popup.download": {
-    "message": "ダウンロード ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "ダウンロード完了"
-  },
-  "app.update-popup.reload": {
-    "message": "再度読み込みして更新"
-  },
-  "app.update-popup.title": {
-    "message": "アップデートが利用可能です"
-  },
-  "app.update.complete-toast.text": {
-    "message": "クリックすると更新履歴を表示できます。"
-  },
-  "app.update.complete-toast.title": {
-    "message": "バージョン {version} が正常にインストールされました！"
   },
   "app.user.project.install-to-instance": {
     "message": "インスタンスにインストール"

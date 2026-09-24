@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "Laster ned Java {version}"
   },
-  "app.action-bar.downloading-update": {
-    "message": "Laster ned oppdatering"
-  },
   "app.action-bar.downloads": {
     "message": "Nedlastninger"
   },
@@ -35,17 +32,11 @@
   "app.action-bar.primary-instance": {
     "message": "Primærtilfelle"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "Last inn på nytt for å oppdatere"
-  },
   "app.action-bar.show-more-running-instances": {
     "message": "Vis flere kjørende tilfeller"
   },
   "app.action-bar.stop-instance": {
     "message": "Stopp tilfelle"
-  },
-  "app.action-bar.update": {
-    "message": "Oppdater"
   },
   "app.action-bar.view-active-downloads": {
     "message": "Vis aktive nedlastninger"
@@ -185,9 +176,6 @@
   "app.settings.developer-mode-enabled": {
     "message": "Utviklermodus aktivert."
   },
-  "app.settings.downloading": {
-    "message": "Laster ned v{version}"
-  },
   "app.settings.tabs.appearance": {
     "message": "Utseende"
   },
@@ -197,17 +185,8 @@
   "app.settings.tabs.language": {
     "message": "Språk"
   },
-  "app.settings.tabs.privacy": {
-    "message": "Personvern"
-  },
   "app.settings.tabs.resource-management": {
     "message": "Ressursforvaltning"
-  },
-  "app.update.complete-toast.text": {
-    "message": "Klikk her for å se endringsloggen."
-  },
-  "app.update.complete-toast.title": {
-    "message": "Versjon {version} ble installert!"
   },
   "instance.add-server.add-and-play": {
     "message": "Legg til og spill"

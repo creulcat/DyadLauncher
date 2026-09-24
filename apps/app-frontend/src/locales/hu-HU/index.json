@@ -2,9 +2,6 @@
   "app.action-bar.downloading-java": {
     "message": "A Java {version} letöltése"
   },
-  "app.action-bar.downloading-update": {
-    "message": "Frissítés letöltése"
-  },
   "app.action-bar.downloads": {
     "message": "Letöltések"
   },
@@ -107,9 +104,6 @@
   "app.action-bar.primary-instance": {
     "message": "Elsődleges példány"
   },
-  "app.action-bar.reload-to-update": {
-    "message": "Töltsd újra a frissítéshez"
-  },
   "app.action-bar.show-downloads": {
     "message": "Aktív letöltések megjelenítése"
   },
@@ -118,9 +112,6 @@
   },
   "app.action-bar.stop-instance": {
     "message": "Példány leállítása"
-  },
-  "app.action-bar.update": {
-    "message": "Frissítés"
   },
   "app.action-bar.view-active-downloads": {
     "message": "Aktív letöltések megtekintése"
@@ -785,9 +776,6 @@
   "app.quick-instance-switcher.drag-tooltip": {
     "message": "Átméretezés húzással"
   },
-  "app.restarting": {
-    "message": "Újraindítás..."
-  },
   "app.settings.app-version": {
     "message": "Dyad Launcher {version}"
   },
@@ -872,20 +860,11 @@
   "app.settings.developer-mode-enabled": {
     "message": "Fejlesztői mód bekapcsolva."
   },
-  "app.settings.downloading": {
-    "message": "v{version} letöltése"
-  },
   "app.settings.java-installations.location.title": {
     "message": "A Java {version, number} helye"
   },
   "app.settings.operating-system.macos": {
     "message": "macOS"
-  },
-  "app.settings.privacy.discord-rich-presence.description": {
-    "message": "A Dyad Launcher megjelenítése aktuális tevékenységként a Discordon. Ez nem érinti a modok által a példányokhoz hozzáadott Rich Presence-t. Az alkalmazás újraindítását igényli."
-  },
-  "app.settings.privacy.discord-rich-presence.title": {
-    "message": "Discord Rich Presence"
   },
   "app.settings.resource-management.always-show-copy-details.description": {
     "message": "A „Részletek másolása” művelet megjelenítése, amíg a telepítés várólistán van vagy fut. A művelet mindig elérhető a sikertelen vagy megszakított telepítések esetén."
@@ -955,9 +934,6 @@
   },
   "app.settings.tabs.language": {
     "message": "Nyelv"
-  },
-  "app.settings.tabs.privacy": {
-    "message": "Adatvédelem"
   },
   "app.settings.tabs.resource-management": {
     "message": "Erőforráskezelés"
@@ -1111,33 +1087,6 @@
   },
   "app.skins.toggle-ears-features-on": {
     "message": "Bekapcsolás"
-  },
-  "app.update-popup.body.download-complete": {
-    "message": "A Dyad Launcher v{version} letöltése befejeződött. Válaszd a Frissítés lehetőséget a frissítéshez, vagy az alkalmazás bezárásakor automatikusan frissül."
-  },
-  "app.update-popup.body.metered": {
-    "message": "A Dyad Launcher v{version} már elérhető! Mivel korlátozott adatforgalmú hálózaton vagy, nem töltöttük le automatikusan."
-  },
-  "app.update-popup.changelog": {
-    "message": "Változásnapló"
-  },
-  "app.update-popup.download": {
-    "message": "Letöltés ({size})"
-  },
-  "app.update-popup.download-complete": {
-    "message": "Letöltés befejezve"
-  },
-  "app.update-popup.reload": {
-    "message": "Frissítés"
-  },
-  "app.update-popup.title": {
-    "message": "Frissítés elérhető"
-  },
-  "app.update.complete-toast.text": {
-    "message": "Kattints ide a változások megtekintéséhez."
-  },
-  "app.update.complete-toast.title": {
-    "message": "Verzió {version} sikeresen telepítve!"
   },
   "app.user.project.install-to-instance": {
     "message": "Telepítés a példányba"
