@@ -216,13 +216,10 @@ jobs:
             target/release/bundle/appimage/Dyad Launcher (dev-*)_*.AppImage*
             target/release/bundle/deb/Dyad Launcher (dev-*)_*.deb*
             target/release/bundle/rpm/Dyad Launcher (dev-*)-*.rpm*
-            target/universal-apple-darwin/release/bundle/macos/Dyad Launcher.app.tar.gz*
-            target/universal-apple-darwin/release/bundle/macos/Dyad Launcher (dev-*)*.app.tar.gz
             target/universal-apple-darwin/release/bundle/dmg/Dyad Launcher (dev-*)*.dmg
             target/universal-apple-darwin/release/bundle/dmg/Dyad Launcher_*.dmg*
             target/release/bundle/nsis/Dyad Launcher_*-setup.exe*
             target/release/bundle/nsis/Dyad Launcher (dev-*)_*-setup.exe*
-            target/release/bundle/nsis/Dyad Launcher_*-setup.nsis.zip*
 
   release:
     name: Release Dyad Launcher
@@ -283,19 +280,13 @@ jobs:
             cp "$src" "release-assets/$dest"
           }
 
-          stage "$MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME" "Dyad Launcher.app.tar.gz" "DyadLauncher_${VERSION}_universal.app.tar.gz"
-          stage "$MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME" "Dyad Launcher.app.tar.gz.sig" "DyadLauncher_${VERSION}_universal.app.tar.gz.sig"
           stage "$MACOS_UNIVERSAL_BUNDLE_ARTIFACT_NAME" "Dyad Launcher_${VERSION}_universal.dmg" "DyadLauncher_${VERSION}_universal.dmg"
 
           stage "$LINUX_X64_BUNDLE_ARTIFACT_NAME" "Dyad Launcher_${VERSION}_amd64.AppImage" "DyadLauncher_${VERSION}_amd64.AppImage"
-          stage "$LINUX_X64_BUNDLE_ARTIFACT_NAME" "Dyad Launcher_${VERSION}_amd64.AppImage.tar.gz" "DyadLauncher_${VERSION}_amd64.AppImage.tar.gz"
-          stage "$LINUX_X64_BUNDLE_ARTIFACT_NAME" "Dyad Launcher_${VERSION}_amd64.AppImage.tar.gz.sig" "DyadLauncher_${VERSION}_amd64.AppImage.tar.gz.sig"
           stage "$LINUX_X64_BUNDLE_ARTIFACT_NAME" "Dyad Launcher_${VERSION}_amd64.deb" "DyadLauncher_${VERSION}_amd64.deb"
           stage "$LINUX_X64_BUNDLE_ARTIFACT_NAME" "Dyad Launcher-${VERSION}-1.x86_64.rpm" "DyadLauncher-${VERSION}-1.x86_64.rpm"
 
           stage "$WINDOWS_X64_BUNDLE_ARTIFACT_NAME" "Dyad Launcher_${VERSION}_x64-setup.exe" "DyadLauncher_${VERSION}_x64-setup.exe"
-          stage "$WINDOWS_X64_BUNDLE_ARTIFACT_NAME" "Dyad Launcher_${VERSION}_x64-setup.nsis.zip" "DyadLauncher_${VERSION}_x64-setup.nsis.zip"
-          stage "$WINDOWS_X64_BUNDLE_ARTIFACT_NAME" "Dyad Launcher_${VERSION}_x64-setup.nsis.zip.sig" "DyadLauncher_${VERSION}_x64-setup.nsis.zip.sig"
 
           ls -la release-assets/
 
@@ -303,31 +294,21 @@ jobs:
         env:
           RELEASE_BASE_URL: https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION_TAG }}
         run: |
-          # Reference: https://tauri.app/plugin/updater/#server-support
           jq -nc \
             --arg versionTag "${VERSION_TAG#v}" \
             --rawfile releaseNotes release-notes.md \
-            --rawfile macOsUpdateArtifactSignature "release-assets/DyadLauncher_${VERSION_TAG#v}_universal.app.tar.gz.sig" \
-            --rawfile linuxX64UpdateArtifactSignature "release-assets/DyadLauncher_${VERSION_TAG#v}_amd64.AppImage.tar.gz.sig" \
-            --rawfile windowsX64UpdateArtifactSignature "release-assets/DyadLauncher_${VERSION_TAG#v}_x64-setup.nsis.zip.sig" \
           '{
             "version": $versionTag,
             "notes": $releaseNotes,
             "pub_date": now | todateiso8601,
             "platforms": {
               "darwin-aarch64": {
-                "signature": $macOsUpdateArtifactSignature,
-                "url": "${{ env.RELEASE_BASE_URL }}/DyadLauncher_\($versionTag)_universal.app.tar.gz",
                 "install_urls": ["${{ env.RELEASE_BASE_URL }}/DyadLauncher_\($versionTag)_universal.dmg"]
               },
               "darwin-x86_64": {
-                "signature": $macOsUpdateArtifactSignature,
-                "url": "${{ env.RELEASE_BASE_URL }}/DyadLauncher_\($versionTag)_universal.app.tar.gz",
                 "install_urls": ["${{ env.RELEASE_BASE_URL }}/DyadLauncher_\($versionTag)_universal.dmg"]
               },
               "linux-x86_64": {
-                "signature": $linuxX64UpdateArtifactSignature,
-                "url": "${{ env.RELEASE_BASE_URL }}/DyadLauncher_\($versionTag)_amd64.AppImage.tar.gz",
                 "install_urls": [
                   "${{ env.RELEASE_BASE_URL }}/DyadLauncher_\($versionTag)_amd64.deb",
                   "${{ env.RELEASE_BASE_URL }}/DyadLauncher_\($versionTag)_amd64.AppImage",
@@ -335,8 +316,6 @@ jobs:
                 ]
               },
               "windows-x86_64": {
-                "signature": $windowsX64UpdateArtifactSignature,
-                "url": "${{ env.RELEASE_BASE_URL }}/DyadLauncher_\($versionTag)_x64-setup.nsis.zip",
                 "install_urls": ["${{ env.RELEASE_BASE_URL }}/DyadLauncher_\($versionTag)_x64-setup.exe"]
               }
             }
@@ -361,7 +340,6 @@ jobs:
             "release-assets/DyadLauncher_${VERSION}_amd64.deb" \
             "release-assets/DyadLauncher-${VERSION}-1.x86_64.rpm"
 
-      # The updater feed configured in tauri-release.conf.json points at
-      # .../releases/latest/download/updates.json, which GitHub always resolves to whichever
-      # release is newest. That means publishing this release *is* going live for the updater --
-      # there is no separate publish step.
+      # The app's update check reads .../releases/latest/download/updates.json, which GitHub
+      # always resolves to whichever release is newest. That means publishing this release *is*
+      # going live for the update check -- there is no separate publish step.

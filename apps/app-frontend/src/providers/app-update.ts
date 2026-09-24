@@ -9,8 +9,6 @@ export const RELEASES_PAGE_URL = 'https://github.com/creulcat/DyadLauncher/relea
 const CHECK_INTERVAL_MS = 60 * 60 * 1000
 
 interface UpdateManifestPlatform {
-	url: string
-	signature: string
 	install_urls: string[]
 }
 
