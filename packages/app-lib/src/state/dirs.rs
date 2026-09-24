@@ -15,6 +15,11 @@ pub const INSTANCES_FOLDER_NAME: &str = "profiles";
 pub const METADATA_FOLDER_NAME: &str = "meta";
 pub const SYNCED_OPTIONS_FOLDER_NAME: &str = "synced-options";
 
+const DATABASE_FILE_NAME: &str = "app.db";
+
+/// The Tauri identifier used up to v0.1.3, before it became `com.dyadlauncher.app`.
+const LEGACY_APP_IDENTIFIER: &str = "DyadLauncher";
+
 #[derive(Debug)]
 pub struct DirectoryInfo {
     pub settings_dir: PathBuf, // Base settings directory- app database
@@ -34,8 +39,36 @@ impl DirectoryInfo {
     // Get the settings directory
     // init() is not needed for this function
     pub fn initial_settings_dir_path(app_identifier: &str) -> Option<PathBuf> {
-        Self::env_path("THESEUS_CONFIG_DIR")
-            .or_else(|| Some(dirs::data_dir()?.join(app_identifier)))
+        Self::env_path("THESEUS_CONFIG_DIR").or_else(|| {
+            Some(Self::resolve_settings_dir(
+                &dirs::data_dir()?,
+                app_identifier,
+            ))
+        })
+    }
+
+    /// Picks `<data_dir>/<app_identifier>`, except when only the pre-0.1.4
+    /// [`LEGACY_APP_IDENTIFIER`] folder holds an `app.db`: the identifier was renamed
+    /// then, and switching folders silently made every existing install look empty.
+    /// The legacy folder is used in place rather than moved, since the database stores
+    /// absolute paths (Java installs, symlinked content) that a move would break.
+    ///
+    /// Checks for `app.db` rather than the folder itself, because the logger creates
+    /// `launcher_logs` in the new folder before the database is opened.
+    fn resolve_settings_dir(data_dir: &Path, app_identifier: &str) -> PathBuf {
+        let current = data_dir.join(app_identifier);
+        if app_identifier == LEGACY_APP_IDENTIFIER
+            || current.join(DATABASE_FILE_NAME).exists()
+        {
+            return current;
+        }
+
+        let legacy = data_dir.join(LEGACY_APP_IDENTIFIER);
+        if legacy.join(DATABASE_FILE_NAME).exists() {
+            legacy
+        } else {
+            current
+        }
     }
 
     /// Get all paths needed for Theseus to operate properly
@@ -525,5 +558,59 @@ impl DirectoryInfo {
         settings.update(exec).await?;
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const NEW_ID: &str = "com.dyadlauncher.app";
+
+    fn touch_db(dir: &Path) {
+        std::fs::create_dir_all(dir).unwrap();
+        std::fs::write(dir.join(DATABASE_FILE_NAME), "").unwrap();
+    }
+
+    #[test]
+    fn fresh_install_uses_the_new_identifier() {
+        let data = tempfile::tempdir().unwrap();
+        assert_eq!(
+            DirectoryInfo::resolve_settings_dir(data.path(), NEW_ID),
+            data.path().join(NEW_ID)
+        );
+    }
+
+    #[test]
+    fn legacy_database_is_kept_in_place() {
+        let data = tempfile::tempdir().unwrap();
+        touch_db(&data.path().join(LEGACY_APP_IDENTIFIER));
+        assert_eq!(
+            DirectoryInfo::resolve_settings_dir(data.path(), NEW_ID),
+            data.path().join(LEGACY_APP_IDENTIFIER)
+        );
+    }
+
+    #[test]
+    fn logger_created_folder_does_not_hide_legacy_database() {
+        let data = tempfile::tempdir().unwrap();
+        touch_db(&data.path().join(LEGACY_APP_IDENTIFIER));
+        std::fs::create_dir_all(data.path().join(NEW_ID).join("launcher_logs"))
+            .unwrap();
+        assert_eq!(
+            DirectoryInfo::resolve_settings_dir(data.path(), NEW_ID),
+            data.path().join(LEGACY_APP_IDENTIFIER)
+        );
+    }
+
+    #[test]
+    fn existing_new_database_wins() {
+        let data = tempfile::tempdir().unwrap();
+        touch_db(&data.path().join(LEGACY_APP_IDENTIFIER));
+        touch_db(&data.path().join(NEW_ID));
+        assert_eq!(
+            DirectoryInfo::resolve_settings_dir(data.path(), NEW_ID),
+            data.path().join(NEW_ID)
+        );
     }
 }
